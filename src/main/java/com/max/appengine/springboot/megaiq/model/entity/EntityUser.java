@@ -14,11 +14,15 @@
 
 package com.max.appengine.springboot.megaiq.model.entity;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
-// @Entity
-// @Table(name = "user")
+@Entity
+@Table(name = "user")
 public abstract class EntityUser {
+  @Id
   private Integer id;
   private String email;
   private String name;

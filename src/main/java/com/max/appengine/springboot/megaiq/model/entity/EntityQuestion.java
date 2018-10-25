@@ -16,12 +16,16 @@ package com.max.appengine.springboot.megaiq.model.entity;
 
 import java.util.ArrayList;
 import java.util.Date;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import com.max.appengine.springboot.megaiq.model.enums.IqQuestionGroup;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
-//@Entity
-//@Table(name = "question")
+@Entity
+@Table(name = "question")
 public abstract class EntityQuestion {
+  @Id
   private Integer id;
   private String pic;
   private Integer points;

@@ -17,15 +17,18 @@ package com.max.appengine.springboot.megaiq.model.entity;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import com.max.appengine.springboot.megaiq.model.QuestionGroupsResult;
-import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
-// @Entity
-// @Table(name = "user_test_result")
+@Entity
+@Table(name = "user_test_result")
 public abstract class EntityTestResult {
+  @Id
   private Integer id;
   private UUID code;
   private String url;

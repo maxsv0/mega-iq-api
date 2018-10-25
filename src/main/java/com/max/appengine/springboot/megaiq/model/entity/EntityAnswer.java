@@ -15,11 +15,15 @@
 package com.max.appengine.springboot.megaiq.model.entity;
 
 import java.util.Date;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
-//@Entity
-//@Table(name = "answer")
+@Entity
+@Table(name = "answer")
 public abstract class EntityAnswer {
+  @Id
   private Integer id;
   private String pic;
   private Integer questionId;
