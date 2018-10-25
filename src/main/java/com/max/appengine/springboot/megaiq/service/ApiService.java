@@ -47,6 +47,12 @@ public class ApiService {
   public ResponseEntity<EntityApiResponseBase> iqTestDetailsPublic(UUID testCode, Locale locale) {
 
     TestResult resultData = loadFullResultData(testCode, locale);
+    if (resultData == null) {
+      EntityApiResponseBase result = new EntityApiResponseError("Wrong request");
+
+      return new ResponseEntity<EntityApiResponseBase>(result, HttpStatus.OK);
+    }
+    
     EntityApiTestResult testResult = new EntityApiTestResult(resultData, false);
 
     EntityApiResponseBase result = new EntityApiResponseTestResult(testResult);
@@ -58,6 +64,12 @@ public class ApiService {
       Locale locale) {
 
     TestResult resultData = loadFullResultData(testCode, locale);
+    if (resultData == null) {
+      EntityApiResponseBase result = new EntityApiResponseError("Wrong request");
+
+      return new ResponseEntity<EntityApiResponseBase>(result, HttpStatus.OK);
+    }
+    
     EntityApiTestResult testResult = new EntityApiTestResult(resultData, true);
    
     // private result can be requested only be user himself
