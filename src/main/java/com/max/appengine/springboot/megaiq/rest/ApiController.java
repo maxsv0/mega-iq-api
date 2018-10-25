@@ -22,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.max.appengine.springboot.megaiq.model.entity.EntityApiResponseBase;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
@@ -53,11 +54,15 @@ public class ApiController {
 
   @RequestMapping(value = "/test/{testCode}", method = RequestMethod.GET)
   public ResponseEntity<EntityApiResponseBase> iqTestDetails(@PathVariable UUID testCode,
-      @PathVariable Optional<String> token, @PathVariable Optional<String> locale) {
+      @RequestParam Optional<String> token, @RequestParam Optional<String> locale) {
 
     Locale userLocale = Locale.EN;
     if (locale.isPresent()) {
-      userLocale = Locale.valueOf(locale.get());
+      try {
+        userLocale = Locale.valueOf(locale.get());
+      } catch (IllegalArgumentException e) {
+        userLocale = Locale.EN;
+      }
     }
 
     if (token.isPresent()) {

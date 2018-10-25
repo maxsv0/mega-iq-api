@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.entity.EntityApiResponseBase;
+import com.max.appengine.springboot.megaiq.model.entity.EntityApiResponseError;
 import com.max.appengine.springboot.megaiq.model.entity.EntityApiResponseTestResult;
 import com.max.appengine.springboot.megaiq.model.entity.EntityApiTestResult;
 import com.max.appengine.springboot.megaiq.model.entity.EntityApiUser;
@@ -33,6 +34,7 @@ public class ApiService {
   // reps:
   // userTestResult
   // questionSet
+  // users
 
 
   public ResponseEntity<EntityApiResponseBase> index(HttpServletRequest request) {
@@ -57,12 +59,17 @@ public class ApiService {
 
     TestResult resultData = loadFullResultData(testCode, locale);
     EntityApiTestResult testResult = new EntityApiTestResult(resultData, true);
-    EntityApiUser userApi = new EntityApiUser(user);
-    testResult.setUser(userApi);
+   
+    // private result can be requested only be user himself
+    if (!user.getId().equals(resultData.getUserId())) {
+      EntityApiResponseBase result = new EntityApiResponseError("Wrong token");
 
-    EntityApiResponseBase result = new EntityApiResponseTestResult(testResult);
-
-    return new ResponseEntity<EntityApiResponseBase>(result, HttpStatus.OK);
+      return new ResponseEntity<EntityApiResponseBase>(result, HttpStatus.OK);
+    } else {
+      EntityApiResponseBase result = new EntityApiResponseTestResult(testResult);
+      
+      return new ResponseEntity<EntityApiResponseBase>(result, HttpStatus.OK);
+    }
   }
 
   private TestResult loadFullResultData(UUID testCode, Locale locale) {
@@ -71,9 +78,18 @@ public class ApiService {
     // TODO: load from rep
     testResult.setCode(testCode);
     testResult.setLocale(locale);
+    testResult.setUser(getUserById(testResult.getUserId()));
 
     return testResult;
   }
 
+  private User getUserById(Integer userId) {
+    User user = new User();
+
+    // TODO: load from rep
+    user.setId(userId);
+
+    return user;
+  }
 
 }

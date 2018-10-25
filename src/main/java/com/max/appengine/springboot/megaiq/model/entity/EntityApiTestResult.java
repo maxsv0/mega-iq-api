@@ -18,12 +18,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.max.appengine.springboot.megaiq.model.QuestionGroupsResult;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.service.QuestionsService;
 
+@JsonInclude(Include.NON_NULL)
 public class EntityApiTestResult {
   private UUID code;
   private String url;
@@ -58,10 +61,12 @@ public class EntityApiTestResult {
       this.setUpdateDate(testResult.getUpdateDate());
       this.setQuestionSet(new ArrayList<EntityApiQuestion>());
 
-      for (EntityQuestionUser questionUser : testResult.getQuestionSet()) {
-        EntityApiQuestion apiQuestion = new EntityApiQuestion(questionUser,
-            serviceQuestions.getQuestionById(questionUser.getId(), questionUser.getLocale()));
-        this.getQuestionSet().add(apiQuestion);
+      if (testResult.getQuestionSet() != null) {
+        for (EntityQuestionUser questionUser : testResult.getQuestionSet()) {
+          EntityApiQuestion apiQuestion = new EntityApiQuestion(questionUser,
+              serviceQuestions.getQuestionById(questionUser.getId(), questionUser.getLocale()));
+          this.getQuestionSet().add(apiQuestion);
+        }
       }
     }
   }

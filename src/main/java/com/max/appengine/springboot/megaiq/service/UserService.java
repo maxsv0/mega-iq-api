@@ -37,6 +37,7 @@ public class UserService {
   public User getUserByToken(String token) {
     User resultUser = new User();
 
+    resultUser.setId(null);
     // TODO: come code here
 
     return resultUser;

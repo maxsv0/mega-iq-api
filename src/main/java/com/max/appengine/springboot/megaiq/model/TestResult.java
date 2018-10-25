@@ -17,5 +17,15 @@ package com.max.appengine.springboot.megaiq.model;
 import com.max.appengine.springboot.megaiq.model.entity.EntityTestResult;
 
 public class TestResult extends EntityTestResult {
+  private User user;
+
+  public User getUser() {
+    return user;
+  }
+
+  public void setUser(User user) {
+    this.user = user;
+  }
+
 
 }

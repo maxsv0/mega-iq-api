@@ -23,13 +23,13 @@ import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
-//@Entity
-//@Table(name = "user_test_result")
+// @Entity
+// @Table(name = "user_test_result")
 public abstract class EntityTestResult {
   private Integer id;
   private UUID code;
   private String url;
-  private User user;
+  private Integer userId;
   private IqTestType type;
   private Locale locale;
   private IqTestStatus status;
@@ -64,12 +64,12 @@ public abstract class EntityTestResult {
     this.url = url;
   }
 
-  public User getUser() {
-    return user;
+  public Integer getUserId() {
+    return userId;
   }
 
-  public void setUser(User user) {
-    this.user = user;
+  public void setUserId(Integer userId) {
+    this.userId = userId;
   }
 
   public IqTestType getType() {
