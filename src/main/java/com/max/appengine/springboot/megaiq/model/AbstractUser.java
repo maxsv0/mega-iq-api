@@ -12,14 +12,10 @@
  * the License.
  */
 
-package com.max.appengine.springboot.megaiq.repository;
+package com.max.appengine.springboot.megaiq.model;
 
-/*
- * import org.springframework.data.jpa.repository.JpaRepository;
- * 
- * import com.max.appengine.springboot.megaiq.model.IQQuestionsSet;
- * 
- * public interface QuestionsSetRepository extends JpaRepository<IQQuestionsSet, Integer> {
- * 
- * }
- */
+import com.max.appengine.springboot.megaiq.model.entity.EntityUser;
+
+public abstract class AbstractUser extends EntityUser {
+
+}

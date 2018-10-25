@@ -14,24 +14,41 @@
 
 package com.max.appengine.springboot.megaiq.model;
 
-public class IQAnswer {
-  private Integer id;
-  private String pic;
+public class QuestionGroupsResult {
+  private Integer math;
+  private Integer logic;
+  private Integer grammar;
+  private Integer horizons;
 
-  public Integer getId() {
-    return id;
+  public Integer getMath() {
+    return math;
   }
 
-  public void setId(Integer id) {
-    this.id = id;
+  public void setMath(Integer math) {
+    this.math = math;
   }
 
-  public String getPic() {
-    return pic;
+  public Integer getLogic() {
+    return logic;
   }
 
-  public void setPic(String pic) {
-    this.pic = pic;
+  public void setLogic(Integer logic) {
+    this.logic = logic;
   }
 
+  public Integer getGrammar() {
+    return grammar;
+  }
+
+  public void setGrammar(Integer grammar) {
+    this.grammar = grammar;
+  }
+
+  public Integer getHorizons() {
+    return horizons;
+  }
+
+  public void setHorizons(Integer horizons) {
+    this.horizons = horizons;
+  }
 }

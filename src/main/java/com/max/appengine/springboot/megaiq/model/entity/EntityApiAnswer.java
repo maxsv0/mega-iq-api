@@ -12,14 +12,34 @@
  * the License.
  */
 
-package com.max.appengine.springboot.megaiq.repository;
+package com.max.appengine.springboot.megaiq.model.entity;
 
-/*
- * import org.springframework.data.jpa.repository.JpaRepository;
- * 
- * import com.max.appengine.springboot.megaiq.model.IQQuestionsSet;
- * 
- * public interface QuestionsSetRepository extends JpaRepository<IQQuestionsSet, Integer> {
- * 
- * }
- */
+public class EntityApiAnswer {
+  private Integer id;
+  private String pic;
+
+  
+  public EntityApiAnswer(EntityAnswer answer) {
+    super();
+    
+    this.setId(answer.getId());
+    this.setPic(answer.getPic());
+  }
+
+  public Integer getId() {
+    return id;
+  }
+
+  public void setId(Integer id) {
+    this.id = id;
+  }
+
+  public String getPic() {
+    return pic;
+  }
+
+  public void setPic(String pic) {
+    this.pic = pic;
+  }
+
+}
