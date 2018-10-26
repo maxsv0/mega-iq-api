@@ -15,47 +15,57 @@
 package com.max.appengine.springboot.megaiq.service;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.max.appengine.springboot.megaiq.model.Answer;
 import com.max.appengine.springboot.megaiq.model.Question;
+import com.max.appengine.springboot.megaiq.model.entity.EntityAnswer;
+import com.max.appengine.springboot.megaiq.model.entity.EntityQuestion;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
+import com.max.appengine.springboot.megaiq.repository.AnswerReporitory;
+import com.max.appengine.springboot.megaiq.repository.QuestionReporitory;
 
 @Service
 public class QuestionsService {
 
-  private ArrayList<Question> questionsList;
-  private ArrayList<Answer> answersList;
+	private List<EntityQuestion> questionsList;
+	private List<EntityAnswer> answersList;
 
-  public QuestionsService() {
+	private final AnswerReporitory answerReporitory;
+	private final QuestionReporitory questionReporitory;
 
-    // TODO: questions repository
-    // load answers
-    this.answersList = new ArrayList<Answer>();
-    
-    
-    
-    // load question
-    this.questionsList = new ArrayList<Question>();
-  }
+	@Autowired
+	public QuestionsService(AnswerReporitory answerReporitory, QuestionReporitory questionReporitory) {
+		this.answerReporitory = answerReporitory;
+		this.questionReporitory = questionReporitory;
 
-  public Question getQuestionById(Integer questionId, Locale locale) {
+		// load answers
+		this.answersList = this.answerReporitory.findAll();
 
-    for (Question question : this.questionsList) {
-      if (question.getId().equals(questionId) && question.getLocale().equals(locale))
-        return question;
-    }
+		// load question
+		this.questionsList = this.questionReporitory.findAll();
+	}
 
-    return null;
-  }
+	public Question getQuestionById(Integer questionId, Locale locale) {
 
-  public ArrayList<Answer> getAnswersByQuestionId(Integer questionId, Locale locale) {
-    ArrayList<Answer> answersList = new ArrayList<Answer>();
-    
-    for (Answer answer : this.answersList) {
-      if (answer.getQuestionId().equals(questionId) && answer.getLocale().equals(locale))
-        answersList.add(answer);
-    }
+		for (EntityQuestion question : this.questionsList) {
+			if (question.getId().equals(questionId) && question.getLocale().equals(locale))
+				return new Question(question);
+		}
 
-    return answersList;
-  }
+		return null;
+	}
+
+	public ArrayList<Answer> getAnswersByQuestionId(Integer questionId, Locale locale) {
+		ArrayList<Answer> answersList = new ArrayList<Answer>();
+
+		for (EntityAnswer answer : this.answersList) {
+			if (answer.getQuestionId().equals(questionId) && answer.getLocale().equals(locale))
+				answersList.add(new Answer(answer));
+		}
+
+		return answersList;
+	}
 }

@@ -28,7 +28,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 public abstract class AbstractUnitTest {
 
-    private static final Logger log = LoggerFactory.getLogger(AbstractUnitTest.class);
+    protected static final Logger log = LoggerFactory.getLogger(AbstractUnitTest.class);
 
     @Rule
     public TestName name = new TestName();

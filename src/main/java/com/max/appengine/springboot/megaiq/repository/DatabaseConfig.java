@@ -15,15 +15,22 @@
 package com.max.appengine.springboot.megaiq.repository;
 
 import javax.activation.DataSource;
+
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @Configuration
 @PropertySource({ "classpath:application.properties" })
+@EnableJpaRepositories("com.max.appengine.springboot.megaiq.repository.*")
+@ComponentScan(basePackages = { "com.max.appengine.springboot.megaiq.*" })
+@EntityScan("com.max.appengine.springboot.megaiq.model.entity.*")   
 public class DatabaseConfig {
     @Bean
     @Primary

@@ -20,7 +20,7 @@ import javax.persistence.Table;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
 @Entity
-@Table(name = "user")
+@Table(name = "users")
 public abstract class EntityUser {
   @Id
   private Integer id;

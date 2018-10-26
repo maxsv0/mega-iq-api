@@ -16,26 +16,44 @@ package com.max.appengine.springboot.megaiq.model;
 
 import java.util.ArrayList;
 import java.util.Date;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
+
 import com.max.appengine.springboot.megaiq.model.entity.EntityQuestion;
 import com.max.appengine.springboot.megaiq.model.enums.IqQuestionGroup;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.service.QuestionsService;
 
 public class Question extends EntityQuestion {
-  private ArrayList<Answer> answers;
+
+  private List<Answer> answers;
   
-  public ArrayList<Answer> getAnswers() {
+  public List<Answer> getAnswers() {
     return answers;
   }
-
-  @Autowired
   private QuestionsService serviceQuestion;
   
+  public Question(EntityQuestion question) {
+	super();
+
+    this.setId(question.getId());
+    this.setPic(question.getPic());
+    this.setPoints(question.getPoints());
+    this.setAnswerCorrect(question.getAnswerCorrect());
+    this.setTitle(question.getTitle());
+    this.setDescription(question.getDescription());
+    this.setGroups(question.getGroups());
+    this.setCreateDate(question.getCreateDate());
+    this.setUpdateDate(question.getUpdateDate());
+    this.setLocale(question.getLocale());
+    
+    this.answers = serviceQuestion.getAnswersByQuestionId(question.getId(), question.getLocale());
+  }
+
   public Question(Integer id, String pic, Integer points, Integer answerCorrect, String title,
       String description, ArrayList<IqQuestionGroup> groups, Date createDate, Date updateDate,
       Locale locale) {
     super();
+    
     this.setId(id);
     this.setPic(pic);
     this.setPoints(points);

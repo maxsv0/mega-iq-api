@@ -14,11 +14,14 @@
 
 package com.max.appengine.springboot.megaiq.model.entity;
 
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
 import com.max.appengine.springboot.megaiq.model.enums.IqQuestionGroup;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
@@ -32,7 +35,8 @@ public abstract class EntityQuestionUser {
   private Integer points;
   private Integer answerCorrect;
   private Integer answerUser;
-  private ArrayList<IqQuestionGroup> groups;
+  @ElementCollection(targetClass=IqQuestionGroup.class)
+  private List<IqQuestionGroup> groups;
   private Date createDate;
   private Date updateDate;
   private Locale locale;
@@ -101,11 +105,11 @@ public abstract class EntityQuestionUser {
     this.answerUser = answerUser;
   }
 
-  public ArrayList<IqQuestionGroup> getGroups() {
+  public List<IqQuestionGroup> getGroups() {
     return groups;
   }
 
-  public void setGroups(ArrayList<IqQuestionGroup> groups) {
+  public void setGroups(List<IqQuestionGroup> groups) {
     this.groups = groups;
   }
 

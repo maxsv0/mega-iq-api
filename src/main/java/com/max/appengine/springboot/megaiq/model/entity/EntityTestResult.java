@@ -16,17 +16,28 @@ package com.max.appengine.springboot.megaiq.model.entity;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
+
+import javax.persistence.CollectionTable;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.Table;
+
+import org.springframework.data.annotation.Transient;
+
 import com.max.appengine.springboot.megaiq.model.QuestionGroupsResult;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
-@Entity
-@Table(name = "user_test_result")
+//@Entity
+//@Table(name = "user_test_result")
 public abstract class EntityTestResult {
   @Id
   private Integer id;
@@ -40,8 +51,12 @@ public abstract class EntityTestResult {
   private Date updateDate;
   private Date finishDate;
   private Integer points;
+  
+  @ElementCollection(fetch = FetchType.EAGER)
+  @CollectionTable(name = "test_result_groups", joinColumns = @JoinColumn(name = "id"))
+  @Enumerated(EnumType.STRING)
   private QuestionGroupsResult groupsGraph;
-  private ArrayList<EntityQuestionUser> questionSet;
+  private List<EntityQuestionUser> questionSet;
 
   public Integer getId() {
     return id;
@@ -139,11 +154,11 @@ public abstract class EntityTestResult {
     this.groupsGraph = groupsGraph;
   }
 
-  public ArrayList<EntityQuestionUser> getQuestionSet() {
+  public List<EntityQuestionUser> getQuestionSet() {
     return questionSet;
   }
 
-  public void setQuestionSet(ArrayList<EntityQuestionUser> questionSet) {
+  public void setQuestionSet(List<EntityQuestionUser> questionSet) {
     this.questionSet = questionSet;
   }
 
