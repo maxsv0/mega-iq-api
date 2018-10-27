@@ -18,6 +18,9 @@ package com.max.appengine.springboot.megaiq.integration.index;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -26,6 +29,8 @@ import com.max.appengine.springboot.megaiq.integration.AbstractIntegrationTest;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
+@DataJpaTest
+@AutoConfigureTestDatabase(replace = Replace.NONE)
 public class IndexControllerIT extends AbstractIntegrationTest {
 	
 	@Test

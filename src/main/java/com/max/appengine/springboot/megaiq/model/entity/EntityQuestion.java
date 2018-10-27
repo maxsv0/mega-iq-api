@@ -16,22 +16,18 @@ package com.max.appengine.springboot.megaiq.model.entity;
 
 import java.util.Date;
 import java.util.List;
-
 import javax.persistence.CollectionTable;
 import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.Table;
-
+import javax.persistence.MappedSuperclass;
 import com.max.appengine.springboot.megaiq.model.enums.IqQuestionGroup;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
-@Entity
-@Table(name = "question")
+@MappedSuperclass
 public abstract class EntityQuestion {
   @Id
   private Integer id;
@@ -41,8 +37,8 @@ public abstract class EntityQuestion {
   private String title;
   private String description;
   
-  @ElementCollection(fetch = FetchType.EAGER)
-  @CollectionTable(name = "question_group", joinColumns = @JoinColumn(name = "id"))
+  @ElementCollection(targetClass = IqQuestionGroup.class, fetch = FetchType.LAZY)
+  @CollectionTable(name = "question_group", joinColumns = @JoinColumn(name = "question_id"))
   @Enumerated(EnumType.STRING)
   private List<IqQuestionGroup> groups;
   private Date createDate;

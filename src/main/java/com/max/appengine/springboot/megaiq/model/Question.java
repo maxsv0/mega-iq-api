@@ -17,21 +17,28 @@ package com.max.appengine.springboot.megaiq.model;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import com.max.appengine.springboot.megaiq.model.entity.EntityQuestion;
 import com.max.appengine.springboot.megaiq.model.enums.IqQuestionGroup;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
-import com.max.appengine.springboot.megaiq.service.QuestionsService;
 
+@Entity
+@Table(name = "question")
 public class Question extends EntityQuestion {
 
+  @Transient
   private List<Answer> answers;
   
   public List<Answer> getAnswers() {
     return answers;
   }
-  private QuestionsService serviceQuestion;
   
+  public Question() {
+    super();
+  }
+
   public Question(EntityQuestion question) {
 	super();
 
@@ -45,8 +52,6 @@ public class Question extends EntityQuestion {
     this.setCreateDate(question.getCreateDate());
     this.setUpdateDate(question.getUpdateDate());
     this.setLocale(question.getLocale());
-    
-    this.answers = serviceQuestion.getAnswersByQuestionId(question.getId(), question.getLocale());
   }
 
   public Question(Integer id, String pic, Integer points, Integer answerCorrect, String title,
@@ -64,7 +69,5 @@ public class Question extends EntityQuestion {
     this.setCreateDate(createDate);
     this.setUpdateDate(updateDate);
     this.setLocale(locale);
-    
-    this.answers = serviceQuestion.getAnswersByQuestionId(id, locale);
   }
 }

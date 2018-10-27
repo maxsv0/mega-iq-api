@@ -14,13 +14,11 @@
 
 package com.max.appengine.springboot.megaiq.model.entity;
 
-import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.MappedSuperclass;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
-@Entity
-@Table(name = "users")
+@MappedSuperclass
 public abstract class EntityUser {
   @Id
   private Integer id;

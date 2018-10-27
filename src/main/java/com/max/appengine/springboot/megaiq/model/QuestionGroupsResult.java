@@ -14,7 +14,9 @@
 
 package com.max.appengine.springboot.megaiq.model;
 
-public class QuestionGroupsResult {
+import java.io.Serializable;
+
+public class QuestionGroupsResult implements Serializable {
   private Integer math;
   private Integer logic;
   private Integer grammar;

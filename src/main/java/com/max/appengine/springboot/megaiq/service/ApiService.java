@@ -25,7 +25,6 @@ import com.max.appengine.springboot.megaiq.model.entity.EntityApiResponseBase;
 import com.max.appengine.springboot.megaiq.model.entity.EntityApiResponseError;
 import com.max.appengine.springboot.megaiq.model.entity.EntityApiResponseTestResult;
 import com.max.appengine.springboot.megaiq.model.entity.EntityApiTestResult;
-import com.max.appengine.springboot.megaiq.model.entity.EntityApiUser;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
 @Service

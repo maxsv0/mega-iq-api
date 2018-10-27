@@ -16,13 +16,10 @@ package com.max.appengine.springboot.megaiq.service;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.max.appengine.springboot.megaiq.model.Answer;
 import com.max.appengine.springboot.megaiq.model.Question;
-import com.max.appengine.springboot.megaiq.model.entity.EntityAnswer;
-import com.max.appengine.springboot.megaiq.model.entity.EntityQuestion;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.repository.AnswerReporitory;
 import com.max.appengine.springboot.megaiq.repository.QuestionReporitory;
@@ -30,8 +27,8 @@ import com.max.appengine.springboot.megaiq.repository.QuestionReporitory;
 @Service
 public class QuestionsService {
 
-	private List<EntityQuestion> questionsList;
-	private List<EntityAnswer> answersList;
+	private List<Question> questionsList;
+	private List<Answer> answersList;
 
 	private final AnswerReporitory answerReporitory;
 	private final QuestionReporitory questionReporitory;
@@ -50,9 +47,9 @@ public class QuestionsService {
 
 	public Question getQuestionById(Integer questionId, Locale locale) {
 
-		for (EntityQuestion question : this.questionsList) {
+		for (Question question : this.questionsList) {
 			if (question.getId().equals(questionId) && question.getLocale().equals(locale))
-				return new Question(question);
+				return question;
 		}
 
 		return null;
@@ -61,9 +58,9 @@ public class QuestionsService {
 	public ArrayList<Answer> getAnswersByQuestionId(Integer questionId, Locale locale) {
 		ArrayList<Answer> answersList = new ArrayList<Answer>();
 
-		for (EntityAnswer answer : this.answersList) {
+		for (Answer answer : this.answersList) {
 			if (answer.getQuestionId().equals(questionId) && answer.getLocale().equals(locale))
-				answersList.add(new Answer(answer));
+				answersList.add(answer);
 		}
 
 		return answersList;

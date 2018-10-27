@@ -15,13 +15,20 @@
 package com.max.appengine.springboot.megaiq.model;
 
 import java.util.Date;
-
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import com.max.appengine.springboot.megaiq.model.entity.EntityAnswer;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
+@Entity
+@Table(name = "answer")
 public class Answer extends EntityAnswer {
 
-	public Answer(Integer id, String pic, Integer questionId, Date createDate, Date updateDate, Locale locale) {
+  public Answer() {
+    super();
+  }
+
+  public Answer(Integer id, String pic, Integer questionId, Date createDate, Date updateDate, Locale locale) {
 		super();
 		
 		this.setId(id);

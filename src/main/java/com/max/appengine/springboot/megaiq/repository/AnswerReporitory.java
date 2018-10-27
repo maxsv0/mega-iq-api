@@ -15,9 +15,8 @@
 package com.max.appengine.springboot.megaiq.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import com.max.appengine.springboot.megaiq.model.Answer;
 
-import com.max.appengine.springboot.megaiq.model.entity.EntityAnswer;
-
-public interface AnswerReporitory extends JpaRepository<EntityAnswer, Integer> {
+public interface AnswerReporitory extends JpaRepository<Answer, Integer> {
 
 }

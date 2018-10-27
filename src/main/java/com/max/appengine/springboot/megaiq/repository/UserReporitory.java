@@ -10,15 +10,14 @@
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
-
+ */
 
 package com.max.appengine.springboot.megaiq.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.max.appengine.springboot.megaiq.model.entity.EntityUser;
+import com.max.appengine.springboot.megaiq.model.User;
 
-public interface UserReporitory extends JpaRepository<EntityUser, Integer> {
+public interface UserReporitory extends JpaRepository<User, Integer> {
 
 }
- */
