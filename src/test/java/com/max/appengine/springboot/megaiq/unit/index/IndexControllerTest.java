@@ -15,27 +15,29 @@
  */
 
 package com.max.appengine.springboot.megaiq.unit.index;
-
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import com.max.appengine.springboot.megaiq.Application;
 import com.max.appengine.springboot.megaiq.unit.AbstractUnitTest;
 
 @RunWith(SpringRunner.class)
-@DataJpaTest
-@AutoConfigureTestDatabase(replace = Replace.NONE)
+@AutoConfigureMockMvc
 @SpringBootTest(classes = Application.class)
 public class IndexControllerTest extends AbstractUnitTest {
-
+  @Autowired
+  private MockMvc mvc;
 
 	@Test
 	public void testLoadIndexPage() throws Exception {
-
+	  
+	  mvc.perform(MockMvcRequestBuilders.get("/")).andExpect(status().isOk());
 
 	}
 

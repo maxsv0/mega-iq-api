@@ -26,8 +26,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @Configuration
 @PropertySource({"classpath:application.properties"})
-@EnableJpaRepositories("com.max.appengine.springboot.megaiq.repository.*")
-@EntityScan("com.max.appengine.springboot.megaiq.model.*")
+@EnableJpaRepositories
+@EntityScan("com.max.appengine.springboot.megaiq.*")
 public class DatabaseConfig {
   @Bean
   @Primary
