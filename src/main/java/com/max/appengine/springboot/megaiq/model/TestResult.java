@@ -21,7 +21,7 @@ import javax.persistence.Transient;
 @Entity
 @Table(name = "user_test_result")
 public class TestResult extends AbstractTestResult {
-  
+
   @Transient
   private User user;
 

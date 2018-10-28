@@ -20,115 +20,115 @@ import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
 @MappedSuperclass
 public abstract class AbstractUser {
-    @Id
-    private Integer id;
-    private String email;
-    private String name;
-    private String url;
-    private String pic;
-    private String city;
-    private Integer age;
-    private Integer iq;
-    private Boolean isPublic;
-    private String ip;
-    private Integer geoId;
-    private Locale locale;
+  @Id
+  private Integer id;
+  private String email;
+  private String name;
+  private String url;
+  private String pic;
+  private String city;
+  private Integer age;
+  private Integer iq;
+  private Boolean isPublic;
+  private String ip;
+  private Integer geoId;
+  private Locale locale;
 
-    public Integer getId() {
-      return id;
-    }
-
-    public void setId(Integer id) {
-      this.id = id;
-    }
-
-    public String getEmail() {
-      return email;
-    }
-
-    public void setEmail(String email) {
-      this.email = email;
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    public void setName(String name) {
-      this.name = name;
-    }
-
-    public String getUrl() {
-      return url;
-    }
-
-    public void setUrl(String url) {
-      this.url = url;
-    }
-
-    public String getPic() {
-      return pic;
-    }
-
-    public void setPic(String pic) {
-      this.pic = pic;
-    }
-
-    public String getCity() {
-      return city;
-    }
-
-    public void setCity(String city) {
-      this.city = city;
-    }
-
-    public Integer getAge() {
-      return age;
-    }
-
-    public void setAge(Integer age) {
-      this.age = age;
-    }
-
-    public Integer getIq() {
-      return iq;
-    }
-
-    public void setIq(Integer iq) {
-      this.iq = iq;
-    }
-
-    public Boolean getIsPublic() {
-      return isPublic;
-    }
-
-    public void setIsPublic(Boolean isPublic) {
-      this.isPublic = isPublic;
-    }
-
-    public String getIp() {
-      return ip;
-    }
-
-    public void setIp(String ip) {
-      this.ip = ip;
-    }
-
-    public Integer getGeoId() {
-      return geoId;
-    }
-
-    public void setGeoId(Integer geoId) {
-      this.geoId = geoId;
-    }
-
-    public Locale getLocale() {
-      return locale;
-    }
-
-    public void setLocale(Locale locale) {
-      this.locale = locale;
-    }
-
+  public Integer getId() {
+    return id;
   }
+
+  public void setId(Integer id) {
+    this.id = id;
+  }
+
+  public String getEmail() {
+    return email;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public String getUrl() {
+    return url;
+  }
+
+  public void setUrl(String url) {
+    this.url = url;
+  }
+
+  public String getPic() {
+    return pic;
+  }
+
+  public void setPic(String pic) {
+    this.pic = pic;
+  }
+
+  public String getCity() {
+    return city;
+  }
+
+  public void setCity(String city) {
+    this.city = city;
+  }
+
+  public Integer getAge() {
+    return age;
+  }
+
+  public void setAge(Integer age) {
+    this.age = age;
+  }
+
+  public Integer getIq() {
+    return iq;
+  }
+
+  public void setIq(Integer iq) {
+    this.iq = iq;
+  }
+
+  public Boolean getIsPublic() {
+    return isPublic;
+  }
+
+  public void setIsPublic(Boolean isPublic) {
+    this.isPublic = isPublic;
+  }
+
+  public String getIp() {
+    return ip;
+  }
+
+  public void setIp(String ip) {
+    this.ip = ip;
+  }
+
+  public Integer getGeoId() {
+    return geoId;
+  }
+
+  public void setGeoId(Integer geoId) {
+    this.geoId = geoId;
+  }
+
+  public Locale getLocale() {
+    return locale;
+  }
+
+  public void setLocale(Locale locale) {
+    this.locale = locale;
+  }
+
+}
 

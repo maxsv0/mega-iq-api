@@ -51,7 +51,7 @@ public class ApiService {
 
       return new ResponseEntity<ApiResponseBase>(result, HttpStatus.OK);
     }
-    
+
     ApiTestResult testResult = new ApiTestResult(resultData, false);
 
     ApiResponseBase result = new ApiResponseTestResult(testResult);
@@ -68,9 +68,9 @@ public class ApiService {
 
       return new ResponseEntity<ApiResponseBase>(result, HttpStatus.OK);
     }
-    
+
     ApiTestResult testResult = new ApiTestResult(resultData, true);
-   
+
     // private result can be requested only be user himself
     if (!user.getId().equals(resultData.getUserId())) {
       ApiResponseBase result = new ApiResponseError("Wrong token");
@@ -78,7 +78,7 @@ public class ApiService {
       return new ResponseEntity<ApiResponseBase>(result, HttpStatus.OK);
     } else {
       ApiResponseBase result = new ApiResponseTestResult(testResult);
-      
+
       return new ResponseEntity<ApiResponseBase>(result, HttpStatus.OK);
     }
   }

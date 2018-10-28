@@ -39,7 +39,7 @@ public abstract class AbstractTestResult {
   private Date finishDate;
   private Integer points;
   private QuestionGroupsResult groupsGraph;
-  
+
   @Transient
   private List<AbstractQuestionUser> questionSet;
 

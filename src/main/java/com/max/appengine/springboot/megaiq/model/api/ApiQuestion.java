@@ -31,13 +31,13 @@ public class ApiQuestion {
 
   public ApiQuestion(AbstractQuestionUser questionUser, Question questionData) {
     super();
-    
+
     this.setPic(questionData.getPic());
     this.setAnswerCorrect(questionUser.getAnswerCorrect());
     this.setAnswerUser(questionUser.getAnswerUser());
     this.setTitle(questionData.getTitle());
     this.setDescription(questionData.getDescription());
-    
+
     this.answers = new ArrayList<ApiAnswer>();
     for (Answer answer : questionData.getAnswers()) {
       this.answers.add(new ApiAnswer(answer));

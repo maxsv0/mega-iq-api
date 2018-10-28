@@ -31,7 +31,7 @@ public abstract class AbstractQuestionUser {
   private Integer points;
   private Integer answerCorrect;
   private Integer answerUser;
-  @ElementCollection(targetClass=IqQuestionGroup.class)
+  @ElementCollection(targetClass = IqQuestionGroup.class)
   private List<IqQuestionGroup> groups;
   private Date createDate;
   private Date updateDate;

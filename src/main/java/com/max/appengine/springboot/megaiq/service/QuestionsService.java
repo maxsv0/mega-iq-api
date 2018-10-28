@@ -27,42 +27,43 @@ import com.max.appengine.springboot.megaiq.repository.QuestionReporitory;
 @Service
 public class QuestionsService {
 
-	private List<Question> questionsList;
-	private List<Answer> answersList;
+  private List<Question> questionsList;
+  private List<Answer> answersList;
 
-	private final AnswerReporitory answerReporitory;
-	private final QuestionReporitory questionReporitory;
+  private final AnswerReporitory answerReporitory;
+  private final QuestionReporitory questionReporitory;
 
-	@Autowired
-	public QuestionsService(AnswerReporitory answerReporitory, QuestionReporitory questionReporitory) {
-		this.answerReporitory = answerReporitory;
-		this.questionReporitory = questionReporitory;
+  @Autowired
+  public QuestionsService(AnswerReporitory answerReporitory,
+      QuestionReporitory questionReporitory) {
+    this.answerReporitory = answerReporitory;
+    this.questionReporitory = questionReporitory;
 
-		// load answers
-		this.answersList = this.answerReporitory.findAll();
+    // load answers
+    this.answersList = this.answerReporitory.findAll();
 
-		// load question
-		this.questionsList = this.questionReporitory.findAll();
-	}
+    // load question
+    this.questionsList = this.questionReporitory.findAll();
+  }
 
-	public Question getQuestionById(Integer questionId, Locale locale) {
+  public Question getQuestionById(Integer questionId, Locale locale) {
 
-		for (Question question : this.questionsList) {
-			if (question.getId().equals(questionId) && question.getLocale().equals(locale))
-				return question;
-		}
+    for (Question question : this.questionsList) {
+      if (question.getId().equals(questionId) && question.getLocale().equals(locale))
+        return question;
+    }
 
-		return null;
-	}
+    return null;
+  }
 
-	public ArrayList<Answer> getAnswersByQuestionId(Integer questionId, Locale locale) {
-		ArrayList<Answer> answersList = new ArrayList<Answer>();
+  public ArrayList<Answer> getAnswersByQuestionId(Integer questionId, Locale locale) {
+    ArrayList<Answer> answersList = new ArrayList<Answer>();
 
-		for (Answer answer : this.answersList) {
-			if (answer.getQuestionId().equals(questionId) && answer.getLocale().equals(locale))
-				answersList.add(answer);
-		}
+    for (Answer answer : this.answersList) {
+      if (answer.getQuestionId().equals(questionId) && answer.getLocale().equals(locale))
+        answersList.add(answer);
+    }
 
-		return answersList;
-	}
+    return answersList;
+  }
 }

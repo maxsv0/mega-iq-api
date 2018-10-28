@@ -29,17 +29,17 @@ public class Question extends AbstractQuestion {
 
   @Transient
   private List<Answer> answers;
-  
+
   public List<Answer> getAnswers() {
     return answers;
   }
-  
+
   public Question() {
     super();
   }
 
   public Question(AbstractQuestion question) {
-	super();
+    super();
 
     this.setId(question.getId());
     this.setPic(question.getPic());
@@ -57,7 +57,7 @@ public class Question extends AbstractQuestion {
       String description, ArrayList<IqQuestionGroup> groups, Date createDate, Date updateDate,
       Locale locale) {
     super();
-    
+
     this.setId(id);
     this.setPic(pic);
     this.setPoints(points);

@@ -20,10 +20,10 @@ public class ApiAnswer {
   private Integer id;
   private String pic;
 
-  
+
   public ApiAnswer(AbstractAnswer answer) {
     super();
-    
+
     this.setId(answer.getId());
     this.setPic(answer.getPic());
   }

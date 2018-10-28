@@ -27,26 +27,27 @@ public class Answer extends AbstractAnswer {
     super();
   }
 
-  public Answer(Integer id, String pic, Integer questionId, Date createDate, Date updateDate, Locale locale) {
-		super();
-		
-		this.setId(id);
-		this.setCreateDate(createDate);
-		this.setLocale(locale);
-		this.setPic(pic);
-		this.setQuestionId(questionId);
-		this.setUpdateDate(updateDate);
-	}
+  public Answer(Integer id, String pic, Integer questionId, Date createDate, Date updateDate,
+      Locale locale) {
+    super();
 
-	public Answer(AbstractAnswer answer) {
-		super();
+    this.setId(id);
+    this.setCreateDate(createDate);
+    this.setLocale(locale);
+    this.setPic(pic);
+    this.setQuestionId(questionId);
+    this.setUpdateDate(updateDate);
+  }
 
-		this.setId(answer.getId());
-		this.setCreateDate(answer.getCreateDate());
-		this.setLocale(answer.getLocale());
-		this.setPic(answer.getPic());
-		this.setQuestionId(answer.getQuestionId());
-		this.setUpdateDate(answer.getUpdateDate());
-	}
+  public Answer(AbstractAnswer answer) {
+    super();
+
+    this.setId(answer.getId());
+    this.setCreateDate(answer.getCreateDate());
+    this.setLocale(answer.getLocale());
+    this.setPic(answer.getPic());
+    this.setQuestionId(answer.getQuestionId());
+    this.setUpdateDate(answer.getUpdateDate());
+  }
 
 }

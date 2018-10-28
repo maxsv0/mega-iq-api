@@ -36,7 +36,7 @@ public abstract class AbstractQuestion {
   private Integer answerCorrect;
   private String title;
   private String description;
-  
+
   @ElementCollection(targetClass = IqQuestionGroup.class, fetch = FetchType.LAZY)
   @CollectionTable(name = "question_group", joinColumns = @JoinColumn(name = "question_id"))
   @Enumerated(EnumType.STRING)
