@@ -44,6 +44,21 @@ public class QuestionsService {
 
     // load question
     this.questionsList = this.questionReporitory.findAll();
+    
+    for (Question question : this.questionsList) {
+      question.setAnswers(getAnswersByQuestionId(question));
+    }
+  }
+
+  public ArrayList<Question> getQuestions(Locale locale) {
+    ArrayList<Question> questionList = new ArrayList<Question>();
+    
+    for (Question question : this.questionsList) {
+      if (question.getLocale().equals(locale))
+        questionList.add(question);
+    }
+
+    return questionList;
   }
 
   public Question getQuestionById(Integer questionId, Locale locale) {
@@ -56,6 +71,10 @@ public class QuestionsService {
     return null;
   }
 
+  public ArrayList<Answer> getAnswersByQuestionId(Question question) {
+    return getAnswersByQuestionId(question.getId(), question.getLocale());
+  }
+  
   public ArrayList<Answer> getAnswersByQuestionId(Integer questionId, Locale locale) {
     ArrayList<Answer> answersList = new ArrayList<Answer>();
 

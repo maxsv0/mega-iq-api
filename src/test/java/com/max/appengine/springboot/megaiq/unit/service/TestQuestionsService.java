@@ -14,6 +14,7 @@
 
 package com.max.appengine.springboot.megaiq.unit.service;
 
+import static org.junit.Assert.assertFalse;
 import java.util.ArrayList;
 import java.util.Date;
 import org.junit.Before;
@@ -43,20 +44,25 @@ public class TestQuestionsService extends AbstractUnitTest {
 
   @Before
   public void doSetup() {
-    for (int i = 1; i <= 5; i++) {
-      // 3 answers for each question
-      // second answer is correct
-      for (int j = 1; j <= 3; j++) {
-        answerReporitory.save(new Answer((i - 1) * 6 + j, "test.en q" + i + "a" + j, i, new Date(),
-            new Date(), Locale.EN));
-        answerReporitory.save(new Answer((i - 1) * 6 + j, "test.de q" + i + "a" + j, i, new Date(),
-            new Date(), Locale.DE));
-        answerReporitory.save(new Answer((i - 1) * 6 + j, "test.ru q" + i + "a" + j, i, new Date(),
-            new Date(), Locale.RU));
-      }
+    int answerId = 1;
+    int questionId = 1;
 
-      questionReporitory.save(new Question(i, "pic", 1, (i - 1) * 6 + 2, "test.en q" + i, "info",
-          new ArrayList<IqQuestionGroup>(), new Date(), new Date(), Locale.EN));
+    for (Locale locale : Locale.values()) {
+      for (int i = 1; i <= 5; i++) {
+        // 3 answers for each question
+        // first answer is correct
+
+        questionReporitory
+            .save(new Question(questionId, "pic", 1, answerId, "test." + locale + " q" + i, "info",
+                new ArrayList<IqQuestionGroup>(), new Date(), new Date(), locale));
+
+        for (int j = 1; j <= 3; j++) {
+          answerReporitory.save(new Answer(answerId++, "test." + locale + " q" + i + "a" + j,
+              questionId, new Date(), new Date(), locale));
+        }
+
+        questionId++;
+      }
     }
 
   }
@@ -67,7 +73,17 @@ public class TestQuestionsService extends AbstractUnitTest {
     log.info("questionReporitory={}", questionReporitory.findAll());
 
     QuestionsService questionsService = new QuestionsService(answerReporitory, questionReporitory);
-    log.info("questionsService={}", questionsService);
+    for (Locale locale : Locale.values()) {
+      ArrayList<Question> questions = questionsService.getQuestions(locale);
+      log.info("locale={}, got questions={}", locale, questions);
+      assertFalse("Questions for locale=" + locale + " is empty", questions.isEmpty());
+      
+      for (Question question : questions) {
+        ArrayList<Answer> answers = (ArrayList<Answer>) question.getAnswers();
+        log.info("QuestionID={}, got answers={}", question.getId(), answers);
+        assertFalse("Answers for questionID=" + question.getId() + " is empty", answers.isEmpty());
+      }
+    }
   }
 
 }

@@ -36,6 +36,10 @@ public class Question extends AbstractQuestion {
     return answers;
   }
 
+  public void setAnswers(List<Answer> answers) {
+    this.answers = answers;
+  }
+
   public Question() {
     super();
   }
