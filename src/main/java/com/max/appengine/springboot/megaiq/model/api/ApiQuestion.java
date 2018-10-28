@@ -12,23 +12,24 @@
  * the License.
  */
 
-package com.max.appengine.springboot.megaiq.model.entity;
+package com.max.appengine.springboot.megaiq.model.api;
 
 import java.util.ArrayList;
 import java.util.Date;
 import com.max.appengine.springboot.megaiq.model.Answer;
+import com.max.appengine.springboot.megaiq.model.AbstractQuestionUser;
 import com.max.appengine.springboot.megaiq.model.Question;
 
-public class EntityApiQuestion {
+public class ApiQuestion {
   private String pic;
   private Integer answerCorrect;
   private Integer answerUser;
   private String title;
   private String description;
   private Date updateDate;
-  private ArrayList<EntityApiAnswer> answers;
+  private ArrayList<ApiAnswer> answers;
 
-  public EntityApiQuestion(EntityQuestionUser questionUser, Question questionData) {
+  public ApiQuestion(AbstractQuestionUser questionUser, Question questionData) {
     super();
     
     this.setPic(questionData.getPic());
@@ -37,9 +38,9 @@ public class EntityApiQuestion {
     this.setTitle(questionData.getTitle());
     this.setDescription(questionData.getDescription());
     
-    this.answers = new ArrayList<EntityApiAnswer>();
+    this.answers = new ArrayList<ApiAnswer>();
     for (Answer answer : questionData.getAnswers()) {
-      this.answers.add(new EntityApiAnswer(answer));
+      this.answers.add(new ApiAnswer(answer));
     }
   }
 

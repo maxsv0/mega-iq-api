@@ -17,11 +17,10 @@ package com.max.appengine.springboot.megaiq.model;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import com.max.appengine.springboot.megaiq.model.entity.EntityTestResult;
 
 @Entity
 @Table(name = "user_test_result")
-public class TestResult extends EntityTestResult {
+public class TestResult extends AbstractTestResult {
   
   @Transient
   private User user;

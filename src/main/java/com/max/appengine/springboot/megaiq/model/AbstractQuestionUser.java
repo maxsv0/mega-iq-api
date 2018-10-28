@@ -12,7 +12,7 @@
  * the License.
  */
 
-package com.max.appengine.springboot.megaiq.model.entity;
+package com.max.appengine.springboot.megaiq.model;
 
 import java.util.Date;
 import java.util.List;
@@ -23,7 +23,7 @@ import com.max.appengine.springboot.megaiq.model.enums.IqQuestionGroup;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
 @MappedSuperclass
-public abstract class EntityQuestionUser {
+public abstract class AbstractQuestionUser {
   @Id
   private Integer id;
   private Integer testId;

@@ -17,12 +17,11 @@ package com.max.appengine.springboot.megaiq.model;
 import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import com.max.appengine.springboot.megaiq.model.entity.EntityAnswer;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
 @Entity
 @Table(name = "answer")
-public class Answer extends EntityAnswer {
+public class Answer extends AbstractAnswer {
 
   public Answer() {
     super();
@@ -39,7 +38,7 @@ public class Answer extends EntityAnswer {
 		this.setUpdateDate(updateDate);
 	}
 
-	public Answer(EntityAnswer answer) {
+	public Answer(AbstractAnswer answer) {
 		super();
 
 		this.setId(answer.getId());

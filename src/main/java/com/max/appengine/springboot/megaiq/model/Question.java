@@ -20,13 +20,12 @@ import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import com.max.appengine.springboot.megaiq.model.entity.EntityQuestion;
 import com.max.appengine.springboot.megaiq.model.enums.IqQuestionGroup;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
 @Entity
 @Table(name = "question")
-public class Question extends EntityQuestion {
+public class Question extends AbstractQuestion {
 
   @Transient
   private List<Answer> answers;
@@ -39,7 +38,7 @@ public class Question extends EntityQuestion {
     super();
   }
 
-  public Question(EntityQuestion question) {
+  public Question(AbstractQuestion question) {
 	super();
 
     this.setId(question.getId());

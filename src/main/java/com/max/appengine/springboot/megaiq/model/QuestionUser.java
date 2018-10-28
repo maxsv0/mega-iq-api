@@ -16,11 +16,10 @@ package com.max.appengine.springboot.megaiq.model;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import com.max.appengine.springboot.megaiq.model.entity.EntityQuestionUser;
 
 @Entity
 @Table(name = "question_user")
-public class QuestionUser extends EntityQuestionUser {
+public class QuestionUser extends AbstractQuestionUser {
 
 
 }

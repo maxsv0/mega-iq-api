@@ -21,10 +21,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.User;
-import com.max.appengine.springboot.megaiq.model.entity.EntityApiResponseBase;
-import com.max.appengine.springboot.megaiq.model.entity.EntityApiResponseError;
-import com.max.appengine.springboot.megaiq.model.entity.EntityApiResponseTestResult;
-import com.max.appengine.springboot.megaiq.model.entity.EntityApiTestResult;
+import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
+import com.max.appengine.springboot.megaiq.model.api.ApiResponseError;
+import com.max.appengine.springboot.megaiq.model.api.ApiResponseTestResult;
+import com.max.appengine.springboot.megaiq.model.api.ApiTestResult;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
 @Service
@@ -36,50 +36,50 @@ public class ApiService {
   // users
 
 
-  public ResponseEntity<EntityApiResponseBase> index(HttpServletRequest request) {
-    EntityApiResponseBase result = new EntityApiResponseBase();
+  public ResponseEntity<ApiResponseBase> index(HttpServletRequest request) {
+    ApiResponseBase result = new ApiResponseBase();
 
-    return new ResponseEntity<EntityApiResponseBase>(result, HttpStatus.OK);
+    return new ResponseEntity<ApiResponseBase>(result, HttpStatus.OK);
   }
 
 
-  public ResponseEntity<EntityApiResponseBase> iqTestDetailsPublic(UUID testCode, Locale locale) {
+  public ResponseEntity<ApiResponseBase> iqTestDetailsPublic(UUID testCode, Locale locale) {
 
     TestResult resultData = loadFullResultData(testCode, locale);
     if (resultData == null) {
-      EntityApiResponseBase result = new EntityApiResponseError("Wrong request");
+      ApiResponseBase result = new ApiResponseError("Wrong request");
 
-      return new ResponseEntity<EntityApiResponseBase>(result, HttpStatus.OK);
+      return new ResponseEntity<ApiResponseBase>(result, HttpStatus.OK);
     }
     
-    EntityApiTestResult testResult = new EntityApiTestResult(resultData, false);
+    ApiTestResult testResult = new ApiTestResult(resultData, false);
 
-    EntityApiResponseBase result = new EntityApiResponseTestResult(testResult);
+    ApiResponseBase result = new ApiResponseTestResult(testResult);
 
-    return new ResponseEntity<EntityApiResponseBase>(result, HttpStatus.OK);
+    return new ResponseEntity<ApiResponseBase>(result, HttpStatus.OK);
   }
 
-  public ResponseEntity<EntityApiResponseBase> iqTestDetailsPrivate(UUID testCode, User user,
+  public ResponseEntity<ApiResponseBase> iqTestDetailsPrivate(UUID testCode, User user,
       Locale locale) {
 
     TestResult resultData = loadFullResultData(testCode, locale);
     if (resultData == null) {
-      EntityApiResponseBase result = new EntityApiResponseError("Wrong request");
+      ApiResponseBase result = new ApiResponseError("Wrong request");
 
-      return new ResponseEntity<EntityApiResponseBase>(result, HttpStatus.OK);
+      return new ResponseEntity<ApiResponseBase>(result, HttpStatus.OK);
     }
     
-    EntityApiTestResult testResult = new EntityApiTestResult(resultData, true);
+    ApiTestResult testResult = new ApiTestResult(resultData, true);
    
     // private result can be requested only be user himself
     if (!user.getId().equals(resultData.getUserId())) {
-      EntityApiResponseBase result = new EntityApiResponseError("Wrong token");
+      ApiResponseBase result = new ApiResponseError("Wrong token");
 
-      return new ResponseEntity<EntityApiResponseBase>(result, HttpStatus.OK);
+      return new ResponseEntity<ApiResponseBase>(result, HttpStatus.OK);
     } else {
-      EntityApiResponseBase result = new EntityApiResponseTestResult(testResult);
+      ApiResponseBase result = new ApiResponseTestResult(testResult);
       
-      return new ResponseEntity<EntityApiResponseBase>(result, HttpStatus.OK);
+      return new ResponseEntity<ApiResponseBase>(result, HttpStatus.OK);
     }
   }
 

@@ -12,26 +12,27 @@
  * the License.
  */
 
-package com.max.appengine.springboot.megaiq.model.entity;
+package com.max.appengine.springboot.megaiq.model.api;
 
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.Transient;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.max.appengine.springboot.megaiq.model.AbstractQuestionUser;
+import com.max.appengine.springboot.megaiq.model.AbstractTestResult;
 import com.max.appengine.springboot.megaiq.model.QuestionGroupsResult;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
+import com.max.appengine.springboot.megaiq.service.QuestionsService;
 
-@MappedSuperclass
-public abstract class EntityTestResult {
-  @Id
-  private Integer id;
+@JsonInclude(Include.NON_NULL)
+public class ApiTestResult {
   private UUID code;
   private String url;
-  private Integer userId;
+  private ApiUser user;
   private IqTestType type;
   private Locale locale;
   private IqTestStatus status;
@@ -40,16 +41,36 @@ public abstract class EntityTestResult {
   private Date finishDate;
   private Integer points;
   private QuestionGroupsResult groupsGraph;
-  
-  @Transient
-  private List<EntityQuestionUser> questionSet;
+  private ArrayList<ApiQuestion> questionSet;
 
-  public Integer getId() {
-    return id;
-  }
+  @Autowired
+  private QuestionsService serviceQuestions;
 
-  public void setId(Integer id) {
-    this.id = id;
+  public ApiTestResult(AbstractTestResult testResult, boolean showPrivate) {
+    super();
+
+    this.setCode(testResult.getCode());
+    this.setUrl(testResult.getUrl());
+    this.setType(testResult.getType());
+    this.setLocale(testResult.getLocale());
+    this.setStatus(testResult.getStatus());
+    this.setFinishDate(testResult.getFinishDate());
+    this.setPoints(testResult.getPoints());
+    this.setGroupsGraph(testResult.getGroupsGraph());
+
+    if (showPrivate) {
+      this.setCreateDate(testResult.getCreateDate());
+      this.setUpdateDate(testResult.getUpdateDate());
+      this.setQuestionSet(new ArrayList<ApiQuestion>());
+
+      if (testResult.getQuestionSet() != null) {
+        for (AbstractQuestionUser questionUser : testResult.getQuestionSet()) {
+          ApiQuestion apiQuestion = new ApiQuestion(questionUser,
+              serviceQuestions.getQuestionById(questionUser.getId(), questionUser.getLocale()));
+          this.getQuestionSet().add(apiQuestion);
+        }
+      }
+    }
   }
 
   public UUID getCode() {
@@ -68,12 +89,12 @@ public abstract class EntityTestResult {
     this.url = url;
   }
 
-  public Integer getUserId() {
-    return userId;
+  public ApiUser getUser() {
+    return user;
   }
 
-  public void setUserId(Integer userId) {
-    this.userId = userId;
+  public void setUser(ApiUser user) {
+    this.user = user;
   }
 
   public IqTestType getType() {
@@ -140,12 +161,13 @@ public abstract class EntityTestResult {
     this.groupsGraph = groupsGraph;
   }
 
-  public List<EntityQuestionUser> getQuestionSet() {
+  public ArrayList<ApiQuestion> getQuestionSet() {
     return questionSet;
   }
 
-  public void setQuestionSet(List<EntityQuestionUser> questionSet) {
+  public void setQuestionSet(ArrayList<ApiQuestion> questionSet) {
     this.questionSet = questionSet;
   }
+
 
 }

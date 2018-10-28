@@ -12,18 +12,18 @@
  * the License.
  */
 
-package com.max.appengine.springboot.megaiq.model.entity;
+package com.max.appengine.springboot.megaiq.model.api;
 
 import java.util.Date;
 
-public class EntityApiResponseTestResult extends EntityApiResponseBase {
-  private EntityApiTestResult testResult;
+public class ApiResponseTestResult extends ApiResponseBase {
+  private ApiTestResult testResult;
 
-  public EntityApiTestResult getTestResult() {
+  public ApiTestResult getTestResult() {
     return testResult;
   }
 
-  public EntityApiResponseTestResult(EntityApiTestResult testResult) {
+  public ApiResponseTestResult(ApiTestResult testResult) {
     super();
     this.testResult = testResult;
 

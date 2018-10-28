@@ -12,41 +12,36 @@
  * the License.
  */
 
-package com.max.appengine.springboot.megaiq.model.entity;
+package com.max.appengine.springboot.megaiq.model.api;
 
-import java.util.Date;
+import com.max.appengine.springboot.megaiq.model.AbstractAnswer;
 
-public class EntityApiResponseBase {
-  private boolean ok;
-  private String msg;
-  private Date date;
+public class ApiAnswer {
+  private Integer id;
+  private String pic;
 
-  public boolean isOk() {
-    return ok;
+  
+  public ApiAnswer(AbstractAnswer answer) {
+    super();
+    
+    this.setId(answer.getId());
+    this.setPic(answer.getPic());
   }
 
-  public void setOk() {
-    this.ok = true;
+  public Integer getId() {
+    return id;
   }
 
-  public void setOk(boolean ok) {
-    this.ok = ok;
+  public void setId(Integer id) {
+    this.id = id;
   }
 
-  public String getMsg() {
-    return msg;
+  public String getPic() {
+    return pic;
   }
 
-  public void setMsg(String msg) {
-    this.msg = msg;
-  }
-
-  public Date getDate() {
-    return date;
-  }
-
-  public void setDate(Date date) {
-    this.date = date;
+  public void setPic(String pic) {
+    this.pic = pic;
   }
 
 }

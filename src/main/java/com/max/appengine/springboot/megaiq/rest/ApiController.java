@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.max.appengine.springboot.megaiq.model.entity.EntityApiResponseBase;
+import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.service.ApiService;
 import com.max.appengine.springboot.megaiq.service.UserService;
@@ -48,12 +48,12 @@ public class ApiController {
   }
 
   @RequestMapping(value = "/", method = RequestMethod.GET)
-  public ResponseEntity<EntityApiResponseBase> index(HttpServletRequest request) {
+  public ResponseEntity<ApiResponseBase> index(HttpServletRequest request) {
     return serviceApi.index(request);
   }
 
   @RequestMapping(value = "/test/{testCode}", method = RequestMethod.GET)
-  public ResponseEntity<EntityApiResponseBase> iqTestDetails(@PathVariable UUID testCode,
+  public ResponseEntity<ApiResponseBase> iqTestDetails(@PathVariable UUID testCode,
       @RequestParam Optional<String> token, @RequestParam Optional<String> locale) {
 
     Locale userLocale = Locale.EN;

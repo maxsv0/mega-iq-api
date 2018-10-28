@@ -12,9 +12,11 @@
  * the License.
  */
 
-package com.max.appengine.springboot.megaiq.model.entity;
+package com.max.appengine.springboot.megaiq.model.api;
 
-public class EntityApiUser {
+import com.max.appengine.springboot.megaiq.model.AbstractUser;
+
+public class ApiUser {
   private String email;
   private String name;
   private String url;
@@ -23,7 +25,7 @@ public class EntityApiUser {
   private Integer age;
   private Integer iq;
 
-  public EntityApiUser(EntityUser user) {
+  public ApiUser(AbstractUser user) {
     super();
 
     this.setEmail(user.getEmail());

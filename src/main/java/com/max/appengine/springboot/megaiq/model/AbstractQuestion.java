@@ -12,19 +12,35 @@
  * the License.
  */
 
-package com.max.appengine.springboot.megaiq.model.entity;
+package com.max.appengine.springboot.megaiq.model;
 
 import java.util.Date;
+import java.util.List;
+import javax.persistence.CollectionTable;
+import javax.persistence.ElementCollection;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.MappedSuperclass;
+import com.max.appengine.springboot.megaiq.model.enums.IqQuestionGroup;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
 @MappedSuperclass
-public abstract class EntityAnswer {
+public abstract class AbstractQuestion {
   @Id
   private Integer id;
   private String pic;
-  private Integer questionId;
+  private Integer points;
+  private Integer answerCorrect;
+  private String title;
+  private String description;
+  
+  @ElementCollection(targetClass = IqQuestionGroup.class, fetch = FetchType.LAZY)
+  @CollectionTable(name = "question_group", joinColumns = @JoinColumn(name = "question_id"))
+  @Enumerated(EnumType.STRING)
+  private List<IqQuestionGroup> groups;
   private Date createDate;
   private Date updateDate;
   private Locale locale;
@@ -45,12 +61,44 @@ public abstract class EntityAnswer {
     this.pic = pic;
   }
 
-  public Integer getQuestionId() {
-    return questionId;
+  public Integer getPoints() {
+    return points;
   }
 
-  public void setQuestionId(Integer questionId) {
-    this.questionId = questionId;
+  public void setPoints(Integer points) {
+    this.points = points;
+  }
+
+  public Integer getAnswerCorrect() {
+    return answerCorrect;
+  }
+
+  public void setAnswerCorrect(Integer answerCorrect) {
+    this.answerCorrect = answerCorrect;
+  }
+
+  public String getTitle() {
+    return title;
+  }
+
+  public void setTitle(String title) {
+    this.title = title;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public List<IqQuestionGroup> getGroups() {
+    return groups;
+  }
+
+  public void setGroups(List<IqQuestionGroup> groups) {
+    this.groups = groups;
   }
 
   public Date getCreateDate() {
