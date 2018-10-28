@@ -17,6 +17,9 @@ package com.max.appengine.springboot.megaiq.model;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import javax.persistence.Column;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
@@ -31,15 +34,25 @@ public abstract class AbstractTestResult {
   private UUID code;
   private String url;
   private Integer userId;
+  
+  @Enumerated(EnumType.STRING)
+  @Column(length = 20)
   private IqTestType type;
-  private Locale locale;
+  
+  @Enumerated(EnumType.STRING)
+  @Column(length = 10)
   private IqTestStatus status;
+  
   private Date createDate;
   private Date updateDate;
   private Date finishDate;
   private Integer points;
   private QuestionGroupsResult groupsGraph;
 
+  @Enumerated(EnumType.STRING)
+  @Column(length = 2)
+  private Locale locale;
+  
   @Transient
   private List<AbstractQuestionUser> questionSet;
 

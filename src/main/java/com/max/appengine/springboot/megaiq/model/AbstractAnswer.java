@@ -15,6 +15,9 @@
 package com.max.appengine.springboot.megaiq.model;
 
 import java.util.Date;
+import javax.persistence.Column;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
@@ -27,6 +30,9 @@ public abstract class AbstractAnswer {
   private Integer questionId;
   private Date createDate;
   private Date updateDate;
+  
+  @Enumerated(EnumType.STRING)
+  @Column(length = 2)
   private Locale locale;
 
   public Integer getId() {

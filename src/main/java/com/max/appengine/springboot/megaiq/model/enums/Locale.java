@@ -14,6 +14,7 @@
 
 package com.max.appengine.springboot.megaiq.model.enums;
 
+
 public enum Locale {
   EN, RU, DE,
 }

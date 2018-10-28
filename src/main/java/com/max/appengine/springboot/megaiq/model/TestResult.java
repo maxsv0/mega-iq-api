@@ -15,11 +15,15 @@
 package com.max.appengine.springboot.megaiq.model;
 
 import javax.persistence.Entity;
+import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
 @Entity
-@Table(name = "user_test_result")
+@Table(name = "user_test_result",
+    indexes = {@Index(columnList = "locale"), @Index(columnList = "finishDate"),
+        @Index(columnList = "userId"), @Index(columnList = "code"), @Index(columnList = "type"),
+        @Index(columnList = "status"), @Index(columnList = "points")})
 public class TestResult extends AbstractTestResult {
 
   @Transient

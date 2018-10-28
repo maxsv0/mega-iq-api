@@ -15,10 +15,12 @@
 package com.max.appengine.springboot.megaiq.model;
 
 import javax.persistence.Entity;
+import javax.persistence.Index;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "question_user")
+@Table(name = "question_user",
+    indexes = {@Index(columnList = "locale"), @Index(columnList = "testId")})
 public class QuestionUser extends AbstractQuestionUser {
 
 

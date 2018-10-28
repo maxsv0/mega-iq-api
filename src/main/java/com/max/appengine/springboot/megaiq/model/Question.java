@@ -18,13 +18,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.Entity;
+import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import com.max.appengine.springboot.megaiq.model.enums.IqQuestionGroup;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
 @Entity
-@Table(name = "question")
+@Table(name = "question",
+    indexes = {@Index(columnList = "locale"), @Index(columnList = "createDate")})
 public class Question extends AbstractQuestion {
 
   @Transient

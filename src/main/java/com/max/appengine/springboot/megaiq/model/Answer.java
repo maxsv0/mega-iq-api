@@ -16,11 +16,13 @@ package com.max.appengine.springboot.megaiq.model;
 
 import java.util.Date;
 import javax.persistence.Entity;
+import javax.persistence.Index;
 import javax.persistence.Table;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
 @Entity
-@Table(name = "answer")
+@Table(name = "answer", indexes = {@Index(columnList = "locale"), @Index(columnList = "questionId"),
+    @Index(columnList = "createDate")})
 public class Answer extends AbstractAnswer {
 
   public Answer() {

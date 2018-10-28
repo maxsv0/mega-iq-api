@@ -17,6 +17,7 @@ package com.max.appengine.springboot.megaiq.model;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.CollectionTable;
+import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -43,6 +44,9 @@ public abstract class AbstractQuestion {
   private List<IqQuestionGroup> groups;
   private Date createDate;
   private Date updateDate;
+  
+  @Enumerated(EnumType.STRING)
+  @Column(length = 2)
   private Locale locale;
 
   public Integer getId() {

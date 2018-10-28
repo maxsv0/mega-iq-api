@@ -14,6 +14,9 @@
 
 package com.max.appengine.springboot.megaiq.model;
 
+import javax.persistence.Column;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
@@ -32,6 +35,9 @@ public abstract class AbstractUser {
   private Boolean isPublic;
   private String ip;
   private Integer geoId;
+  
+  @Enumerated(EnumType.STRING)
+  @Column(length = 2)
   private Locale locale;
 
   public Integer getId() {
