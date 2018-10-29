@@ -16,6 +16,7 @@ package com.max.appengine.springboot.megaiq.unit.service;
 
 import static org.junit.Assert.assertFalse;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,9 +53,17 @@ public class TestQuestionsService extends AbstractUnitTest {
         // 3 answers for each question
         // first answer is correct
 
+        ArrayList<IqQuestionGroup> iqGroups = new ArrayList<IqQuestionGroup>();
+        int iqGroupIndex = questionId % 4;
+        iqGroups.add(Arrays.asList(IqQuestionGroup.values()).get(iqGroupIndex));
+        iqGroupIndex = (questionId+1) % 4;
+        iqGroups.add(Arrays.asList(IqQuestionGroup.values()).get(iqGroupIndex));
+        
+        int questionPoint = questionId % 3 + 1;
+        
         questionReporitory
-            .save(new Question(questionId, "pic", 1, answerId, "test." + locale + " q" + i, "info",
-                new ArrayList<IqQuestionGroup>(), new Date(), new Date(), locale));
+            .save(new Question(questionId, "pic", questionPoint, answerId, "test." + locale + " q" + i, "info",
+                iqGroups, new Date(), new Date(), locale));
 
         for (int j = 1; j <= 3; j++) {
           answerReporitory.save(new Answer(answerId++, "test." + locale + " q" + i + "a" + j,
