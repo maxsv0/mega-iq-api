@@ -23,6 +23,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.MappedSuperclass;
 import com.max.appengine.springboot.megaiq.model.enums.IqQuestionGroup;
@@ -39,12 +40,13 @@ public abstract class AbstractQuestion {
   private String description;
 
   @ElementCollection(targetClass = IqQuestionGroup.class, fetch = FetchType.LAZY)
-  @CollectionTable(name = "question_group", joinColumns = @JoinColumn(name = "question_id"))
+  @CollectionTable(name = "question_group", joinColumns = @JoinColumn(name = "question_id"),
+      indexes = {@Index(columnList = "question_id"), @Index(columnList = "groups")})
   @Enumerated(EnumType.STRING)
   private List<IqQuestionGroup> groups;
   private Date createDate;
   private Date updateDate;
-  
+
   @Enumerated(EnumType.STRING)
   @Column(length = 2)
   private Locale locale;

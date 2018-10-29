@@ -16,11 +16,14 @@ package com.max.appengine.springboot.megaiq.model;
 
 import java.util.Date;
 import java.util.List;
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.JoinColumn;
 import javax.persistence.MappedSuperclass;
 import com.max.appengine.springboot.megaiq.model.enums.IqQuestionGroup;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
@@ -34,7 +37,10 @@ public abstract class AbstractQuestionUser {
   private Integer points;
   private Integer answerCorrect;
   private Integer answerUser;
+  
   @ElementCollection(targetClass = IqQuestionGroup.class)
+  @CollectionTable(name = "question_user_groups", joinColumns = @JoinColumn(name = "question_user_id"),
+  indexes = {@Index(columnList = "question_user_id"), @Index(columnList = "groups")})
   private List<IqQuestionGroup> groups;
   private Date createDate;
   private Date updateDate;
