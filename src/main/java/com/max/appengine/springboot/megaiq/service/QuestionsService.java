@@ -46,7 +46,7 @@ public class QuestionsService {
     this.questionsList = this.questionReporitory.findAll();
     
     for (Question question : this.questionsList) {
-      question.setAnswers(getAnswersByQuestionId(question));
+      question.setAnswers(getAnswersByQuestion(question));
     }
   }
 
@@ -71,11 +71,11 @@ public class QuestionsService {
     return null;
   }
 
-  public ArrayList<Answer> getAnswersByQuestionId(Question question) {
+  private ArrayList<Answer> getAnswersByQuestion(Question question) {
     return getAnswersByQuestionId(question.getId(), question.getLocale());
   }
   
-  public ArrayList<Answer> getAnswersByQuestionId(Integer questionId, Locale locale) {
+  private ArrayList<Answer> getAnswersByQuestionId(Integer questionId, Locale locale) {
     ArrayList<Answer> answersList = new ArrayList<Answer>();
 
     for (Answer answer : this.answersList) {
