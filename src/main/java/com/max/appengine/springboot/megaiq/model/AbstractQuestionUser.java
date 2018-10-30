@@ -37,14 +37,15 @@ public abstract class AbstractQuestionUser {
   private Integer points;
   private Integer answerCorrect;
   private Integer answerUser;
-  
+
   @ElementCollection(targetClass = IqQuestionGroup.class)
-  @CollectionTable(name = "question_user_groups", joinColumns = @JoinColumn(name = "question_user_id"),
-  indexes = {@Index(columnList = "question_user_id"), @Index(columnList = "groups")})
+  @CollectionTable(name = "question_user_groups",
+      joinColumns = @JoinColumn(name = "question_user_id"),
+      indexes = {@Index(columnList = "question_user_id"), @Index(columnList = "groups")})
   private List<IqQuestionGroup> groups;
   private Date createDate;
   private Date updateDate;
-  
+
   @Enumerated(EnumType.STRING)
   @Column(length = 2)
   private Locale locale;
