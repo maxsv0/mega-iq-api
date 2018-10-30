@@ -39,7 +39,7 @@ import com.max.appengine.springboot.megaiq.unit.AbstractUnitTest;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
-public class TestQuestionsService extends AbstractUnitTest {
+public class QuestionsServiceTest extends AbstractUnitTest {
   private static final int GENERATE_QUESTIONS_LIMIT = 30;
   private static final int GENERATE_ANSWERS_LIMIT = 3;
 
