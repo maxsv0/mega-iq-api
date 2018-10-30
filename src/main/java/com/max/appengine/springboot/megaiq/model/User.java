@@ -14,15 +14,49 @@
 
 package com.max.appengine.springboot.megaiq.model;
 
+import java.util.List;
+import javax.persistence.CollectionTable;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.Index;
+import javax.persistence.JoinColumn;
 import javax.persistence.Table;
+import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
 @Entity
 @Table(name = "users", indexes = {@Index(columnList = "locale"), @Index(columnList = "isPublic"),
     @Index(columnList = "iq")})
 public class User extends AbstractUser {
+  
+  @ElementCollection(targetClass = UserToken.class, fetch = FetchType.LAZY)
+  @CollectionTable(name = "user_token", joinColumns = @JoinColumn(name = "user_id"),
+      indexes = {@Index(columnList = "user_id"), @Index(columnList = "token")})
+  @Enumerated(EnumType.STRING)
+  private List<UserToken> token; 
 
+  public User() {
+    super();
+  }
 
+  public User(Integer id, String email, String name, String url, String pic, String city,
+      Integer age, Integer iq, Boolean isPublic, String ip, Integer geoId, Locale locale) {
+    super();
+    
+    this.setId(id);
+    this.setEmail(email);
+    this.setName(name);
+    this.setUrl(url);
+    this.setPic(pic);
+    this.setCity(city);
+    this.setAge(age);
+    this.setIq(iq);
+    this.setIsPublic(isPublic);
+    this.setIp(ip);
+    this.setGeoId(geoId);
+    this.setLocale(locale);
+  }
 
 }

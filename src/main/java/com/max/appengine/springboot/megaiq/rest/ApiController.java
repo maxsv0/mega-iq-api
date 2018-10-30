@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.service.ApiService;
@@ -32,7 +33,7 @@ import com.max.appengine.springboot.megaiq.service.UserService;
 @RestController
 public class ApiController {
   private final static Locale DEFAULT_LOCALE = Locale.EN;
-  
+
   private final ApiService serviceApi;
   private final UserService serviceUser;
 
@@ -68,9 +69,10 @@ public class ApiController {
     }
 
     if (token.isPresent()) {
-      if (serviceUser.checkAuthByToken(token.get())) {
-        return serviceApi.iqTestDetailsPrivate(testCode, serviceUser.getUserByToken(token.get()),
-            userLocale);
+      Optional<User> user = serviceUser.getUserByToken(token.get());
+
+      if (user.isPresent()) {
+        return serviceApi.iqTestDetailsPrivate(testCode, user.get(), userLocale);
       }
     }
 

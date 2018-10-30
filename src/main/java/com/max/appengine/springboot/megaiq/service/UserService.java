@@ -33,22 +33,8 @@ public class UserService {
     return userReporitory.findById(userId);
   }
   
-  public boolean checkAuthByToken(String token) {
-    boolean resultAuth = false;
-
-    // TODO: Auth here
-    resultAuth = true;
-
-    return resultAuth;
-  }
-
-  public User getUserByToken(String token) {
-    User resultUser = new User();
-
-    resultUser.setId(null);
-    // TODO: come code here
-
-    return resultUser;
+  public Optional<User> getUserByToken(String token) {
+    return userReporitory.findByToken_Value(token);
   }
 
 }
