@@ -15,18 +15,22 @@
 package com.max.appengine.springboot.megaiq.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.max.appengine.springboot.megaiq.model.Answer;
 import com.max.appengine.springboot.megaiq.model.Question;
+import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.repository.AnswerReporitory;
 import com.max.appengine.springboot.megaiq.repository.QuestionReporitory;
 
 @Service
 public class QuestionsService {
-
+  private final Map<IqTestType, Integer> questionsNumber;
   private List<Question> questionsList;
   private List<Answer> answersList;
 
@@ -48,8 +52,34 @@ public class QuestionsService {
     for (Question question : this.questionsList) {
       question.setAnswers(getAnswersByQuestion(question));
     }
+    
+    this.questionsNumber = new HashMap<IqTestType, Integer>();
+    this.questionsNumber.put(IqTestType.PRACTICE_IQ, 5);
+    this.questionsNumber.put(IqTestType.STANDART_IQ, 15);
+    this.questionsNumber.put(IqTestType.MEGA_IQ, 30);
+    this.questionsNumber.put(IqTestType.MATH, 10);
+    this.questionsNumber.put(IqTestType.GRAMMAR, 10);
+  }
+  
+  public int getQuestionsLimitByType(IqTestType testType) {
+    return this.questionsNumber.get(testType);
   }
 
+  public ArrayList<Question> getQuestionsSet(IqTestType testType, Locale locale) {
+    ArrayList<Question> questionAllList = new ArrayList<Question>();
+    questionAllList = getQuestions(locale);
+    Collections.shuffle(questionAllList);
+    
+    ArrayList<Question> questionSetList = new ArrayList<Question>();
+    int questionNumber = 1;
+    for (Question question : questionAllList) {
+      questionSetList.add(question);
+      if (questionNumber++ >= this.questionsNumber.get(testType)) break;
+    }
+    
+    return questionSetList;
+  }
+  
   public ArrayList<Question> getQuestions(Locale locale) {
     ArrayList<Question> questionList = new ArrayList<Question>();
     
