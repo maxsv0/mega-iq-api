@@ -31,6 +31,8 @@ import com.max.appengine.springboot.megaiq.service.UserService;
 
 @RestController
 public class ApiController {
+  private final static Locale DEFAULT_LOCALE = Locale.EN;
+  
   private final ApiService serviceApi;
   private final UserService serviceUser;
 
@@ -56,12 +58,12 @@ public class ApiController {
   public ResponseEntity<ApiResponseBase> iqTestDetails(@PathVariable UUID testCode,
       @RequestParam Optional<String> token, @RequestParam Optional<String> locale) {
 
-    Locale userLocale = Locale.EN;
+    Locale userLocale = DEFAULT_LOCALE;
     if (locale.isPresent()) {
       try {
         userLocale = Locale.valueOf(locale.get());
       } catch (IllegalArgumentException e) {
-        userLocale = Locale.EN;
+        userLocale = DEFAULT_LOCALE;
       }
     }
 
