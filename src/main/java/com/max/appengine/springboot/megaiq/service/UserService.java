@@ -14,17 +14,25 @@
 
 package com.max.appengine.springboot.megaiq.service;
 
+import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.max.appengine.springboot.megaiq.model.User;
+import com.max.appengine.springboot.megaiq.repository.UserReporitory;
 
 @Service
 public class UserService {
+  private final UserReporitory userReporitory;
 
-  // TODO:
-  // token rep
-  // user rep
+  @Autowired
+  public UserService(UserReporitory userReporitory) {
+    this.userReporitory = userReporitory;
+  }
 
-
+  public Optional<User> getUserById(Integer userId) {
+    return userReporitory.findById(userId);
+  }
+  
   public boolean checkAuthByToken(String token) {
     boolean resultAuth = false;
 
@@ -42,7 +50,5 @@ public class UserService {
 
     return resultUser;
   }
-
-
 
 }
