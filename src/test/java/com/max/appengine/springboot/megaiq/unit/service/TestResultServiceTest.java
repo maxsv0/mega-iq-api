@@ -16,11 +16,9 @@ package com.max.appengine.springboot.megaiq.unit.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,19 +41,19 @@ import com.max.appengine.springboot.megaiq.unit.AbstractUnitTest;
 @SpringBootTest(classes = Application.class)
 public class TestResultServiceTest extends AbstractUnitTest {
 
-	@Autowired
-	private UserReporitory userReporitory;
+  @Autowired
+  private UserReporitory userReporitory;
 
-	@Autowired
-	private TestResultReporitory testResultReporitory;
+  @Autowired
+  private TestResultReporitory testResultReporitory;
 
-	private TestResultService testResultService;
+  private TestResultService testResultService;
 
-	private User testUserPublic;
+  private User testUserPublic;
 
-	private TestResult testUserResult;
+  private TestResult testUserResult;
 
-	@Before
+  @Before
   public void doSetup() {
     this.testResultService = new TestResultService(userReporitory, testResultReporitory);
 
@@ -64,13 +62,20 @@ public class TestResultServiceTest extends AbstractUnitTest {
     userReporitory.save(testUserPublic);
 
     UUID code = UUID.randomUUID();
-    testUserResult = new TestResult(1, code, "/iqtest/result/" + code, 1, IqTestType.MEGA_IQ, IqTestStatus.FINISHED, new Date(), new Date(), new Date(), 150, new QuestionGroupsResult(1,1,1,1), Locale.EN);
+    testUserResult = new TestResult(1, code, "/iqtest/result/" + code, 1, IqTestType.MEGA_IQ,
+        IqTestStatus.FINISHED, new Date(), new Date(), new Date(), 150,
+        new QuestionGroupsResult(1, 1, 1, 1), Locale.EN);
+    testResultReporitory.save(testUserResult);
   }
 
-	@Test
-	public void testQuestionsServiceBasis() {
-		Optional<TestResult> testResult = this.testResultService.getTestResultById(1);
-		assertTrue(testResult.isPresent());
-		assertEquals(testUserResult, testResult.get());
-	}
+  @Test
+  public void testQuestionsServiceBasis() {
+    Optional<TestResult> testResult = this.testResultService.getTestResultById(1);
+    assertTrue(testResult.isPresent());
+    assertEquals(testUserResult, testResult.get());
+    
+    testResult = this.testResultService.getTestResultByCode(testUserResult.getCode());
+    assertTrue(testResult.isPresent());
+    assertEquals(testUserResult, testResult.get());
+  }
 }

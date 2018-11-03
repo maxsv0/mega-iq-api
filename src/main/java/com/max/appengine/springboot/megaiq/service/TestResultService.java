@@ -35,8 +35,8 @@ public class TestResultService {
     this.testResultReporitory = testResultReporitory;
   }
 
-  public Optional<TestResult> getTestResultById(Integer userId) {
-    Optional<TestResult> testResult = testResultReporitory.findById(userId);
+  public Optional<TestResult> getTestResultById(Integer testId) {
+    Optional<TestResult> testResult = testResultReporitory.findById(testId);
 
     if (testResult.isPresent()) {
       TestResult testResultDetails = loadTestDetails(testResult.get());

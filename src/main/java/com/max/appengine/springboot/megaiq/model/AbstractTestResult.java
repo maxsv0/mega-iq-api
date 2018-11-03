@@ -32,15 +32,15 @@ public abstract class AbstractTestResult {
   private UUID code;
   private String url;
   private Integer userId;
-  
+
   @Enumerated(EnumType.STRING)
   @Column(length = 20)
   private IqTestType type;
-  
+
   @Enumerated(EnumType.STRING)
   @Column(length = 10)
   private IqTestStatus status;
-  
+
   private Date createDate;
   private Date updateDate;
   private Date finishDate;
@@ -145,6 +145,88 @@ public abstract class AbstractTestResult {
 
   public void setGroupsGraph(QuestionGroupsResult groupsGraph) {
     this.groupsGraph = groupsGraph;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((code == null) ? 0 : code.hashCode());
+    result = prime * result + ((createDate == null) ? 0 : createDate.hashCode());
+    result = prime * result + ((finishDate == null) ? 0 : finishDate.hashCode());
+    result = prime * result + ((groupsGraph == null) ? 0 : groupsGraph.hashCode());
+    result = prime * result + ((id == null) ? 0 : id.hashCode());
+    result = prime * result + ((locale == null) ? 0 : locale.hashCode());
+    result = prime * result + ((points == null) ? 0 : points.hashCode());
+    result = prime * result + ((status == null) ? 0 : status.hashCode());
+    result = prime * result + ((type == null) ? 0 : type.hashCode());
+    result = prime * result + ((updateDate == null) ? 0 : updateDate.hashCode());
+    result = prime * result + ((url == null) ? 0 : url.hashCode());
+    result = prime * result + ((userId == null) ? 0 : userId.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    AbstractTestResult other = (AbstractTestResult) obj;
+    if (code == null) {
+      if (other.code != null)
+        return false;
+    } else if (!code.equals(other.code))
+      return false;
+    if (createDate == null) {
+      if (other.createDate != null)
+        return false;
+    } else if (!createDate.equals(other.createDate))
+      return false;
+    if (finishDate == null) {
+      if (other.finishDate != null)
+        return false;
+    } else if (!finishDate.equals(other.finishDate))
+      return false;
+    if (groupsGraph == null) {
+      if (other.groupsGraph != null)
+        return false;
+    } else if (!groupsGraph.equals(other.groupsGraph))
+      return false;
+    if (id == null) {
+      if (other.id != null)
+        return false;
+    } else if (!id.equals(other.id))
+      return false;
+    if (locale != other.locale)
+      return false;
+    if (points == null) {
+      if (other.points != null)
+        return false;
+    } else if (!points.equals(other.points))
+      return false;
+    if (status != other.status)
+      return false;
+    if (type != other.type)
+      return false;
+    if (updateDate == null) {
+      if (other.updateDate != null)
+        return false;
+    } else if (!updateDate.equals(other.updateDate))
+      return false;
+    if (url == null) {
+      if (other.url != null)
+        return false;
+    } else if (!url.equals(other.url))
+      return false;
+    if (userId == null) {
+      if (other.userId != null)
+        return false;
+    } else if (!userId.equals(other.userId))
+      return false;
+    return true;
   }
 
 }
