@@ -53,4 +53,12 @@ public class QuestionGroupsResult implements Serializable {
   public void setHorizons(Integer horizons) {
     this.horizons = horizons;
   }
+
+public QuestionGroupsResult(Integer math, Integer logic, Integer grammar, Integer horizons) {
+	super();
+	this.math = math;
+	this.logic = logic;
+	this.grammar = grammar;
+	this.horizons = horizons;
+}
 }
