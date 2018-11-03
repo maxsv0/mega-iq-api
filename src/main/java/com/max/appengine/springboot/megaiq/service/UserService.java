@@ -18,23 +18,33 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.max.appengine.springboot.megaiq.model.User;
+import com.max.appengine.springboot.megaiq.model.UserToken;
+import com.max.appengine.springboot.megaiq.model.enums.UserTokenType;
 import com.max.appengine.springboot.megaiq.repository.UserReporitory;
+import com.max.appengine.springboot.megaiq.repository.UserTokenReporitory;
 
 @Service
 public class UserService {
   private final UserReporitory userReporitory;
-
+  private final UserTokenReporitory userTokenReporitory;
+  
   @Autowired
-  public UserService(UserReporitory userReporitory) {
+  public UserService(UserReporitory userReporitory, UserTokenReporitory userTokenReporitory) {
     this.userReporitory = userReporitory;
+    this.userTokenReporitory = userTokenReporitory;
   }
 
   public Optional<User> getUserById(Integer userId) {
     return userReporitory.findById(userId);
   }
   
-  public Optional<User> getUserByToken(String token) {
-    return userReporitory.findByToken_Value(token);
+  public Optional<User> getUserByToken(String token, UserTokenType tokenType) {
+    // TODO: rework to join tables and avoid second query
+    
+    Optional<UserToken> userToken = userTokenReporitory.findByValueAndType(token, tokenType);
+    if (!userToken.isPresent()) return Optional.empty(); 
+    
+    return userReporitory.findById(userToken.get().getUserId());
   }
 
 }

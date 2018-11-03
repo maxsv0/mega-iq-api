@@ -14,10 +14,8 @@
 
 package com.max.appengine.springboot.megaiq.repository;
 
-import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.max.appengine.springboot.megaiq.model.User;
 
 public interface UserReporitory extends JpaRepository<User, Integer> {
-  Optional<User> findByToken_Value(String token);
 }

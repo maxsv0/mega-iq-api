@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
+import com.max.appengine.springboot.megaiq.model.enums.UserTokenType;
 import com.max.appengine.springboot.megaiq.service.ApiService;
 import com.max.appengine.springboot.megaiq.service.UserService;
 
@@ -69,7 +70,7 @@ public class ApiController {
     }
 
     if (token.isPresent()) {
-      Optional<User> user = serviceUser.getUserByToken(token.get());
+      Optional<User> user = serviceUser.getUserByToken(token.get(), UserTokenType.ACCESS);
 
       if (user.isPresent()) {
         return serviceApi.iqTestDetailsPrivate(testCode, user.get(), userLocale);

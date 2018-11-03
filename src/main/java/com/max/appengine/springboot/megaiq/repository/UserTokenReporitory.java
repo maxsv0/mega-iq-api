@@ -12,8 +12,15 @@
  * the License.
  */
 
-package com.max.appengine.springboot.megaiq.model.enums;
+package com.max.appengine.springboot.megaiq.repository;
 
-public enum UserTokenType {
-  ACCESS, FORGET, 
+import java.util.Optional;
+import org.springframework.data.jpa.repository.JpaRepository;
+import com.max.appengine.springboot.megaiq.model.UserToken;
+import com.max.appengine.springboot.megaiq.model.enums.UserTokenType;
+
+public interface UserTokenReporitory extends JpaRepository<UserToken, Integer> {
+
+  Optional<UserToken> findByValueAndType(String value, UserTokenType type);
+  
 }
