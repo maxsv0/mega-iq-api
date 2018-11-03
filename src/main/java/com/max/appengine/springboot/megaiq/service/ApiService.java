@@ -14,8 +14,10 @@
 
 package com.max.appengine.springboot.megaiq.service;
 
+import java.util.Optional;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -35,6 +37,21 @@ public class ApiService {
   // questionSet
   // users
 
+  private final QuestionsService qestionsService;
+  private final TestResultService testResultService;
+  private final UserService userService;
+
+  @Autowired
+  public ApiService(QuestionsService qestionsService, TestResultService testResultService,
+      UserService userService) {
+    super();
+
+    this.qestionsService = qestionsService;
+    this.testResultService = testResultService;
+    this.userService = userService;
+  }
+
+
 
   public ResponseEntity<ApiResponseBase> index(HttpServletRequest request) {
     ApiResponseBase result = new ApiResponseBase();
@@ -42,17 +59,16 @@ public class ApiService {
     return new ResponseEntity<ApiResponseBase>(result, HttpStatus.OK);
   }
 
-
   public ResponseEntity<ApiResponseBase> iqTestDetailsPublic(UUID testCode, Locale locale) {
 
-    TestResult resultData = loadFullResultData(testCode, locale);
-    if (resultData == null) {
+    Optional<TestResult> resultData = loadFullResultData(testCode);
+    if (!resultData.isPresent()) {
       ApiResponseBase result = new ApiResponseError("Wrong request");
 
       return new ResponseEntity<ApiResponseBase>(result, HttpStatus.OK);
     }
 
-    ApiTestResult testResult = new ApiTestResult(resultData, false);
+    ApiTestResult testResult = new ApiTestResult(resultData.get(), false);
 
     ApiResponseBase result = new ApiResponseTestResult(testResult);
 
@@ -62,17 +78,17 @@ public class ApiService {
   public ResponseEntity<ApiResponseBase> iqTestDetailsPrivate(UUID testCode, User user,
       Locale locale) {
 
-    TestResult resultData = loadFullResultData(testCode, locale);
-    if (resultData == null) {
+    Optional<TestResult> resultData = loadFullResultData(testCode);
+    if (!resultData.isPresent()) {
       ApiResponseBase result = new ApiResponseError("Wrong request");
 
       return new ResponseEntity<ApiResponseBase>(result, HttpStatus.OK);
     }
 
-    ApiTestResult testResult = new ApiTestResult(resultData, true);
+    ApiTestResult testResult = new ApiTestResult(resultData.get(), true);
 
     // private result can be requested only be user himself
-    if (!user.getId().equals(resultData.getUserId())) {
+    if (!user.getId().equals(resultData.get().getUserId())) {
       ApiResponseBase result = new ApiResponseError("Wrong token");
 
       return new ResponseEntity<ApiResponseBase>(result, HttpStatus.OK);
@@ -83,24 +99,12 @@ public class ApiService {
     }
   }
 
-  private TestResult loadFullResultData(UUID testCode, Locale locale) {
-    TestResult testResult = new TestResult();
-
-    // TODO: load from rep
-    testResult.setCode(testCode);
-    testResult.setLocale(locale);
-    testResult.setUser(getUserById(testResult.getUserId()));
-
-    return testResult;
+  private Optional<TestResult> loadFullResultData(UUID testCode) {
+    return testResultService.getTestResultByCode(testCode);
   }
 
-  private User getUserById(Integer userId) {
-    User user = new User();
-
-    // TODO: load from rep
-    user.setId(userId);
-
-    return user;
+  private Optional<User> getUserById(Integer userId) {
+    return userService.getUserById(userId);
   }
 
 }

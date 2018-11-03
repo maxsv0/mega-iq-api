@@ -14,10 +14,16 @@
 
 package com.max.appengine.springboot.megaiq.model;
 
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
+import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
+import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
 @Entity
 @Table(name = "user_test_result",
@@ -28,7 +34,10 @@ public class TestResult extends AbstractTestResult {
 
   @Transient
   private User user;
-
+  
+  @Transient
+  private List<QuestionUser> questionSet;
+  
   public User getUser() {
     return user;
   }
@@ -37,5 +46,35 @@ public class TestResult extends AbstractTestResult {
     this.user = user;
   }
 
+  public List<QuestionUser> getQuestionSet() {
+    return questionSet;
+  }
+
+  public void setQuestionSet(List<QuestionUser> questionSet) {
+    this.questionSet = questionSet;
+  }
+  
+  public TestResult() {
+    super();
+  }
+
+  public TestResult(Integer id, UUID code, String url, Integer userId, IqTestType type,
+      IqTestStatus status, Date createDate, Date updateDate, Date finishDate, Integer points,
+      QuestionGroupsResult groupsGraph, Locale locale) {
+    super();
+    
+    this.setId(id);
+    this.setCode(code);
+    this.setUrl(url);
+    this.setUserId(userId);
+    this.setType(type);
+    this.setStatus(status);
+    this.setCreateDate(createDate);
+    this.setUpdateDate(updateDate);
+    this.setFinishDate(finishDate);
+    this.setPoints(points);
+    this.setGroupsGraph(groupsGraph);
+    this.setLocale(locale);
+  }
 
 }

@@ -15,14 +15,12 @@
 package com.max.appengine.springboot.megaiq.model;
 
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.Transient;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
@@ -52,9 +50,6 @@ public abstract class AbstractTestResult {
   @Enumerated(EnumType.STRING)
   @Column(length = 2)
   private Locale locale;
-  
-  @Transient
-  private List<AbstractQuestionUser> questionSet;
 
   public Integer getId() {
     return id;
@@ -150,14 +145,6 @@ public abstract class AbstractTestResult {
 
   public void setGroupsGraph(QuestionGroupsResult groupsGraph) {
     this.groupsGraph = groupsGraph;
-  }
-
-  public List<AbstractQuestionUser> getQuestionSet() {
-    return questionSet;
-  }
-
-  public void setQuestionSet(List<AbstractQuestionUser> questionSet) {
-    this.questionSet = questionSet;
   }
 
 }

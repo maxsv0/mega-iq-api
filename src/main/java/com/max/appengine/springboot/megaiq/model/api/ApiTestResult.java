@@ -21,8 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.max.appengine.springboot.megaiq.model.AbstractQuestionUser;
-import com.max.appengine.springboot.megaiq.model.AbstractTestResult;
 import com.max.appengine.springboot.megaiq.model.QuestionGroupsResult;
+import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
@@ -46,7 +46,7 @@ public class ApiTestResult {
   @Autowired
   private QuestionsService serviceQuestions;
 
-  public ApiTestResult(AbstractTestResult testResult, boolean showPrivate) {
+  public ApiTestResult(TestResult testResult, boolean showPrivate) {
     super();
 
     this.setCode(testResult.getCode());
