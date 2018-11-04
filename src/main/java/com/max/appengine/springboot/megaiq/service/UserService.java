@@ -14,10 +14,11 @@
 
 package com.max.appengine.springboot.megaiq.service;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,8 +61,6 @@ public class UserService {
   }
 
   public Optional<User> authUserLogin(String login, String password) {
-    log.debug("Try to auth. Login={} Password={}", login, password);
-
     Optional<User> userResult = userReporitory.findByEmail(login);
     log.debug("Search for user login={}. Result={}", login, userResult);
 
@@ -85,12 +84,31 @@ public class UserService {
     }
 
     log.debug("Got hash={}", hashString);
+    User user = userResult.get();
 
-    if (!userResult.get().getPassword().equals(hashString)) {
+    if (!user.getPassword().equals(hashString)) {
       return Optional.empty();
     }
 
-    return userResult;
+    log.debug("Auth successfull for user={}", user);
+    List<UserToken> tokenList = loadUserToken(user.getId());
+    if (!tokenList.isEmpty()) {
+      user.setTokenList(tokenList);
+    } else {
+      user.setTokenList(new ArrayList<UserToken>());
+    }
+
+    UserToken tokenAccess = userResult.get().getUserTokenByType(UserTokenType.ACCESS);
+    if (tokenAccess == null) {
+      UserToken tokenAccessNew = new UserToken(user.getId(), UserTokenType.ACCESS);
+      user.getTokenList().add(tokenAccessNew);
+    }
+
+    return Optional.of(user);
+  }
+
+  private List<UserToken> loadUserToken(Integer userId) {
+    return userTokenReporitory.findByUserId(userId);
   }
 
 }

@@ -14,6 +14,7 @@
 
 package com.max.appengine.springboot.megaiq.repository;
 
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.max.appengine.springboot.megaiq.model.UserToken;
@@ -22,5 +23,7 @@ import com.max.appengine.springboot.megaiq.model.enums.UserTokenType;
 public interface UserTokenReporitory extends JpaRepository<UserToken, Integer> {
 
   Optional<UserToken> findByValueAndType(String value, UserTokenType type);
+  
+  List<UserToken> findByUserId(Integer userId);
   
 }

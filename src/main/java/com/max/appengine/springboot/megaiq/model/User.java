@@ -34,6 +34,14 @@ public class User extends AbstractUser {
     return getUserTokenByType(UserTokenType.ACCESS);
   }
 
+  public List<UserToken> getTokenList() {
+    return tokenList;
+  }
+
+  public void setTokenList(List<UserToken> tokenList) {
+    this.tokenList = tokenList;
+  }
+
   public UserToken getUserTokenByType(UserTokenType type) {
     if (this.tokenList.isEmpty()) {
       return null;

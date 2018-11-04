@@ -103,6 +103,8 @@ public class UserServiceTest extends AbstractUnitTest {
     Optional<User> userResult = this.userService.authUserLogin(testUserPublic.getEmail(), USER_PASSWORD);
     assertTrue(userResult.isPresent());
     assertEquals(testUserPublic, userResult.get());
+    assertEquals(testTokenAccess, userResult.get().getUserTokenByType(UserTokenType.ACCESS));
+    assertEquals(testTokenForget, userResult.get().getUserTokenByType(UserTokenType.FORGET));
 
     userResult = this.userService.authUserLogin(testUserPublic.getEmail(), USER_PASSWORD+"123");
     assertFalse(userResult.isPresent());
