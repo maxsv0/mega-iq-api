@@ -12,14 +12,31 @@
  * the License.
  */
 
-package com.max.appengine.springboot.megaiq.repository;
+package com.max.appengine.springboot.megaiq.model.api;
 
-import java.util.Optional;
-import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.Date;
 import com.max.appengine.springboot.megaiq.model.User;
 
-public interface UserReporitory extends JpaRepository<User, Integer> {
+public class ApiResponseUser extends ApiResponseBase {
+  private ApiUser user;
+  private ApiToken token;
+
+  public ApiUser getUser() {
+    return user;
+  }
   
-  Optional<User> findByEmail(String email);
-  
+  public ApiToken getToken() {
+    return token;
+  }
+
+  public ApiResponseUser(User user) {
+    super();
+    this.user = new ApiUser(user);
+    this.token = new ApiToken(user.getUserToken());
+
+    this.setOk();
+    this.setDate(new Date());
+    this.setMsg(null);
+  }
+
 }

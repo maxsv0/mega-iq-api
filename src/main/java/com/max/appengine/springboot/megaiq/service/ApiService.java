@@ -26,6 +26,7 @@ import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseError;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseTestResult;
+import com.max.appengine.springboot.megaiq.model.api.ApiResponseUser;
 import com.max.appengine.springboot.megaiq.model.api.ApiTestResult;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
@@ -94,12 +95,28 @@ public class ApiService {
     }
   }
 
+  public ResponseEntity<ApiResponseBase> userLogin(String login, String password) {
+    ApiResponseBase result = null;
+    
+    Optional<User> userResult = authUserLogin(login, password);
+    if (userResult.isPresent()) {
+      result = new ApiResponseUser(userResult.get());
+    } else {
+      result = new ApiResponseError("Login failed");
+    }
+
+    return new ResponseEntity<ApiResponseBase>(result, HttpStatus.OK);
+  }
+
   private Optional<TestResult> loadFullResultData(UUID testCode) {
     return testResultService.getTestResultByCode(testCode);
   }
 
+  private Optional<User> authUserLogin(String login, String password) {
+    return userService.authUserLogin(login, password);
+  }
+  
   private Optional<User> getUserById(Integer userId) {
     return userService.getUserById(userId);
   }
-
 }

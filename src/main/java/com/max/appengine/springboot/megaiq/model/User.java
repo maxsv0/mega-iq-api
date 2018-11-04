@@ -28,10 +28,28 @@ import com.max.appengine.springboot.megaiq.model.enums.UserTokenType;
 public class User extends AbstractUser {
 
   @Transient
-  private List<UserToken> token;
-  
+  private List<UserToken> tokenList;
+
+  public UserToken getUserToken() {
+    return getUserTokenByType(UserTokenType.ACCESS);
+  }
+
+  public UserToken getUserTokenByType(UserTokenType type) {
+    if (this.tokenList.isEmpty()) {
+      return null;
+    }
+
+    for (UserToken token : this.tokenList) {
+      if (token.getType().equals(type)) {
+        return token;
+      }
+    }
+
+    return null;
+  }
+
   public boolean checkToken(UserTokenType type) {
-    // TODO:come code here 
+    // TODO:come code here
     return true;
   }
 
