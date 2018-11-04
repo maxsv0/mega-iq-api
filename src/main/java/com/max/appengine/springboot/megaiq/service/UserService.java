@@ -60,10 +60,10 @@ public class UserService {
   }
 
   public Optional<User> authUserLogin(String login, String password) {
-    log.info("Try to auth. Login={} Password={}", login, password);
+    log.debug("Try to auth. Login={} Password={}", login, password);
 
     Optional<User> userResult = userReporitory.findByEmail(login);
-    log.info("Search for user login={}. Result={}", login, userResult);
+    log.debug("Search for user login={}. Result={}", login, userResult);
 
     if (!userResult.isPresent())
       return Optional.empty();
@@ -84,7 +84,7 @@ public class UserService {
       return Optional.empty();
     }
 
-    log.info("Got hash={}", hashString);
+    log.debug("Got hash={}", hashString);
 
     if (!userResult.get().getPassword().equals(hashString)) {
       return Optional.empty();
