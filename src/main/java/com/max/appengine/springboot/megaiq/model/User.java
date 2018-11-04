@@ -58,7 +58,8 @@ public class User extends AbstractUser {
   }
 
   public User(Integer id, String email, String name, String url, String pic, String city,
-      Integer age, Integer iq, Boolean isPublic, String ip, Integer geoId, Locale locale) {
+      Integer age, Integer iq, Boolean isPublic, String password, String ip, Integer geoId,
+      Locale locale) {
     super();
 
     this.setId(id);
@@ -70,9 +71,17 @@ public class User extends AbstractUser {
     this.setAge(age);
     this.setIq(iq);
     this.setIsPublic(isPublic);
+    this.setPassword(password);
     this.setIp(ip);
     this.setGeoId(geoId);
     this.setLocale(locale);
   }
 
+  @Override
+  public String toString() {
+    return "User [id=" + getId() + ", email=" + getEmail() + ", name=" + getName()
+        + ", url=" + getUrl() + ", pic=" + getPic() + ", city=" + getCity() + ", age=" + getAge()
+        + ", iq=" + getIq() + ", isPublic=" + getIsPublic() + ", password=" + getPassword()
+        + ", ip=" + getIp() + ", geoId=" + getGeoId() + ", locale=" + getLocale() + "]";
+  }
 }

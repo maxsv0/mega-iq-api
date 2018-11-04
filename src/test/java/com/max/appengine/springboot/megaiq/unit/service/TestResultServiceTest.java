@@ -57,8 +57,8 @@ public class TestResultServiceTest extends AbstractUnitTest {
   public void doSetup() {
     this.testResultService = new TestResultService(userReporitory, testResultReporitory);
 
-    testUserPublic = new User(1, "test@test.email", "test", "url", "pic", "city", 40, 150, true, "",
-        0, Locale.EN);
+    testUserPublic = new User(1, "test@test.email", "test", "url", "pic", "city", 40, 150, true,
+        "098f6bcd4621d373cade4e832627b4f6", "ip", 0, Locale.EN);
     userReporitory.save(testUserPublic);
 
     UUID code = UUID.randomUUID();
@@ -73,7 +73,7 @@ public class TestResultServiceTest extends AbstractUnitTest {
     Optional<TestResult> testResult = this.testResultService.getTestResultById(1);
     assertTrue(testResult.isPresent());
     assertEquals(testUserResult, testResult.get());
-    
+
     testResult = this.testResultService.getTestResultByCode(testUserResult.getCode());
     assertTrue(testResult.isPresent());
     assertEquals(testUserResult, testResult.get());

@@ -20,6 +20,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,6 +40,8 @@ import com.max.appengine.springboot.megaiq.unit.AbstractUnitTest;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
 public class UserServiceTest extends AbstractUnitTest {
+  private static final String USER_PASSWORD = "test";
+  private static final String USER_PASSWORD_HASH = "098f6bcd4621d373cade4e832627b4f6";
 
   @Autowired
   private UserReporitory userReporitory;
@@ -58,8 +61,8 @@ public class UserServiceTest extends AbstractUnitTest {
   public void doSetup() {
     this.userService = new UserService(userReporitory, userTokenReporitory);
 
-    testUserPublic = new User(1, "test@test.email", "test", "url", "pic", "city", 40, 150, true, "",
-        0, Locale.EN);
+    testUserPublic = new User(1, "test@test.email", "test", "url", "pic", "city", 40, 150, true,
+        USER_PASSWORD_HASH, "ip", 0, Locale.EN);
     userReporitory.save(testUserPublic);
 
     Date dateNow = new Date();
@@ -74,17 +77,34 @@ public class UserServiceTest extends AbstractUnitTest {
     userTokenReporitory.save(testTokenForget);
   }
 
+  @After
+  public void doFinish() {
+    userTokenReporitory.delete(testTokenAccess);
+    userTokenReporitory.delete(testTokenForget);
+    userReporitory.delete(testUserPublic);
+  }
+
   @Test
-  public void testQuestionsServiceBasis() {
-    Optional<User> userResult = this.userService.getUserById(1);
+  public void testUserServiceBasis() {
+    Optional<User> userResult = this.userService.getUserById(testUserPublic.getId());
     assertTrue(userResult.isPresent());
     assertEquals(testUserPublic, userResult.get());
-    
+
     userResult = this.userService.getUserByToken(testTokenAccess.getValue(), UserTokenType.ACCESS);
     assertTrue(userResult.isPresent());
     assertEquals(testUserPublic, userResult.get());
-    
+
     userResult = this.userService.getUserByToken(testTokenForget.getValue(), UserTokenType.ACCESS);
+    assertFalse(userResult.isPresent());
+  }
+
+  @Test
+  public void testUserAuth() {
+    Optional<User> userResult = this.userService.authUserLogin(testUserPublic.getEmail(), USER_PASSWORD);
+    assertTrue(userResult.isPresent());
+    assertEquals(testUserPublic, userResult.get());
+
+    userResult = this.userService.authUserLogin(testUserPublic.getEmail(), USER_PASSWORD+"123");
     assertFalse(userResult.isPresent());
   }
 }
