@@ -18,6 +18,8 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import com.max.appengine.springboot.megaiq.model.enums.UserTokenType;
@@ -25,6 +27,7 @@ import com.max.appengine.springboot.megaiq.model.enums.UserTokenType;
 @MappedSuperclass
 public abstract class AbstractUserToken {
   @Id
+  @GeneratedValue(strategy=GenerationType.IDENTITY)
   private Integer id;
   private Integer userId;
   

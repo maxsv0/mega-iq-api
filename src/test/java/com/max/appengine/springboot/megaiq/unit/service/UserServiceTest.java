@@ -16,6 +16,7 @@ package com.max.appengine.springboot.megaiq.unit.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import java.util.Date;
 import java.util.Optional;
@@ -100,13 +101,32 @@ public class UserServiceTest extends AbstractUnitTest {
 
   @Test
   public void testUserAuth() {
-    Optional<User> userResult = this.userService.authUserLogin(testUserPublic.getEmail(), USER_PASSWORD);
+    Optional<User> userResult =
+        this.userService.authUserLogin(testUserPublic.getEmail(), USER_PASSWORD);
     assertTrue(userResult.isPresent());
     assertEquals(testUserPublic, userResult.get());
     assertEquals(testTokenAccess, userResult.get().getUserTokenByType(UserTokenType.ACCESS));
     assertEquals(testTokenForget, userResult.get().getUserTokenByType(UserTokenType.FORGET));
 
-    userResult = this.userService.authUserLogin(testUserPublic.getEmail(), USER_PASSWORD+"123");
+    userResult = this.userService.authUserLogin(testUserPublic.getEmail(), USER_PASSWORD + "123");
     assertFalse(userResult.isPresent());
   }
+
+  @Test
+  public void testUserAuthUser2() {
+    User testUser2 = new User(2, "test@test.email2", "test", "url", "pic", "city", 40, 150, true,
+        USER_PASSWORD_HASH, "ip", 0, Locale.EN);
+    userReporitory.save(testUser2);
+
+    Optional<User> userResult = this.userService.authUserLogin(testUser2.getEmail(), USER_PASSWORD);
+    assertTrue(userResult.isPresent());
+    assertEquals(testUser2, userResult.get());
+    assertEquals(testUser2.getId(),
+        userResult.get().getUserTokenByType(UserTokenType.ACCESS).getUserId());
+    assertNull(userResult.get().getUserTokenByType(UserTokenType.FORGET));
+    
+    userTokenReporitory.delete(userResult.get().getUserToken());
+    userReporitory.delete(testUser2);
+  }
+
 }

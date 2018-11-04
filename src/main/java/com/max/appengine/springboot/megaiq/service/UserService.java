@@ -98,10 +98,12 @@ public class UserService {
       user.setTokenList(new ArrayList<UserToken>());
     }
 
-    UserToken tokenAccess = userResult.get().getUserTokenByType(UserTokenType.ACCESS);
+    UserToken tokenAccess = user.getUserTokenByType(UserTokenType.ACCESS);
     if (tokenAccess == null) {
       UserToken tokenAccessNew = new UserToken(user.getId(), UserTokenType.ACCESS);
       user.getTokenList().add(tokenAccessNew);
+      
+      userTokenReporitory.save(tokenAccessNew);
     }
 
     return Optional.of(user);

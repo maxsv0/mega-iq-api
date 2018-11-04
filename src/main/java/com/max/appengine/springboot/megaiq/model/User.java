@@ -43,7 +43,7 @@ public class User extends AbstractUser {
   }
 
   public UserToken getUserTokenByType(UserTokenType type) {
-    if (this.tokenList.isEmpty()) {
+    if (this.tokenList == null || this.tokenList.isEmpty()) {
       return null;
     }
 
@@ -87,9 +87,9 @@ public class User extends AbstractUser {
 
   @Override
   public String toString() {
-    return "User [id=" + getId() + ", email=" + getEmail() + ", name=" + getName()
-        + ", url=" + getUrl() + ", pic=" + getPic() + ", city=" + getCity() + ", age=" + getAge()
-        + ", iq=" + getIq() + ", isPublic=" + getIsPublic() + ", password=" + getPassword()
-        + ", ip=" + getIp() + ", geoId=" + getGeoId() + ", locale=" + getLocale() + "]";
+    return "User [id=" + getId() + ", email=" + getEmail() + ", name=" + getName() + ", url="
+        + getUrl() + ", pic=" + getPic() + ", city=" + getCity() + ", age=" + getAge() + ", iq="
+        + getIq() + ", isPublic=" + getIsPublic() + ", password=" + getPassword() + ", ip="
+        + getIp() + ", geoId=" + getGeoId() + ", locale=" + getLocale() + "]";
   }
 }
