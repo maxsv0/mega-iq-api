@@ -32,11 +32,6 @@ import com.max.appengine.springboot.megaiq.model.enums.Locale;
 @Service
 public class ApiService {
 
-  // reps:
-  // userTestResult
-  // questionSet
-  // users
-
   private final QuestionsService qestionsService;
   private final TestResultService testResultService;
   private final UserService userService;
