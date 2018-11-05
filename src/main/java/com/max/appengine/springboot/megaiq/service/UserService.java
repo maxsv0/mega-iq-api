@@ -42,6 +42,11 @@ public class UserService {
     this.userTokenReporitory = userTokenReporitory;
   }
 
+  public User saveUser(User user) {
+    userTokenReporitory.saveAll(user.getTokenList());
+    return userReporitory.save(user);
+  }
+  
   public Optional<User> getUserById(Integer userId) {
     Optional<User> userResult = userReporitory.findById(userId);
     if (!userResult.isPresent()) return userResult;

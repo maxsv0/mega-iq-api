@@ -37,6 +37,10 @@ public class TestResultService {
     this.testResultReporitory = testResultReporitory;
   }
 
+  public void saveUserResults(User user) {
+    testResultReporitory.saveAll(user.getTestResultList());
+  }
+  
   public Optional<TestResult> getTestResultById(Integer testId) {
     Optional<TestResult> testResult = testResultReporitory.findById(testId);
 

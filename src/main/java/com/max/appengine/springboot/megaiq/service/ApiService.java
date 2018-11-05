@@ -71,13 +71,19 @@ public class ApiService {
   }
 
   public TestResult startUserTest(IqTestType testType, User user, Locale locale) {
-   
+
     ArrayList<Question> quesions = qestionsService.getQuestionsSet(testType, locale);
     // TODO: code here
-    
-    return null;
+
+    TestResult testResult = new TestResult();
+    testResult.setUser(user);
+
+    return testResult;
   }
 
+  public User addNewUser(User user) {
+    return userService.saveUser(user);
+  }
 
   public Optional<User> userLogin(String login, String password) {
     return userService.authUserLogin(login, password);
@@ -85,19 +91,20 @@ public class ApiService {
 
   public Optional<User> getUserByToken(String token, Locale locale) {
     Optional<User> userResult = userService.getUserByToken(token, UserTokenType.ACCESS);
-    
-    if (!userResult.isPresent()) return userResult;
-        
+
+    if (!userResult.isPresent())
+      return userResult;
+
     User user = userResult.get();
     user.setTestResultList(loadAllResults(user.getId(), locale));
-    
+
     return Optional.of(user);
   }
 
   private Optional<TestResult> loadFullResultData(UUID testCode, Locale locale) {
     return testResultService.getTestResultByCode(testCode, locale);
   }
-  
+
   private List<TestResult> loadAllResults(Integer userId, Locale locale) {
     return testResultService.findByUserId(userId, locale);
   }
