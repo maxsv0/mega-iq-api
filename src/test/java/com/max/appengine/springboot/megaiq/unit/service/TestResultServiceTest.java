@@ -58,12 +58,12 @@ public class TestResultServiceTest extends AbstractUnitTest {
   public void doSetup() {
     this.testResultService = new TestResultService(userReporitory, testResultReporitory);
 
-    testUserPublic = new User(1, "test@test.email", "test", "url", "pic", "city", 40, 150, true,
+    testUserPublic = new User( "test@test.email", "test", "url", "pic", "city", 40, 150, true,
         "098f6bcd4621d373cade4e832627b4f6", "ip", 0, Locale.EN);
-    userReporitory.save(testUserPublic);
+    testUserPublic = userReporitory.save(testUserPublic);
 
     UUID code = UUID.randomUUID();
-    testUserResult = new TestResult(1, code, "/iqtest/result/" + code, 1, IqTestType.MEGA_IQ,
+    testUserResult = new TestResult(1, code, "/iqtest/result/" + code, testUserPublic.getId(), IqTestType.MEGA_IQ,
         IqTestStatus.FINISHED, new Date(), new Date(), new Date(), 150,
         new QuestionGroupsResult(1, 1, 1, 1), Locale.EN);
     testResultReporitory.save(testUserResult);

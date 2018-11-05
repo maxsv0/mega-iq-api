@@ -62,19 +62,19 @@ public class UserServiceTest extends AbstractUnitTest {
   public void doSetup() {
     this.userService = new UserService(userReporitory, userTokenReporitory);
 
-    testUserPublic = new User(1, "test@test.email", "test", "url", "pic", "city", 40, 150, true,
+    testUserPublic = new User("test@test.email", "test", "url", "pic", "city", 40, 150, true,
         USER_PASSWORD_HASH, "ip", 0, Locale.EN);
-    userReporitory.save(testUserPublic);
+    testUserPublic = userReporitory.save(testUserPublic);
 
     Date dateNow = new Date();
     Date dateExpire = new Date(dateNow.getTime() + (1000 * 60 * 60 * 24 * 7));
 
     testTokenAccess =
-        new UserToken(1, UserTokenType.ACCESS, UUID.randomUUID().toString(), dateNow, dateExpire);
+        new UserToken(testUserPublic.getId(), UserTokenType.ACCESS, UUID.randomUUID().toString(), dateNow, dateExpire);
     userTokenReporitory.save(testTokenAccess);
 
     testTokenForget =
-        new UserToken(1, UserTokenType.FORGET, UUID.randomUUID().toString(), dateNow, dateExpire);
+        new UserToken(testUserPublic.getId(), UserTokenType.FORGET, UUID.randomUUID().toString(), dateNow, dateExpire);
     userTokenReporitory.save(testTokenForget);
   }
 
@@ -114,7 +114,7 @@ public class UserServiceTest extends AbstractUnitTest {
 
   @Test
   public void testUserAuthUser2() {
-    User testUser2 = new User(2, "test@test.email2", "test", "url", "pic", "city", 40, 150, true,
+    User testUser2 = new User("test@test.email2", "test", "url", "pic", "city", 40, 150, true,
         USER_PASSWORD_HASH, "ip", 0, Locale.EN);
     userReporitory.save(testUser2);
 

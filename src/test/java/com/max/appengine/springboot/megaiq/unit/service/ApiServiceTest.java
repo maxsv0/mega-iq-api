@@ -59,7 +59,7 @@ public class ApiServiceTest {
   public void doSetup() {
     this.apiService = new ApiService(qestionsService, testResultService, userService);
 
-    User testUser = new User(1, "test@test.email", "test", "url", "pic", "city", 40, 150, true, "",
+    User testUser = new User("test@test.email", "test", "url", "pic", "city", 40, 150, true, "",
         "ip", 0, Locale.EN);
 
     Date dateNow = new Date();
@@ -80,8 +80,9 @@ public class ApiServiceTest {
     Optional<User> userResult = this.apiService.getUserByToken(this.tokenUser, Locale.EN);
     assertTrue(userResult.isPresent());
     assertEquals(tokenUser, userResult.get().getUserTokenByType(UserTokenType.ACCESS).getValue());
-    
-    TestResult testResult = this.apiService.startUserTest(IqTestType.MEGA_IQ, userResult.get(), Locale.EN);
+
+    TestResult testResult =
+        this.apiService.startUserTest(IqTestType.MEGA_IQ, userResult.get(), Locale.EN);
     assertNotNull(testResult);
     assertEquals(userResult.get(), testResult.getUser());
   }

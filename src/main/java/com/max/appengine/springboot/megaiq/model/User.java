@@ -80,12 +80,11 @@ public class User extends AbstractUser {
     super();
   }
 
-  public User(Integer id, String email, String name, String url, String pic, String city,
+  public User(String email, String name, String url, String pic, String city,
       Integer age, Integer iq, Boolean isPublic, String password, String ip, Integer geoId,
       Locale locale) {
     super();
 
-    this.setId(id);
     this.setEmail(email);
     this.setName(name);
     this.setUrl(url);
