@@ -14,12 +14,14 @@
 
 package com.max.appengine.springboot.megaiq.service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.User;
+import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.repository.TestResultReporitory;
 import com.max.appengine.springboot.megaiq.repository.UserReporitory;
 
@@ -47,8 +49,8 @@ public class TestResultService {
     return testResult;
   }
 
-  public Optional<TestResult> getTestResultByCode(UUID code) {
-    Optional<TestResult> testResult = testResultReporitory.findByCode(code);
+  public Optional<TestResult> getTestResultByCode(UUID code, Locale locale) {
+    Optional<TestResult> testResult = testResultReporitory.findByCodeAndLocale(code, locale);
     
     if (testResult.isPresent()) {
       TestResult testResultDetails = loadTestDetails(testResult.get());
@@ -57,6 +59,10 @@ public class TestResultService {
     }
 
     return testResult;
+  }
+  
+  public List<TestResult> findByUserId(Integer userId, Locale locale) {
+    return testResultReporitory.findByUserIdAndLocale(userId, locale);
   }
   
   private TestResult loadTestDetails(TestResult testResult) {

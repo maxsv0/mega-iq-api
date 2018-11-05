@@ -69,12 +69,12 @@ public class UserServiceTest extends AbstractUnitTest {
     Date dateNow = new Date();
     Date dateExpire = new Date(dateNow.getTime() + (1000 * 60 * 60 * 24 * 7));
 
-    testTokenAccess = new UserToken(1, 1, UserTokenType.ACCESS, UUID.randomUUID().toString(),
-        dateNow, dateExpire);
+    testTokenAccess =
+        new UserToken(1, UserTokenType.ACCESS, UUID.randomUUID().toString(), dateNow, dateExpire);
     userTokenReporitory.save(testTokenAccess);
 
-    testTokenForget = new UserToken(2, 1, UserTokenType.FORGET, UUID.randomUUID().toString(),
-        dateNow, dateExpire);
+    testTokenForget =
+        new UserToken(1, UserTokenType.FORGET, UUID.randomUUID().toString(), dateNow, dateExpire);
     userTokenReporitory.save(testTokenForget);
   }
 
@@ -124,7 +124,7 @@ public class UserServiceTest extends AbstractUnitTest {
     assertEquals(testUser2.getId(),
         userResult.get().getUserTokenByType(UserTokenType.ACCESS).getUserId());
     assertNull(userResult.get().getUserTokenByType(UserTokenType.FORGET));
-    
+
     userTokenReporitory.delete(userResult.get().getUserToken());
     userReporitory.delete(testUser2);
   }

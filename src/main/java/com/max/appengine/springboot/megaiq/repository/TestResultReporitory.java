@@ -14,13 +14,17 @@
 
 package com.max.appengine.springboot.megaiq.repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.max.appengine.springboot.megaiq.model.TestResult;
+import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
 public interface TestResultReporitory extends JpaRepository<TestResult, Integer> {
 
-  Optional<TestResult> findByCode(UUID code);
+  Optional<TestResult> findByCodeAndLocale(UUID code, Locale locale);
+  
+  List<TestResult> findByUserIdAndLocale(Integer userId, Locale locale);
   
 }

@@ -47,15 +47,21 @@ public class UserToken extends AbstractUserToken {
     this.setValue(UUID.randomUUID().toString());
   }
 
-  public UserToken(Integer id, Integer userId, UserTokenType type, String value, Date createDate,
+  public UserToken(Integer userId, UserTokenType type, String value, Date createDate,
       Date expireDate) {
     super();
 
-    this.setId(id);
     this.setUserId(userId);
     this.setType(type);
     this.setValue(value);
     this.setCreateDate(createDate);
     this.setExpireDate(expireDate);
+  }
+
+  @Override
+  public String toString() {
+    return "UserToken [id=" + getId() + ", userId=" + getUserId() + ", type=" + getType()
+        + ", value=" + getValue() + ", createDate=" + getCreateDate() + ", expireDate="
+        + getExpireDate() + "]";
   }
 }

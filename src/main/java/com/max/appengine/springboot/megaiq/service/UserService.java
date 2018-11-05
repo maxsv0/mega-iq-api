@@ -43,21 +43,21 @@ public class UserService {
   }
 
   public Optional<User> getUserById(Integer userId) {
-
-
-    return userReporitory.findById(userId);
+    Optional<User> userResult = userReporitory.findById(userId);
+    if (!userResult.isPresent()) return userResult;
+    
+    User user = loadUserToken(userResult.get());
+    return Optional.of(user);
   }
 
   public Optional<User> getUserByToken(String token, UserTokenType tokenType) {
-    log.debug("Try to auth. Token={} type={}", token, tokenType);
-
-    // TODO: rework to join tables and avoid second query
-
     Optional<UserToken> userToken = userTokenReporitory.findByValueAndType(token, tokenType);
+    log.debug("Try to auth. Token={} type={}, userToken={}", token, tokenType, userToken);
+    
     if (!userToken.isPresent())
       return Optional.empty();
-
-    return userReporitory.findById(userToken.get().getUserId());
+    
+    return getUserById(userToken.get().getUserId());
   }
 
   public Optional<User> authUserLogin(String login, String password) {
@@ -90,13 +90,8 @@ public class UserService {
       return Optional.empty();
     }
 
+    user = loadUserToken(user);
     log.debug("Auth successfull for user={}", user);
-    List<UserToken> tokenList = loadUserToken(user.getId());
-    if (!tokenList.isEmpty()) {
-      user.setTokenList(tokenList);
-    } else {
-      user.setTokenList(new ArrayList<UserToken>());
-    }
 
     UserToken tokenAccess = user.getUserTokenByType(UserTokenType.ACCESS);
     if (tokenAccess == null) {
@@ -109,8 +104,16 @@ public class UserService {
     return Optional.of(user);
   }
 
-  private List<UserToken> loadUserToken(Integer userId) {
-    return userTokenReporitory.findByUserId(userId);
+  private User loadUserToken(User user) {
+    List<UserToken> tokenList = userTokenReporitory.findByUserId(user.getId());
+    
+    if (!tokenList.isEmpty()) {
+      user.setTokenList(tokenList);
+    } else {
+      user.setTokenList(new ArrayList<UserToken>());
+    }
+    
+    return user;
   }
 
 }

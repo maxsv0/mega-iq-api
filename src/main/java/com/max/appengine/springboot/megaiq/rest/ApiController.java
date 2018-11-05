@@ -18,25 +18,28 @@ import java.util.Optional;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
+import com.max.appengine.springboot.megaiq.model.api.ApiResponseError;
+import com.max.appengine.springboot.megaiq.model.api.ApiResponseTestResult;
+import com.max.appengine.springboot.megaiq.model.api.ApiResponseUser;
+import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
-import com.max.appengine.springboot.megaiq.model.enums.UserTokenType;
 import com.max.appengine.springboot.megaiq.service.ApiService;
-import com.max.appengine.springboot.megaiq.service.UserService;
 
 @RestController
 public class ApiController {
   private final static Locale DEFAULT_LOCALE = Locale.EN;
 
   private final ApiService serviceApi;
-  private final UserService serviceUser;
 
   //
   // pre-load:
@@ -46,37 +49,110 @@ public class ApiController {
   //
 
   @Autowired
-  public ApiController(ApiService service, UserService serviceUser) {
+  public ApiController(ApiService service) {
     this.serviceApi = service;
-    this.serviceUser = serviceUser;
   }
 
   @RequestMapping(value = "/", method = RequestMethod.GET)
   public ResponseEntity<ApiResponseBase> index(HttpServletRequest request) {
-    return serviceApi.index(request);
+    return new ResponseEntity<ApiResponseBase>(serviceApi.index(request), HttpStatus.OK);
   }
 
   @RequestMapping(value = "/test/{testCode}", method = RequestMethod.GET)
-  public ResponseEntity<ApiResponseBase> iqTestDetails(@PathVariable UUID testCode,
+  public ResponseEntity<ApiResponseBase> requestTestDetails(@PathVariable UUID testCode,
       @RequestParam Optional<String> token, @RequestParam Optional<String> locale) {
 
-    Locale userLocale = DEFAULT_LOCALE;
-    if (locale.isPresent()) {
-      try {
-        userLocale = Locale.valueOf(locale.get());
-      } catch (IllegalArgumentException e) {
-        userLocale = DEFAULT_LOCALE;
-      }
-    }
+    Locale userLocale = loadLocale(locale);
 
     if (token.isPresent()) {
-      Optional<User> user = serviceUser.getUserByToken(token.get(), UserTokenType.ACCESS);
+      Optional<User> user = serviceApi.getUserByToken(token.get(), userLocale);
 
       if (user.isPresent()) {
-        return serviceApi.iqTestDetailsPrivate(testCode, user.get(), userLocale);
+        return iqTestDetailsPrivate(testCode, user.get(), userLocale);
       }
     }
 
-    return serviceApi.iqTestDetailsPublic(testCode, userLocale);
+    return iqTestDetailsPublic(testCode, userLocale);
+  }
+
+  @RequestMapping(value = "/test/start", method = RequestMethod.GET)
+  public ResponseEntity<ApiResponseBase> requestTestDetails(@PathVariable IqTestType type,
+      @RequestParam String token, @RequestParam Optional<String> locale) {
+
+    Locale userLocale = loadLocale(locale);
+
+    Optional<User> user = serviceApi.getUserByToken(token, userLocale);
+    if (!user.isPresent()) {
+      return new ResponseEntity<ApiResponseBase>(new ApiResponseError("Wrong request"),
+          HttpStatus.OK);
+    }
+
+    TestResult testResult = serviceApi.startUserTest(type, user.get(), userLocale);
+
+    return new ResponseEntity<ApiResponseBase>(new ApiResponseTestResult(testResult),
+        HttpStatus.OK);
+  }
+
+  @RequestMapping(value = "/user/login", method = RequestMethod.GET)
+  public ResponseEntity<ApiResponseBase> requestUserLogin(@PathVariable String login,
+      @PathVariable String password) {
+    return userLogin(login, password);
+  }
+
+  private ResponseEntity<ApiResponseBase> iqTestDetailsPublic(UUID testCode, Locale locale) {
+    Optional<TestResult> testResult = serviceApi.iqTestDetailsPublic(testCode, locale);
+
+    if (testResult.isPresent()) {
+      ApiResponseBase resultResponse = new ApiResponseTestResult(testResult.get());
+
+      return new ResponseEntity<ApiResponseBase>(resultResponse, HttpStatus.OK);
+    } else {
+      return new ResponseEntity<ApiResponseBase>(new ApiResponseError("Wrong request"),
+          HttpStatus.OK);
+    }
+  }
+
+  private ResponseEntity<ApiResponseBase> iqTestDetailsPrivate(UUID testCode, User user,
+      Locale locale) {
+
+    Optional<TestResult> testResult = serviceApi.iqTestDetailsPrivate(testCode, user, locale);
+
+    if (testResult.isPresent()) {
+      ApiResponseBase resultResponse = new ApiResponseTestResult(testResult.get());
+
+      return new ResponseEntity<ApiResponseBase>(resultResponse, HttpStatus.OK);
+    } else {
+      return new ResponseEntity<ApiResponseBase>(new ApiResponseError("Wrong request"),
+          HttpStatus.OK);
+    }
+  }
+
+  private ResponseEntity<ApiResponseBase> userLogin(String login, String password) {
+
+    Optional<User> user = serviceApi.userLogin(login, password);
+
+    if (user.isPresent()) {
+      ApiResponseBase resultResponse = new ApiResponseUser(user.get());
+
+      return new ResponseEntity<ApiResponseBase>(resultResponse, HttpStatus.OK);
+    } else {
+      return new ResponseEntity<ApiResponseBase>(new ApiResponseError("Wrong request"),
+          HttpStatus.OK);
+    }
+  }
+
+  private Locale loadLocale(Optional<String> locale) {
+    Locale userLocale = DEFAULT_LOCALE;
+    if (locale.isPresent()) {
+      return userLocale;
+    }
+
+    try {
+      userLocale = Locale.valueOf(locale.get());
+    } catch (IllegalArgumentException e) {
+      userLocale = DEFAULT_LOCALE;
+    }
+
+    return userLocale;
   }
 }

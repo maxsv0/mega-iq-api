@@ -15,6 +15,7 @@
 package com.max.appengine.springboot.megaiq.unit.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import java.util.Date;
 import java.util.Optional;
@@ -69,13 +70,16 @@ public class TestResultServiceTest extends AbstractUnitTest {
   }
 
   @Test
-  public void testQuestionsServiceBasis() {
-    Optional<TestResult> testResult = this.testResultService.getTestResultById(1);
+  public void testTestResultsServiceBasis() {
+    Optional<TestResult> testResult = this.testResultService.getTestResultById(testUserResult.getId());
     assertTrue(testResult.isPresent());
     assertEquals(testUserResult, testResult.get());
 
-    testResult = this.testResultService.getTestResultByCode(testUserResult.getCode());
+    testResult = this.testResultService.getTestResultByCode(testUserResult.getCode(), testUserResult.getLocale());
     assertTrue(testResult.isPresent());
     assertEquals(testUserResult, testResult.get());
+    
+    testResult = this.testResultService.getTestResultByCode(testUserResult.getCode(), Locale.DE);
+    assertFalse(testResult.isPresent());
   }
 }

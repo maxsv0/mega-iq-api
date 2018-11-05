@@ -14,21 +14,20 @@
 
 package com.max.appengine.springboot.megaiq.service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import com.max.appengine.springboot.megaiq.model.Question;
 import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
-import com.max.appengine.springboot.megaiq.model.api.ApiResponseError;
-import com.max.appengine.springboot.megaiq.model.api.ApiResponseTestResult;
-import com.max.appengine.springboot.megaiq.model.api.ApiResponseUser;
-import com.max.appengine.springboot.megaiq.model.api.ApiTestResult;
+import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
+import com.max.appengine.springboot.megaiq.model.enums.UserTokenType;
 
 @Service
 public class ApiService {
@@ -47,75 +46,62 @@ public class ApiService {
     this.userService = userService;
   }
 
-
-
-  public ResponseEntity<ApiResponseBase> index(HttpServletRequest request) {
+  public ApiResponseBase index(HttpServletRequest request) {
     ApiResponseBase result = new ApiResponseBase();
 
-    return new ResponseEntity<ApiResponseBase>(result, HttpStatus.OK);
+    return result;
   }
 
-  public ResponseEntity<ApiResponseBase> iqTestDetailsPublic(UUID testCode, Locale locale) {
-
-    Optional<TestResult> resultData = loadFullResultData(testCode);
-    if (!resultData.isPresent()) {
-      ApiResponseBase result = new ApiResponseError("Wrong request");
-
-      return new ResponseEntity<ApiResponseBase>(result, HttpStatus.OK);
-    }
-
-    ApiTestResult testResult = new ApiTestResult(resultData.get(), false);
-
-    ApiResponseBase result = new ApiResponseTestResult(testResult);
-
-    return new ResponseEntity<ApiResponseBase>(result, HttpStatus.OK);
+  public Optional<TestResult> iqTestDetailsPublic(UUID testCode, Locale locale) {
+    return loadFullResultData(testCode, locale);
   }
 
-  public ResponseEntity<ApiResponseBase> iqTestDetailsPrivate(UUID testCode, User user,
-      Locale locale) {
-
-    Optional<TestResult> resultData = loadFullResultData(testCode);
+  public Optional<TestResult> iqTestDetailsPrivate(UUID testCode, User user, Locale locale) {
+    Optional<TestResult> resultData = loadFullResultData(testCode, locale);
     if (!resultData.isPresent()) {
-      ApiResponseBase result = new ApiResponseError("Wrong request");
-
-      return new ResponseEntity<ApiResponseBase>(result, HttpStatus.OK);
+      return resultData;
     }
-
-    ApiTestResult testResult = new ApiTestResult(resultData.get(), true);
 
     // private result can be requested only be user himself
     if (!user.getId().equals(resultData.get().getUserId())) {
-      ApiResponseBase result = new ApiResponseError("Wrong token");
-
-      return new ResponseEntity<ApiResponseBase>(result, HttpStatus.OK);
+      return Optional.empty();
     } else {
-      ApiResponseBase result = new ApiResponseTestResult(testResult);
-
-      return new ResponseEntity<ApiResponseBase>(result, HttpStatus.OK);
+      return resultData;
     }
   }
 
-  public ResponseEntity<ApiResponseBase> userLogin(String login, String password) {
-    ApiResponseBase result = null;
+  public TestResult startUserTest(IqTestType testType, User user, Locale locale) {
+   
+    ArrayList<Question> quesions = qestionsService.getQuestionsSet(testType, locale);
+    // TODO: code here
     
-    Optional<User> userResult = authUserLogin(login, password);
-    if (userResult.isPresent()) {
-      result = new ApiResponseUser(userResult.get());
-    } else {
-      result = new ApiResponseError("Login failed");
-    }
-
-    return new ResponseEntity<ApiResponseBase>(result, HttpStatus.OK);
+    return null;
   }
 
-  private Optional<TestResult> loadFullResultData(UUID testCode) {
-    return testResultService.getTestResultByCode(testCode);
-  }
 
-  private Optional<User> authUserLogin(String login, String password) {
+  public Optional<User> userLogin(String login, String password) {
     return userService.authUserLogin(login, password);
   }
+
+  public Optional<User> getUserByToken(String token, Locale locale) {
+    Optional<User> userResult = userService.getUserByToken(token, UserTokenType.ACCESS);
+    
+    if (!userResult.isPresent()) return userResult;
+        
+    User user = userResult.get();
+    user.setTestResultList(loadAllResults(user.getId(), locale));
+    
+    return Optional.of(user);
+  }
+
+  private Optional<TestResult> loadFullResultData(UUID testCode, Locale locale) {
+    return testResultService.getTestResultByCode(testCode, locale);
+  }
   
+  private List<TestResult> loadAllResults(Integer userId, Locale locale) {
+    return testResultService.findByUserId(userId, locale);
+  }
+
   private Optional<User> getUserById(Integer userId) {
     return userService.getUserById(userId);
   }
