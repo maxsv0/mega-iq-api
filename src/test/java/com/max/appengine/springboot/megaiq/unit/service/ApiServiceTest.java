@@ -15,12 +15,11 @@
 package com.max.appengine.springboot.megaiq.unit.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.Optional;
-import java.util.UUID;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,21 +27,28 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import com.max.appengine.springboot.megaiq.Application;
+import com.max.appengine.springboot.megaiq.model.QuestionUser;
 import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.User;
-import com.max.appengine.springboot.megaiq.model.UserToken;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.model.enums.UserTokenType;
+import com.max.appengine.springboot.megaiq.repository.AnswerReporitory;
+import com.max.appengine.springboot.megaiq.repository.QuestionReporitory;
 import com.max.appengine.springboot.megaiq.service.ApiService;
 import com.max.appengine.springboot.megaiq.service.QuestionsService;
 import com.max.appengine.springboot.megaiq.service.TestResultService;
 import com.max.appengine.springboot.megaiq.service.UserService;
+import com.max.appengine.springboot.megaiq.unit.AbstractUnitTest;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
-public class ApiServiceTest {
-  @Autowired
+public class ApiServiceTest extends AbstractUnitTest {
+  private static final String USER_PASSWORD = "test";
+  private static final String USER_PASSWORD_HASH = "098f6bcd4621d373cade4e832627b4f6";
+  private static final int GENERATE_QUESTIONS_LIMIT = 30;
+  private static final int GENERATE_ANSWERS_LIMIT = 2;
+
   private QuestionsService qestionsService;
 
   @Autowired
@@ -51,39 +57,74 @@ public class ApiServiceTest {
   @Autowired
   private UserService userService;
 
+  @Autowired
+  private AnswerReporitory answerReporitory;
+
+  @Autowired
+  private QuestionReporitory questionReporitory;
+
+
   private ApiService apiService;
 
   private String tokenUser;
 
   @Before
   public void doSetup() {
-    this.apiService = new ApiService(qestionsService, testResultService, userService);
+    generateQuestionsAndAnswers(questionReporitory, answerReporitory, GENERATE_QUESTIONS_LIMIT,
+        GENERATE_ANSWERS_LIMIT, Locale.EN);
 
-    User testUser = new User("test@test.email", "test", "url", "pic", "city", 40, 150, true, "",
-        "ip", 0, Locale.EN);
+    this.qestionsService = new QuestionsService(answerReporitory, questionReporitory);
+    this.apiService = new ApiService(this.qestionsService, testResultService, userService);
 
-    Date dateNow = new Date();
-    Date dateExpire = new Date(dateNow.getTime() + (1000 * 60 * 60 * 24 * 7));
-    this.tokenUser = UUID.randomUUID().toString();
+    User testUser = new User("test@test.email", "test", "url", "pic", "city", 40, 150, true,
+        USER_PASSWORD_HASH, "ip", 0, Locale.EN);
 
-    UserToken testTokenAccess =
-        new UserToken(1, UserTokenType.ACCESS, this.tokenUser, dateNow, dateExpire);
+    testUser = apiService.addNewUser(testUser);
 
-    testUser.setTokenList(new ArrayList<UserToken>());
-    testUser.getTokenList().add(testTokenAccess);
+    Optional<User> userResult = apiService.userLogin(testUser.getEmail(), USER_PASSWORD);
+    assertTrue(userResult.isPresent());
+    assertNotNull(userResult.get().getUserToken());
 
-    apiService.addNewUser(testUser);
+    this.tokenUser = userResult.get().getUserToken().getValue();
   }
 
   @Test
-  public void testTestResultsServiceBasis() {
-    Optional<User> userResult = this.apiService.getUserByToken(this.tokenUser, Locale.EN);
+  public void testApiServiceBasis() {
+    Optional<User> userResult = this.apiService.getUserByToken(this.tokenUser, Locale.DE);
     assertTrue(userResult.isPresent());
     assertEquals(tokenUser, userResult.get().getUserTokenByType(UserTokenType.ACCESS).getValue());
 
-    TestResult testResult =
+    userResult = this.apiService.getUserByToken(this.tokenUser, Locale.EN);
+    assertTrue(userResult.isPresent());
+    assertEquals(tokenUser, userResult.get().getUserTokenByType(UserTokenType.ACCESS).getValue());
+
+    Optional<TestResult> testNewResult =
         this.apiService.startUserTest(IqTestType.MEGA_IQ, userResult.get(), Locale.EN);
-    assertNotNull(testResult);
-    assertEquals(userResult.get(), testResult.getUser());
+    log.info("Got New test={}", testNewResult);
+
+    assertTrue(testNewResult.isPresent());
+    assertEquals(userResult.get(), testNewResult.get().getUser());
+    assertNotNull(testNewResult.get().getQuestionSet());
+    assertEquals(this.qestionsService.getQuestionsLimitByType(IqTestType.MEGA_IQ),
+        testNewResult.get().getQuestionSet().size());
+
+    Optional<TestResult> testResultDataFail =
+        this.apiService.iqTestDetailsPublic(testNewResult.get().getCode(), Locale.DE);
+    assertFalse(testResultDataFail.isPresent());
+
+    Optional<TestResult> testResultPublic = this.apiService
+        .iqTestDetailsPublic(testNewResult.get().getCode(), testNewResult.get().getLocale());
+    log.info("Got Public testResultData={}", testResultPublic);
+    assertTrue(testResultPublic.isPresent());
+    assertEquals(testNewResult.get(), testResultPublic.get());
+    assertNull(testResultPublic.get().getQuestionSet());
+
+    Optional<TestResult> testResultPrivate = this.apiService.iqTestDetailsPrivate(
+        testNewResult.get().getCode(), userResult.get(), testNewResult.get().getLocale());
+    log.info("Got Private testResultData={}", testResultPrivate);
+    assertTrue(testResultPrivate.isPresent());
+    assertEquals(testNewResult.get(), testResultPrivate.get());
+    assertNotNull(testResultPrivate.get().getQuestionSet());
+    assertEquals(testResultPrivate.get().getQuestionSet(), testNewResult.get().getQuestionSet());
   }
 }

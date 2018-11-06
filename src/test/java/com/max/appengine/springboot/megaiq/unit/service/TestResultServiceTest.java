@@ -33,6 +33,7 @@ import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
+import com.max.appengine.springboot.megaiq.repository.QuestionUserRepository;
 import com.max.appengine.springboot.megaiq.repository.TestResultReporitory;
 import com.max.appengine.springboot.megaiq.repository.UserReporitory;
 import com.max.appengine.springboot.megaiq.service.TestResultService;
@@ -48,6 +49,9 @@ public class TestResultServiceTest extends AbstractUnitTest {
   @Autowired
   private TestResultReporitory testResultReporitory;
 
+  @Autowired
+  private QuestionUserRepository questionUserRepository;
+
   private TestResultService testResultService;
 
   private User testUserPublic;
@@ -56,29 +60,32 @@ public class TestResultServiceTest extends AbstractUnitTest {
 
   @Before
   public void doSetup() {
-    this.testResultService = new TestResultService(userReporitory, testResultReporitory);
+    this.testResultService =
+        new TestResultService(userReporitory, testResultReporitory, questionUserRepository);
 
-    testUserPublic = new User( "test@test.email", "test", "url", "pic", "city", 40, 150, true,
+    testUserPublic = new User("test@test.email", "test", "url", "pic", "city", 40, 150, true,
         "098f6bcd4621d373cade4e832627b4f6", "ip", 0, Locale.EN);
     testUserPublic = userReporitory.save(testUserPublic);
 
     UUID code = UUID.randomUUID();
-    testUserResult = new TestResult(1, code, "/iqtest/result/" + code, testUserPublic.getId(), IqTestType.MEGA_IQ,
-        IqTestStatus.FINISHED, new Date(), new Date(), new Date(), 150,
+    testUserResult = new TestResult(1, code, "/iqtest/result/" + code, testUserPublic.getId(),
+        IqTestType.MEGA_IQ, IqTestStatus.FINISHED, new Date(), new Date(), new Date(), 150,
         new QuestionGroupsResult(1, 1, 1, 1), Locale.EN);
     testResultReporitory.save(testUserResult);
   }
 
   @Test
   public void testTestResultsServiceBasis() {
-    Optional<TestResult> testResult = this.testResultService.getTestResultById(testUserResult.getId());
+    Optional<TestResult> testResult =
+        this.testResultService.getTestResultById(testUserResult.getId());
     assertTrue(testResult.isPresent());
     assertEquals(testUserResult, testResult.get());
 
-    testResult = this.testResultService.getTestResultByCode(testUserResult.getCode(), testUserResult.getLocale());
+    testResult = this.testResultService.getTestResultByCode(testUserResult.getCode(),
+        testUserResult.getLocale());
     assertTrue(testResult.isPresent());
     assertEquals(testUserResult, testResult.get());
-    
+
     testResult = this.testResultService.getTestResultByCode(testUserResult.getCode(), Locale.DE);
     assertFalse(testResult.isPresent());
   }

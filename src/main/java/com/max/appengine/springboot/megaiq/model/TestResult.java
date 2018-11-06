@@ -14,6 +14,7 @@
 
 package com.max.appengine.springboot.megaiq.model;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -34,10 +35,10 @@ public class TestResult extends AbstractTestResult {
 
   @Transient
   private User user;
-  
+
   @Transient
   private List<QuestionUser> questionSet;
-  
+
   public User getUser() {
     return user;
   }
@@ -53,16 +54,38 @@ public class TestResult extends AbstractTestResult {
   public void setQuestionSet(List<QuestionUser> questionSet) {
     this.questionSet = questionSet;
   }
+
+  public void newQuestionSet(List<Question> quesions) {
+    List<QuestionUser> questionSet = new ArrayList<QuestionUser>();
+    
+    for (Question question : quesions) {
+      questionSet.add(new QuestionUser(question));
+    }
+    setQuestionSet(questionSet);
+  }
   
   public TestResult() {
     super();
+  }
+
+  public TestResult(Integer userId, IqTestType type, Locale locale) {
+    super();
+
+    UUID code = UUID.randomUUID();
+    this.setCode(code);
+    this.setUrl("/iqtest/result/" + code);
+    this.setUserId(userId);
+    this.setType(type);
+    this.setStatus(IqTestStatus.ACTIVE);
+    this.setCreateDate(new Date());
+    this.setLocale(locale);
   }
 
   public TestResult(Integer id, UUID code, String url, Integer userId, IqTestType type,
       IqTestStatus status, Date createDate, Date updateDate, Date finishDate, Integer points,
       QuestionGroupsResult groupsGraph, Locale locale) {
     super();
-    
+
     this.setId(id);
     this.setCode(code);
     this.setUrl(url);
@@ -77,4 +100,11 @@ public class TestResult extends AbstractTestResult {
     this.setLocale(locale);
   }
 
+  @Override
+  public String toString() {
+    return "TestResult [id=" + getId() + ", code=" + getCode() + ", url=" + getUrl() + ", userId=" + getUserId()
+        + ", type=" + getType() + ", status=" + getStatus() + ", createDate=" + getCreateDate() + ", updateDate="
+        + getUpdateDate() + ", finishDate=" + getFinishDate() + ", points=" + getPoints() + ", groupsGraph="
+        + getGroupsGraph() + ", locale=" + getLocale() + "] user = " + getUser() + ", questionSet= " + getQuestionSet();
+  }
 }

@@ -14,9 +14,11 @@
 
 package com.max.appengine.springboot.megaiq.repository;
 
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.max.appengine.springboot.megaiq.model.QuestionUser;
 
 public interface QuestionUserRepository extends JpaRepository<QuestionUser, Integer> {
 
+    List<QuestionUser> findByTestId(Integer testId);
 }

@@ -42,6 +42,10 @@ public class UserService {
     this.userTokenReporitory = userTokenReporitory;
   }
 
+  public User addUser(User user) {
+    return userReporitory.save(user);
+  }
+  
   public User saveUser(User user) {
     userTokenReporitory.saveAll(user.getTokenList());
     return userReporitory.save(user);

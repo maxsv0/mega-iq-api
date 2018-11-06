@@ -19,6 +19,8 @@ import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
@@ -28,6 +30,7 @@ import com.max.appengine.springboot.megaiq.model.enums.Locale;
 @MappedSuperclass
 public abstract class AbstractTestResult {
   @Id
+  @GeneratedValue(strategy=GenerationType.IDENTITY)
   private Integer id;
   private UUID code;
   private String url;

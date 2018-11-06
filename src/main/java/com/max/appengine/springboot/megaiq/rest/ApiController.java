@@ -87,9 +87,13 @@ public class ApiController {
           HttpStatus.OK);
     }
 
-    TestResult testResult = serviceApi.startUserTest(type, user.get(), userLocale);
+    Optional<TestResult> testResult = serviceApi.startUserTest(type, user.get(), userLocale);
+    if (!testResult.isPresent()) {
+      return new ResponseEntity<ApiResponseBase>(new ApiResponseError("Wrong request"),
+          HttpStatus.OK);
+    }
 
-    return new ResponseEntity<ApiResponseBase>(new ApiResponseTestResult(testResult),
+    return new ResponseEntity<ApiResponseBase>(new ApiResponseTestResult(testResult.get()),
         HttpStatus.OK);
   }
 

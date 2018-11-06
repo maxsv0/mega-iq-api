@@ -21,6 +21,8 @@ import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
@@ -31,6 +33,7 @@ import com.max.appengine.springboot.megaiq.model.enums.Locale;
 @MappedSuperclass
 public abstract class AbstractQuestionUser {
   @Id
+  @GeneratedValue(strategy=GenerationType.IDENTITY)
   private Integer id;
   private Integer testId;
   private Integer questionIq;
@@ -128,5 +131,81 @@ public abstract class AbstractQuestionUser {
 
   public void setLocale(Locale locale) {
     this.locale = locale;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((answerCorrect == null) ? 0 : answerCorrect.hashCode());
+    result = prime * result + ((answerUser == null) ? 0 : answerUser.hashCode());
+    //result = prime * result + ((createDate == null) ? 0 : createDate.hashCode());
+    //result = prime * result + ((groups == null) ? 0 : groups.hashCode());
+    result = prime * result + ((id == null) ? 0 : id.hashCode());
+    result = prime * result + ((locale == null) ? 0 : locale.hashCode());
+    result = prime * result + ((points == null) ? 0 : points.hashCode());
+    result = prime * result + ((questionIq == null) ? 0 : questionIq.hashCode());
+    result = prime * result + ((testId == null) ? 0 : testId.hashCode());
+    result = prime * result + ((updateDate == null) ? 0 : updateDate.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    AbstractQuestionUser other = (AbstractQuestionUser) obj;
+    if (answerCorrect == null) {
+      if (other.answerCorrect != null)
+        return false;
+    } else if (!answerCorrect.equals(other.answerCorrect))
+      return false;
+    if (answerUser == null) {
+      if (other.answerUser != null)
+        return false;
+    } else if (!answerUser.equals(other.answerUser))
+      return false;
+//    if (createDate == null) {
+//      if (other.createDate != null)
+//        return false;
+//    } else if (!createDate.equals(other.createDate))
+//      return false;
+//    if (groups == null) {
+//      if (other.groups != null)
+//        return false;
+//    } else if (!groups.equals(other.groups))
+//      return false;
+    if (id == null) {
+      if (other.id != null)
+        return false;
+    } else if (!id.equals(other.id))
+      return false;
+    if (locale != other.locale)
+      return false;
+    if (points == null) {
+      if (other.points != null)
+        return false;
+    } else if (!points.equals(other.points))
+      return false;
+    if (questionIq == null) {
+      if (other.questionIq != null)
+        return false;
+    } else if (!questionIq.equals(other.questionIq))
+      return false;
+    if (testId == null) {
+      if (other.testId != null)
+        return false;
+    } else if (!testId.equals(other.testId))
+      return false;
+    if (updateDate == null) {
+      if (other.updateDate != null)
+        return false;
+    } else if (!updateDate.equals(other.updateDate))
+      return false;
+    return true;
   }
 }

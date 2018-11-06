@@ -14,11 +14,12 @@
 
 package com.max.appengine.springboot.megaiq.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.max.appengine.springboot.megaiq.model.Question;
@@ -31,7 +32,7 @@ import com.max.appengine.springboot.megaiq.model.enums.UserTokenType;
 
 @Service
 public class ApiService {
-
+  private static final Logger log = LoggerFactory.getLogger(ApiService.class);
   private final QuestionsService qestionsService;
   private final TestResultService testResultService;
   private final UserService userService;
@@ -53,11 +54,12 @@ public class ApiService {
   }
 
   public Optional<TestResult> iqTestDetailsPublic(UUID testCode, Locale locale) {
-    return loadFullResultData(testCode, locale);
+    return testResultService.getTestResultByCode(testCode, locale);
   }
 
   public Optional<TestResult> iqTestDetailsPrivate(UUID testCode, User user, Locale locale) {
-    Optional<TestResult> resultData = loadFullResultData(testCode, locale);
+    Optional<TestResult> resultData = iqTestDetailsPublic(testCode, locale);
+    
     if (!resultData.isPresent()) {
       return resultData;
     }
@@ -66,23 +68,22 @@ public class ApiService {
     if (!user.getId().equals(resultData.get().getUserId())) {
       return Optional.empty();
     } else {
-      return resultData;
+      TestResult testData = testResultService.loadQuestions(resultData.get());
+      return Optional.of(testData);
     }
   }
 
-  public TestResult startUserTest(IqTestType testType, User user, Locale locale) {
-
-    ArrayList<Question> quesions = qestionsService.getQuestionsSet(testType, locale);
-    // TODO: code here
-
-    TestResult testResult = new TestResult();
-    testResult.setUser(user);
-
-    return testResult;
+  public Optional<TestResult> startUserTest(IqTestType testType, User user, Locale locale) {
+    List<Question> questions = qestionsService.getQuestionsSet(testType, locale);
+    log.info("questions={}", questions);
+    
+    if (questions == null) return Optional.empty();
+    
+    return Optional.of(testResultService.startUserTest(user, testType, questions, locale));
   }
 
   public User addNewUser(User user) {
-    return userService.saveUser(user);
+    return userService.addUser(user);
   }
 
   public Optional<User> userLogin(String login, String password) {
@@ -99,10 +100,6 @@ public class ApiService {
     user.setTestResultList(loadAllResults(user.getId(), locale));
 
     return Optional.of(user);
-  }
-
-  private Optional<TestResult> loadFullResultData(UUID testCode, Locale locale) {
-    return testResultService.getTestResultByCode(testCode, locale);
   }
 
   private List<TestResult> loadAllResults(Integer userId, Locale locale) {

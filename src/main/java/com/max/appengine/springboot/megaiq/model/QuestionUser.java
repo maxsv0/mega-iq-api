@@ -14,6 +14,7 @@
 
 package com.max.appengine.springboot.megaiq.model;
 
+import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.Table;
@@ -23,5 +24,27 @@ import javax.persistence.Table;
     indexes = {@Index(columnList = "locale"), @Index(columnList = "testId")})
 public class QuestionUser extends AbstractQuestionUser {
 
+  public QuestionUser() {
+    super();
+  }
 
+  public QuestionUser(Question question) {
+    super();
+
+    this.setQuestionIq(question.getId());
+    this.setPoints(question.getPoints());
+    this.setAnswerCorrect(question.getAnswerCorrect());
+    this.setGroups(question.getGroups());
+    this.setCreateDate(new Date());
+    this.setLocale(question.getLocale());
+  }
+
+  @Override
+  public String toString() {
+    // TODO: display getGroups()
+    return "QuestionUser [id=" + getId() + ", testId=" + getTestId() + ", questionIq="
+        + getQuestionIq() + ", points=" + getPoints() + ", answerCorrect=" + getAnswerCorrect()
+        + ", answerUser=" + getAnswerUser() + ", groups=.., createDate="
+        + getCreateDate() + ", updateDate=" + getUpdateDate() + ", locale=" + getLocale() + "]";
+  }
 }

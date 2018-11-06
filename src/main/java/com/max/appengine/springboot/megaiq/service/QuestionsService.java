@@ -48,11 +48,11 @@ public class QuestionsService {
 
     // load question
     this.questionsList = this.questionReporitory.findAll();
-    
+
     for (Question question : this.questionsList) {
       question.setAnswers(getAnswersByQuestion(question));
     }
-    
+
     this.questionsNumber = new HashMap<IqTestType, Integer>();
     this.questionsNumber.put(IqTestType.PRACTICE_IQ, 5);
     this.questionsNumber.put(IqTestType.STANDART_IQ, 15);
@@ -60,28 +60,38 @@ public class QuestionsService {
     this.questionsNumber.put(IqTestType.MATH, 10);
     this.questionsNumber.put(IqTestType.GRAMMAR, 10);
   }
-  
+
   public int getQuestionsLimitByType(IqTestType testType) {
     return this.questionsNumber.get(testType);
   }
 
-  public ArrayList<Question> getQuestionsSet(IqTestType testType, Locale locale) {
-    ArrayList<Question> questionAllList = new ArrayList<Question>();
+  public List<Question> getQuestionsSet(IqTestType testType, Locale locale) {
+    List<Question> questionAllList = new ArrayList<Question>();
     questionAllList = getQuestions(locale);
     Collections.shuffle(questionAllList);
-    
-    ArrayList<Question> questionSetList = new ArrayList<Question>();
+
+    List<Question> questionSetList = new ArrayList<Question>();
     int questionNumber = 1;
     for (Question question : questionAllList) {
       questionSetList.add(question);
-      if (questionNumber++ >= this.questionsNumber.get(testType)) break;
+      if (questionNumber++ >= this.questionsNumber.get(testType))
+        break;
     }
-    
+
+    if (questionSetList.size() != this.questionsNumber.get(testType)) {
+      throw new IllegalStateException("Questions DB is broken. Set size=" + questionSetList.size()
+          + " for type=" + testType + ", locale=" + locale + ". Total=" + questionAllList.size());
+    }
+
     return questionSetList;
   }
-  
-  public ArrayList<Question> getQuestions(Locale locale) {
-    ArrayList<Question> questionList = new ArrayList<Question>();
+
+  public List<Question> getQuestions(Locale locale) {
+    List<Question> questionList = new ArrayList<Question>();
+
+    if (this.questionsList.isEmpty()) {
+      throw new IllegalStateException("Questions DB is empty");
+    }
     
     for (Question question : this.questionsList) {
       if (question.getLocale().equals(locale))
@@ -104,7 +114,7 @@ public class QuestionsService {
   private ArrayList<Answer> getAnswersByQuestion(Question question) {
     return getAnswersByQuestionId(question.getId(), question.getLocale());
   }
-  
+
   private ArrayList<Answer> getAnswersByQuestionId(Integer questionId, Locale locale) {
     ArrayList<Answer> answersList = new ArrayList<Answer>();
 

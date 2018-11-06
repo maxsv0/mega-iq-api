@@ -14,6 +14,10 @@
 
 package com.max.appengine.springboot.megaiq.unit;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -22,6 +26,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.max.appengine.springboot.megaiq.model.Answer;
+import com.max.appengine.springboot.megaiq.model.Question;
+import com.max.appengine.springboot.megaiq.model.enums.IqQuestionGroup;
+import com.max.appengine.springboot.megaiq.model.enums.Locale;
+import com.max.appengine.springboot.megaiq.repository.AnswerReporitory;
+import com.max.appengine.springboot.megaiq.repository.QuestionReporitory;
 
 public abstract class AbstractUnitTest {
 
@@ -48,6 +58,55 @@ public abstract class AbstractUnitTest {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public void generateQuestionsAndAnswers(QuestionReporitory questionReporitory,
+      AnswerReporitory answerReporitory, Integer maxQuestions, Integer maxAnswers, Locale locale) {
+    log.info("Will generate maxQuestions={}, maxAnswers={} for locale= {}", maxQuestions,
+        maxAnswers, locale);
+
+    int answerId = 1;
+    int questionId = 1;
+    if (locale.equals(Locale.DE)) {
+      answerId = 100;
+      questionId = 100;
+    } else if (locale.equals(Locale.RU)) {
+      answerId = 1000;
+      questionId = 1000;
+    }
+    
+    List<IqQuestionGroup> groups = Arrays.asList(IqQuestionGroup.values());
+    ArrayList<Question> questions = new ArrayList<Question>();
+    ArrayList<Answer> answers = new ArrayList<Answer>();
+
+    for (int i = 1; i <= maxQuestions; i++) {
+      // GENERATE_ANSWERS_LIMIT answers for each question
+      // first answer is correct
+
+      ArrayList<IqQuestionGroup> iqGroups = new ArrayList<IqQuestionGroup>();
+      int iqGroupIndex = questionId % groups.size();
+      iqGroups.add(groups.get(iqGroupIndex));
+      iqGroupIndex = (questionId + 1) % groups.size();
+      iqGroups.add(groups.get(iqGroupIndex));
+
+      int questionPoint = questionId % maxAnswers + 1;
+
+      questions.add(new Question(questionId, "pic", questionPoint, answerId,
+          "test." + locale + " q" + i, "info", iqGroups, new Date(), new Date(), locale));
+
+      for (int j = 1; j <= maxAnswers; j++) {
+        answers.add(new Answer(answerId++, "test." + locale + " q" + i + "a" + j, questionId,
+            new Date(), new Date(), locale));
+      }
+
+      questionId++;
+    }
+
+    log.info("Answers generated: {}", answers.size());
+    log.info("Question generated: {}", questions.size());
+
+    questionReporitory.saveAll(questions);
+    answerReporitory.saveAll(answers);
   }
 
 }
