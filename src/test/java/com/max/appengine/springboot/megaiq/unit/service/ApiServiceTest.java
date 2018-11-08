@@ -19,7 +19,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
 import java.util.Optional;
+import java.util.UUID;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,7 +30,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import com.max.appengine.springboot.megaiq.Application;
-import com.max.appengine.springboot.megaiq.model.QuestionUser;
 import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
@@ -44,12 +46,13 @@ import com.max.appengine.springboot.megaiq.unit.AbstractUnitTest;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
 public class ApiServiceTest extends AbstractUnitTest {
+
   private static final String USER_PASSWORD = "test";
   private static final String USER_PASSWORD_HASH = "098f6bcd4621d373cade4e832627b4f6";
   private static final int GENERATE_QUESTIONS_LIMIT = 30;
-  private static final int GENERATE_ANSWERS_LIMIT = 2;
+  private static final int GENERATE_ANSWERS_LIMIT = 1;
 
-  private QuestionsService qestionsService;
+  private QuestionsService questionsService;
 
   @Autowired
   private TestResultService testResultService;
@@ -63,7 +66,6 @@ public class ApiServiceTest extends AbstractUnitTest {
   @Autowired
   private QuestionReporitory questionReporitory;
 
-
   private ApiService apiService;
 
   private String tokenUser;
@@ -72,16 +74,17 @@ public class ApiServiceTest extends AbstractUnitTest {
   public void doSetup() {
     generateQuestionsAndAnswers(questionReporitory, answerReporitory, GENERATE_QUESTIONS_LIMIT,
         GENERATE_ANSWERS_LIMIT, Locale.EN);
+    generateQuestionsAndAnswers(questionReporitory, answerReporitory, GENERATE_QUESTIONS_LIMIT,
+        GENERATE_ANSWERS_LIMIT, Locale.DE);
 
-    this.qestionsService = new QuestionsService(answerReporitory, questionReporitory);
-    this.apiService = new ApiService(this.qestionsService, testResultService, userService);
+    this.questionsService = new QuestionsService(answerReporitory, questionReporitory);
+    this.apiService = new ApiService(this.questionsService, testResultService, userService);
 
-    User testUser = new User("test@test.email", "test", "url", "pic", "city", 40, 150, true,
-        USER_PASSWORD_HASH, "ip", 0, Locale.EN);
+    Optional<User> testUserResult = generateNewUser();
+    assertTrue(testUserResult.isPresent());
+    User testUser = testUserResult.get();
 
-    testUser = apiService.addNewUser(testUser);
-
-    Optional<User> userResult = apiService.userLogin(testUser.getEmail(), USER_PASSWORD);
+    Optional<User> userResult = testUserUsingLogin(testUser.getEmail());
     assertTrue(userResult.isPresent());
     assertNotNull(userResult.get().getUserToken());
 
@@ -89,42 +92,131 @@ public class ApiServiceTest extends AbstractUnitTest {
   }
 
   @Test
-  public void testApiServiceBasis() {
-    Optional<User> userResult = this.apiService.getUserByToken(this.tokenUser, Locale.DE);
+  public void testApiRegisterDuplicateFails() {
+    Optional<User> testUserResult = generateNewUser();
+    User testUser = testUserResult.get();
+
+    Optional<User> userResultDuplicate = apiService.addNewUser(testUser);
+    log.info("Test duplicate result={}", userResultDuplicate);
+    assertFalse(userResultDuplicate.isPresent());
+  }
+
+  @Test
+  public void testApiRegisterAndLogin() {
+    Optional<User> testUserResult = generateNewUser();
+    assertTrue(testUserResult.isPresent());
+    User testUser = testUserResult.get();
+    assertNotNull(testUser.getUserToken());
+
+    Optional<User> userResult = testUserUsingLogin(testUser.getEmail());
     assertTrue(userResult.isPresent());
-    assertEquals(tokenUser, userResult.get().getUserTokenByType(UserTokenType.ACCESS).getValue());
+    assertNotNull(userResult.get().getUserToken());
+    assertEquals(testUser, userResult.get());
+  }
 
-    userResult = this.apiService.getUserByToken(this.tokenUser, Locale.EN);
-    assertTrue(userResult.isPresent());
-    assertEquals(tokenUser, userResult.get().getUserTokenByType(UserTokenType.ACCESS).getValue());
+  @Test
+  public void testApiUserFoundAnyLocale() {
+    for (Locale locale : Locale.values()) {
+      Optional<User> userResult = testUserGetByToken(locale);
+      assertTrue(userResult.isPresent());
+      assertEquals(tokenUser, userResult.get().getUserToken().getValue());
+    }
+  }
 
-    Optional<TestResult> testNewResult =
-        this.apiService.startUserTest(IqTestType.MEGA_IQ, userResult.get(), Locale.EN);
-    log.info("Got New test={}", testNewResult);
+  @Test
+  public void testApiStartNewTest() {
+    Optional<User> userResult = testUserGetByToken(Locale.EN);
 
-    assertTrue(testNewResult.isPresent());
+    Optional<TestResult> testNewResult = startTestAndCheck(IqTestType.MEGA_IQ, userResult.get(),
+        Locale.EN);
     assertEquals(userResult.get(), testNewResult.get().getUser());
-    assertNotNull(testNewResult.get().getQuestionSet());
-    assertEquals(this.qestionsService.getQuestionsLimitByType(IqTestType.MEGA_IQ),
-        testNewResult.get().getQuestionSet().size());
+  }
 
-    Optional<TestResult> testResultDataFail =
-        this.apiService.iqTestDetailsPublic(testNewResult.get().getCode(), Locale.DE);
+  @Test
+  public void testApiGetTestNotFound() {
+    Optional<User> userResult = testUserGetByToken(Locale.EN);
+
+    Optional<TestResult> testNewResult = startTestAndCheck(IqTestType.MEGA_IQ, userResult.get(),
+        Locale.EN);
+    Optional<TestResult> testResultDataFail = getTestPublic(testNewResult.get().getCode(),
+        Locale.DE);
     assertFalse(testResultDataFail.isPresent());
+  }
 
-    Optional<TestResult> testResultPublic = this.apiService
-        .iqTestDetailsPublic(testNewResult.get().getCode(), testNewResult.get().getLocale());
-    log.info("Got Public testResultData={}", testResultPublic);
-    assertTrue(testResultPublic.isPresent());
-    assertEquals(testNewResult.get(), testResultPublic.get());
-    assertNull(testResultPublic.get().getQuestionSet());
+  @Test
+  public void testApiGetTestPublic() {
+    Optional<User> userResult = testUserGetByToken(Locale.DE);
 
-    Optional<TestResult> testResultPrivate = this.apiService.iqTestDetailsPrivate(
-        testNewResult.get().getCode(), userResult.get(), testNewResult.get().getLocale());
-    log.info("Got Private testResultData={}", testResultPrivate);
+    Optional<TestResult> testNewResult = startTestAndCheck(IqTestType.PRACTICE_IQ, userResult.get(),
+        Locale.DE);
+    Optional<TestResult> testResultData = getTestPublic(testNewResult.get().getCode(), Locale.DE);
+    assertTrue(testResultData.isPresent());
+    assertEquals(testNewResult.get(), testResultData.get());
+    assertNull(testResultData.get().getQuestionSet());
+  }
+
+  @Test
+  public void testApiGetTestPrivate() {
+    Optional<User> userResult = testUserGetByToken(Locale.EN);
+
+    Optional<TestResult> testNewResult = startTestAndCheck(IqTestType.STANDART_IQ, userResult.get(),
+        Locale.EN);
+    Optional<TestResult> testResultPrivate = getTestPrivate(testNewResult.get().getCode(),
+        userResult.get(), testNewResult.get().getLocale());
     assertTrue(testResultPrivate.isPresent());
     assertEquals(testNewResult.get(), testResultPrivate.get());
     assertNotNull(testResultPrivate.get().getQuestionSet());
     assertEquals(testResultPrivate.get().getQuestionSet(), testNewResult.get().getQuestionSet());
+  }
+
+  private Optional<TestResult> startTestAndCheck(IqTestType type, User user, Locale locale) {
+    Optional<TestResult> testNewResult =
+        this.apiService.startUserTest(type, user, locale);
+    log.info("Test Start New test={}", testNewResult);
+
+    assertTrue(testNewResult.isPresent());
+    assertNotNull(testNewResult.get().getQuestionSet());
+    assertEquals(this.questionsService.getQuestionsLimitByType(type),
+        testNewResult.get().getQuestionSet().size());
+
+    return testNewResult;
+  }
+
+  private Optional<TestResult> getTestPublic(UUID code, Locale locale) {
+    Optional<TestResult> testResult =
+        this.apiService.iqTestDetailsPublic(code, locale);
+    log.info("Test got Public result={}", testResult);
+
+    return testResult;
+  }
+
+  private Optional<TestResult> getTestPrivate(UUID code, User user, Locale locale) {
+    Optional<TestResult> testResult =
+        this.apiService.iqTestDetailsPrivate(code, user, locale);
+    log.info("Test got Private result={}", testResult);
+
+    return testResult;
+  }
+
+  private Optional<User> generateNewUser() {
+    String email = "test" + UUID.randomUUID() + "@test.email";
+    Integer age = 40;
+    Integer iq = 150;
+
+    User testUser = new User(email, "test", "url", "pic", "city", age, iq, true,
+        USER_PASSWORD_HASH, "ip", 0, Locale.EN);
+
+    Optional<User> userResult = apiService.addNewUser(testUser);
+    log.info("Test user result={}", userResult);
+
+    return userResult;
+  }
+
+  private Optional<User> testUserGetByToken(Locale locale) {
+    return this.apiService.getUserByToken(this.tokenUser, locale);
+  }
+
+  private Optional<User> testUserUsingLogin(String login) {
+    return apiService.userLogin(login, USER_PASSWORD);
   }
 }

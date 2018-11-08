@@ -14,6 +14,8 @@
 
 package com.max.appengine.springboot.megaiq.service;
 
+import static com.fasterxml.jackson.annotation.JsonFormat.DEFAULT_LOCALE;
+
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -23,6 +25,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.UserToken;
@@ -32,6 +35,7 @@ import com.max.appengine.springboot.megaiq.repository.UserTokenReporitory;
 
 @Service
 public class UserService {
+
   private static final Logger log = LoggerFactory.getLogger(UserService.class);
   private final UserReporitory userReporitory;
   private final UserTokenReporitory userTokenReporitory;
@@ -42,19 +46,36 @@ public class UserService {
     this.userTokenReporitory = userTokenReporitory;
   }
 
-  public User addUser(User user) {
-    return userReporitory.save(user);
+  public Optional<User> addUser(User user) {
+    User userResult = null;
+
+    Optional<User> userData = userReporitory.findByEmail(user.getEmail());
+    if (userData.isPresent()) {
+      return Optional.empty();
+    }
+
+    try {
+      userResult = userReporitory.save(user);
+    } catch (DataAccessException e) {
+      e.printStackTrace();
+    }
+
+    userResult = initUserTokens(userResult);
+
+    return Optional.of(userResult);
   }
-  
+
   public User saveUser(User user) {
     userTokenReporitory.saveAll(user.getTokenList());
     return userReporitory.save(user);
   }
-  
+
   public Optional<User> getUserById(Integer userId) {
     Optional<User> userResult = userReporitory.findById(userId);
-    if (!userResult.isPresent()) return userResult;
-    
+    if (!userResult.isPresent()) {
+      return userResult;
+    }
+
     User user = loadUserToken(userResult.get());
     return Optional.of(user);
   }
@@ -62,10 +83,11 @@ public class UserService {
   public Optional<User> getUserByToken(String token, UserTokenType tokenType) {
     Optional<UserToken> userToken = userTokenReporitory.findByValueAndType(token, tokenType);
     log.debug("Try to auth. Token={} type={}, userToken={}", token, tokenType, userToken);
-    
-    if (!userToken.isPresent())
+
+    if (!userToken.isPresent()) {
       return Optional.empty();
-    
+    }
+
     return getUserById(userToken.get().getUserId());
   }
 
@@ -73,8 +95,9 @@ public class UserService {
     Optional<User> userResult = userReporitory.findByEmail(login);
     log.debug("Search for user login={}. Result={}", login, userResult);
 
-    if (!userResult.isPresent())
+    if (!userResult.isPresent()) {
       return Optional.empty();
+    }
 
     String hashString = null;
 
@@ -99,29 +122,34 @@ public class UserService {
       return Optional.empty();
     }
 
+    user = initUserTokens(user);
+    log.debug("Auth successful for user={}", user);
+
+    return Optional.of(user);
+  }
+
+  private User initUserTokens(User user) {
     user = loadUserToken(user);
-    log.debug("Auth successfull for user={}", user);
 
     UserToken tokenAccess = user.getUserTokenByType(UserTokenType.ACCESS);
     if (tokenAccess == null) {
       UserToken tokenAccessNew = new UserToken(user.getId(), UserTokenType.ACCESS);
       user.getTokenList().add(tokenAccessNew);
-      
+
       userTokenReporitory.save(tokenAccessNew);
     }
-
-    return Optional.of(user);
+    return user;
   }
 
   private User loadUserToken(User user) {
     List<UserToken> tokenList = userTokenReporitory.findByUserId(user.getId());
-    
+
     if (!tokenList.isEmpty()) {
       user.setTokenList(tokenList);
     } else {
       user.setTokenList(new ArrayList<UserToken>());
     }
-    
+
     return user;
   }
 

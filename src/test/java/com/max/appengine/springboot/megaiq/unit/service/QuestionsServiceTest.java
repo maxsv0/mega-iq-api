@@ -16,6 +16,7 @@ package com.max.appengine.springboot.megaiq.unit.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,6 +36,7 @@ import com.max.appengine.springboot.megaiq.unit.AbstractUnitTest;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
 public class QuestionsServiceTest extends AbstractUnitTest {
+
   private static final int GENERATE_QUESTIONS_LIMIT = 30;
   private static final int GENERATE_ANSWERS_LIMIT = 2;
 
@@ -46,10 +48,10 @@ public class QuestionsServiceTest extends AbstractUnitTest {
 
   private QuestionsService questionsService;
 
-  @Test(expected = IllegalStateException.class) 
-  public void testQuestionsServiceExeption() {
+  @Test(expected = IllegalStateException.class)
+  public void testQuestionsServiceException() {
     this.questionsService = new QuestionsService(answerReporitory, questionReporitory);
-    
+
     for (Locale locale : Locale.values()) {
       for (IqTestType type : IqTestType.values()) {
         questionsService.getQuestionsSet(type, locale);
@@ -65,7 +67,7 @@ public class QuestionsServiceTest extends AbstractUnitTest {
     }
 
     this.questionsService = new QuestionsService(answerReporitory, questionReporitory);
-    
+
     for (Locale locale : Locale.values()) {
       List<Question> questions = questionsService.getQuestions(locale);
       log.info("locale={}, got questions={}", locale, questions);

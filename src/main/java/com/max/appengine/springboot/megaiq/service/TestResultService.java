@@ -14,6 +14,7 @@
 
 package com.max.appengine.springboot.megaiq.service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -80,12 +81,12 @@ public class TestResultService {
     testResult.setUser(user);
     TestResult testResultDb = testResultReporitory.save(testResult);
     log.info("New test created = {}", testResult);
-    
+
     for (QuestionUser question : testResult.getQuestionSet()) {
       question.setTestId(testResultDb.getId());
     }
     questionUserRepository.saveAll(testResult.getQuestionSet());
-    
+
     return testResultDb;
   }
 

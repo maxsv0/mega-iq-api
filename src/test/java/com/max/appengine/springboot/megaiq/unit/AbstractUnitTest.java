@@ -62,6 +62,8 @@ public abstract class AbstractUnitTest {
 
   public void generateQuestionsAndAnswers(QuestionReporitory questionReporitory,
       AnswerReporitory answerReporitory, Integer maxQuestions, Integer maxAnswers, Locale locale) {
+    // TODO: fix this procedure to speed-up execution
+
     log.info("Will generate maxQuestions={}, maxAnswers={} for locale= {}", maxQuestions,
         maxAnswers, locale);
 

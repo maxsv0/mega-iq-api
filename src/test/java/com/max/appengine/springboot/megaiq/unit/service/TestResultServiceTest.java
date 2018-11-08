@@ -17,6 +17,7 @@ package com.max.appengine.springboot.megaiq.unit.service;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
@@ -63,7 +64,8 @@ public class TestResultServiceTest extends AbstractUnitTest {
     this.testResultService =
         new TestResultService(userReporitory, testResultReporitory, questionUserRepository);
 
-    testUserPublic = new User("test@test.email", "test", "url", "pic", "city", 40, 150, true,
+    testUserPublic = new User("test" + UUID.randomUUID() + "@test.email", "test", "url", "pic",
+        "city", 40, 150, true,
         "098f6bcd4621d373cade4e832627b4f6", "ip", 0, Locale.EN);
     testUserPublic = userReporitory.save(testUserPublic);
 

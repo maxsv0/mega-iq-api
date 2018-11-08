@@ -32,6 +32,7 @@ import com.max.appengine.springboot.megaiq.model.enums.UserTokenType;
 
 @Service
 public class ApiService {
+
   private static final Logger log = LoggerFactory.getLogger(ApiService.class);
   private final QuestionsService qestionsService;
   private final TestResultService testResultService;
@@ -59,7 +60,7 @@ public class ApiService {
 
   public Optional<TestResult> iqTestDetailsPrivate(UUID testCode, User user, Locale locale) {
     Optional<TestResult> resultData = iqTestDetailsPublic(testCode, locale);
-    
+
     if (!resultData.isPresent()) {
       return resultData;
     }
@@ -76,13 +77,15 @@ public class ApiService {
   public Optional<TestResult> startUserTest(IqTestType testType, User user, Locale locale) {
     List<Question> questions = qestionsService.getQuestionsSet(testType, locale);
     log.info("questions={}", questions);
-    
-    if (questions == null) return Optional.empty();
-    
+
+    if (questions == null) {
+      return Optional.empty();
+    }
+
     return Optional.of(testResultService.startUserTest(user, testType, questions, locale));
   }
 
-  public User addNewUser(User user) {
+  public Optional<User> addNewUser(User user) {
     return userService.addUser(user);
   }
 
@@ -93,8 +96,9 @@ public class ApiService {
   public Optional<User> getUserByToken(String token, Locale locale) {
     Optional<User> userResult = userService.getUserByToken(token, UserTokenType.ACCESS);
 
-    if (!userResult.isPresent())
+    if (!userResult.isPresent()) {
       return userResult;
+    }
 
     User user = userResult.get();
     user.setTestResultList(loadAllResults(user.getId(), locale));

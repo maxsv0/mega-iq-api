@@ -18,6 +18,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
@@ -41,6 +42,7 @@ import com.max.appengine.springboot.megaiq.unit.AbstractUnitTest;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
 public class UserServiceTest extends AbstractUnitTest {
+
   private static final String USER_PASSWORD = "test";
   private static final String USER_PASSWORD_HASH = "098f6bcd4621d373cade4e832627b4f6";
 
@@ -62,7 +64,8 @@ public class UserServiceTest extends AbstractUnitTest {
   public void doSetup() {
     this.userService = new UserService(userReporitory, userTokenReporitory);
 
-    testUserPublic = new User("test@test.email", "test", "url", "pic", "city", 40, 150, true,
+    testUserPublic = new User("test" + UUID.randomUUID() + "@test.email", "test", "url", "pic",
+        "city", 40, 150, true,
         USER_PASSWORD_HASH, "ip", 0, Locale.EN);
     testUserPublic = userReporitory.save(testUserPublic);
 
@@ -70,11 +73,13 @@ public class UserServiceTest extends AbstractUnitTest {
     Date dateExpire = new Date(dateNow.getTime() + (1000 * 60 * 60 * 24 * 7));
 
     testTokenAccess =
-        new UserToken(testUserPublic.getId(), UserTokenType.ACCESS, UUID.randomUUID().toString(), dateNow, dateExpire);
+        new UserToken(testUserPublic.getId(), UserTokenType.ACCESS, UUID.randomUUID().toString(),
+            dateNow, dateExpire);
     userTokenReporitory.save(testTokenAccess);
 
     testTokenForget =
-        new UserToken(testUserPublic.getId(), UserTokenType.FORGET, UUID.randomUUID().toString(), dateNow, dateExpire);
+        new UserToken(testUserPublic.getId(), UserTokenType.FORGET, UUID.randomUUID().toString(),
+            dateNow, dateExpire);
     userTokenReporitory.save(testTokenForget);
   }
 
@@ -114,7 +119,7 @@ public class UserServiceTest extends AbstractUnitTest {
 
   @Test
   public void testUserAuthUser2() {
-    User testUser2 = new User("test@test.email2", "test", "url", "pic", "city", 40, 150, true,
+    User testUser2 = new User("test2@test.email", "test", "url", "pic", "city", 40, 150, true,
         USER_PASSWORD_HASH, "ip", 0, Locale.EN);
     userReporitory.save(testUser2);
 
