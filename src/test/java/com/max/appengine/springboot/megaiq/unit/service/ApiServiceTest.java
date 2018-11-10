@@ -19,12 +19,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-
-import com.max.appengine.springboot.megaiq.model.QuestionUser;
-import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
 import java.util.Optional;
 import java.util.UUID;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,11 +28,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import com.max.appengine.springboot.megaiq.Application;
+import com.max.appengine.springboot.megaiq.model.QuestionUser;
 import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.User;
+import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
-import com.max.appengine.springboot.megaiq.model.enums.UserTokenType;
 import com.max.appengine.springboot.megaiq.repository.AnswerReporitory;
 import com.max.appengine.springboot.megaiq.repository.QuestionReporitory;
 import com.max.appengine.springboot.megaiq.service.ApiService;
@@ -201,6 +198,15 @@ public class ApiServiceTest extends AbstractUnitTest {
     assertNotNull(testFinish.get().getFinishDate());
     assertNotNull(testFinish.get().getPoints());
     assertNotNull(testFinish.get().getGroupsGraph());
+    assertNull(testFinish.get().getQuestionSet());
+    
+    testFinish = getTestPrivate(testResultSubmit.getCode(), userResult.get(), testResultSubmit.getLocale());
+    assertTrue(testFinish.isPresent());
+    assertEquals(IqTestStatus.FINISHED, testFinish.get().getStatus());
+    assertNotNull(testFinish.get().getFinishDate());
+    assertNotNull(testFinish.get().getPoints());
+    assertNotNull(testFinish.get().getGroupsGraph());
+    assertNotNull(testFinish.get().getQuestionSet());
   }
 
   private TestResult submitAllAnswers(TestResult testResult) {
