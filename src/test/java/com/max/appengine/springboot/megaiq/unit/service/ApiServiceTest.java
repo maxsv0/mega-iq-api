@@ -20,6 +20,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import com.max.appengine.springboot.megaiq.model.QuestionUser;
+import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -169,6 +171,58 @@ public class ApiServiceTest extends AbstractUnitTest {
     assertEquals(testResultPrivate.get().getQuestionSet(), testNewResult.get().getQuestionSet());
   }
 
+  @Test
+  public void submitUserAllAnswersPractice() {
+    Optional<User> userResult = testUserGetByToken(Locale.EN);
+    Optional<TestResult> testNewResult = startTestAndCheck(IqTestType.PRACTICE_IQ, userResult.get(),
+        Locale.EN);
+    assertNotNull(testNewResult.get().getQuestionSet());
+    TestResult testResultSubmit = submitAllAnswers(testNewResult.get());
+
+    Optional<TestResult> testFinish = getTestPublic(testResultSubmit.getCode(), testResultSubmit.getLocale());
+    assertTrue(testFinish.isPresent());
+    assertEquals(IqTestStatus.FINISHED, testFinish.get().getStatus());
+    assertNotNull(testFinish.get().getFinishDate());
+    assertNull(testFinish.get().getPoints());
+    assertNull(testFinish.get().getGroupsGraph());
+  }
+
+  @Test
+  public void submitUserAllAnswersAndGetScore() {
+    Optional<User> userResult = testUserGetByToken(Locale.EN);
+    Optional<TestResult> testNewResult = startTestAndCheck(IqTestType.STANDART_IQ, userResult.get(),
+        Locale.EN);
+    assertNotNull(testNewResult.get().getQuestionSet());
+    TestResult testResultSubmit = submitAllAnswers(testNewResult.get());
+
+    Optional<TestResult> testFinish = getTestPublic(testResultSubmit.getCode(), testResultSubmit.getLocale());
+    assertTrue(testFinish.isPresent());
+    assertEquals(IqTestStatus.FINISHED, testFinish.get().getStatus());
+    assertNotNull(testFinish.get().getFinishDate());
+    assertNotNull(testFinish.get().getPoints());
+    assertNotNull(testFinish.get().getGroupsGraph());
+  }
+
+  private TestResult submitAllAnswers(TestResult testResult) {
+    Integer userAnswer = 5;
+    int i = 0;
+    for (QuestionUser question : testResult.getQuestionSet()) {
+      TestResult testResultDb = this.apiService.submitUserAnswer(testResult, question.getQuestionIq(), userAnswer);
+      log.info("Test result saved ={}", testResultDb);
+
+      assertEquals(testResult.getUser(), testResultDb.getUser());
+      assertEquals(testResult.getQuestionSet(), testResultDb.getQuestionSet());
+
+      if(i++ == testResult.getQuestionSet().size() - 1){
+        assertEquals(IqTestStatus.FINISHED, testResultDb.getStatus());
+      } else {
+        assertEquals(IqTestStatus.ACTIVE, testResultDb.getStatus());
+      }
+    }
+
+    return testResult;
+  }
+
   private Optional<TestResult> startTestAndCheck(IqTestType type, User user, Locale locale) {
     Optional<TestResult> testNewResult =
         this.apiService.startUserTest(type, user, locale);
@@ -176,6 +230,7 @@ public class ApiServiceTest extends AbstractUnitTest {
 
     assertTrue(testNewResult.isPresent());
     assertNotNull(testNewResult.get().getQuestionSet());
+    assertEquals(IqTestStatus.ACTIVE, testNewResult.get().getStatus());
     assertEquals(this.questionsService.getQuestionsLimitByType(type),
         testNewResult.get().getQuestionSet().size());
 

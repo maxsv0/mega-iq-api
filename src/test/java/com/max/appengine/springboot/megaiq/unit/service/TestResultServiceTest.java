@@ -57,7 +57,9 @@ public class TestResultServiceTest extends AbstractUnitTest {
 
   private User testUserPublic;
 
-  private TestResult testUserResult;
+  private TestResult testUserResultFinished;
+
+  private TestResult testUserResultActive;
 
   @Before
   public void doSetup() {
@@ -70,25 +72,37 @@ public class TestResultServiceTest extends AbstractUnitTest {
     testUserPublic = userReporitory.save(testUserPublic);
 
     UUID code = UUID.randomUUID();
-    testUserResult = new TestResult(1, code, "/iqtest/result/" + code, testUserPublic.getId(),
+    testUserResultFinished = new TestResult(1, code, "/iqtest/result/" + code,
+        testUserPublic.getId(),
         IqTestType.MEGA_IQ, IqTestStatus.FINISHED, new Date(), new Date(), new Date(), 150,
         new QuestionGroupsResult(1, 1, 1, 1), Locale.EN);
-    testResultReporitory.save(testUserResult);
+    testResultReporitory.save(testUserResultFinished);
   }
 
   @Test
-  public void testTestResultsServiceBasis() {
+  public void testGetTestResultByCode() {
     Optional<TestResult> testResult =
-        this.testResultService.getTestResultById(testUserResult.getId());
+        this.testResultService.getTestResultById(testUserResultFinished.getId());
     assertTrue(testResult.isPresent());
-    assertEquals(testUserResult, testResult.get());
+    assertEquals(testUserResultFinished, testResult.get());
 
-    testResult = this.testResultService.getTestResultByCode(testUserResult.getCode(),
-        testUserResult.getLocale());
+    testResult = this.testResultService.getTestResultByCode(testUserResultFinished.getCode(),
+        testUserResultFinished.getLocale());
     assertTrue(testResult.isPresent());
-    assertEquals(testUserResult, testResult.get());
+    assertEquals(testUserResultFinished, testResult.get());
+  }
 
-    testResult = this.testResultService.getTestResultByCode(testUserResult.getCode(), Locale.DE);
+  @Test
+  public void testGetTestResultByCodeWrongLocale() {
+    Optional<TestResult> testResult = this.testResultService
+        .getTestResultByCode(testUserResultFinished.getCode(), Locale.DE);
+    assertFalse(testResult.isPresent());
+  }
+
+  @Test
+  public void testGetTestResultByCodeWrongCode() {
+    Optional<TestResult> testResult = this.testResultService
+        .getTestResultByCode(UUID.randomUUID(), testUserResultFinished.getLocale());
     assertFalse(testResult.isPresent());
   }
 }

@@ -14,6 +14,8 @@
 
 package com.max.appengine.springboot.megaiq.service;
 
+import com.max.appengine.springboot.megaiq.model.QuestionGroupsResult;
+import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -73,6 +75,52 @@ public class TestResultService {
     }
 
     return testResult;
+  }
+
+  public TestResult submitUserAnswer(TestResult testResult, Integer questionIq, Integer answerUser) {
+    for (QuestionUser question : testResult.getQuestionSet()) {
+      if (question.getQuestionIq().equals(questionIq)) {
+        question.setAnswerUser(answerUser);
+        question.setUpdateDate(new Date());
+      }
+    }
+
+    questionUserRepository.saveAll(testResult.getQuestionSet());
+
+    boolean allDone = true;
+    for (QuestionUser question : testResult.getQuestionSet()) {
+      if (question.getAnswerUser() == null) {
+        allDone = false;
+      }
+    }
+
+    if (allDone) {
+      if (testResult.getType().equals(IqTestType.STANDART_IQ) ||
+          testResult.getType().equals(IqTestType.MEGA_IQ)) {
+        QuestionGroupsResult questionGroupsResult = new QuestionGroupsResult(0, 0, 0, 0);
+        QuestionGroupsResult questionGroupsCorrect = new QuestionGroupsResult(0, 0, 0, 0);
+        Integer points = 80;
+
+        for (QuestionUser question : testResult.getQuestionSet()) {
+          if (question.getAnswerCorrect().equals(question.getAnswerUser())) {
+            points += question.getPoints();
+          }
+
+          // TODO: code here for questionGroupsResult/questionGroupsCorrect
+        }
+        testResult.setGroupsGraph(questionGroupsResult);
+        testResult.setPoints(points);
+      }
+
+      testResult.setStatus(IqTestStatus.FINISHED);
+      testResult.setFinishDate(new Date());
+    }
+    testResult.setUpdateDate(new Date());
+
+    TestResult testResultDb = testResultReporitory.save(testResult);
+    testResultDb.setQuestionSet(testResult.getQuestionSet());
+    testResultDb.setUser(testResult.getUser());
+    return testResultDb;
   }
 
   public TestResult startUserTest(User user, IqTestType testType, List<Question> questions, Locale locale) {

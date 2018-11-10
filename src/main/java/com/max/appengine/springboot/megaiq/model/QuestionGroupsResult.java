@@ -14,94 +14,36 @@
 
 package com.max.appengine.springboot.megaiq.model;
 
+import com.max.appengine.springboot.megaiq.model.enums.IqQuestionGroup;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 public class QuestionGroupsResult implements Serializable {
-  private Integer math;
-  private Integer logic;
-  private Integer grammar;
-  private Integer horizons;
+  private Map<IqQuestionGroup, Integer> questionsNumber = new HashMap();
 
-  public Integer getMath() {
-    return math;
+  public QuestionGroupsResult(Integer math, Integer grammar, Integer hor, Integer logic) {
+    this.questionsNumber.put(IqQuestionGroup.MATH, math);
+    this.questionsNumber.put(IqQuestionGroup.GRAMMAR, grammar);
+    this.questionsNumber.put(IqQuestionGroup.HORIZONS, hor);
+    this.questionsNumber.put(IqQuestionGroup.LOGIC, logic);
   }
 
-  public void setMath(Integer math) {
-    this.math = math;
-  }
-
-  public Integer getLogic() {
-    return logic;
-  }
-
-  public void setLogic(Integer logic) {
-    this.logic = logic;
-  }
-
-  public Integer getGrammar() {
-    return grammar;
-  }
-
-  public void setGrammar(Integer grammar) {
-    this.grammar = grammar;
-  }
-
-  public Integer getHorizons() {
-    return horizons;
-  }
-
-  public void setHorizons(Integer horizons) {
-    this.horizons = horizons;
-  }
-
-  public QuestionGroupsResult(Integer math, Integer logic, Integer grammar, Integer horizons) {
-    super();
-    this.math = math;
-    this.logic = logic;
-    this.grammar = grammar;
-    this.horizons = horizons;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof QuestionGroupsResult)) {
+      return false;
+    }
+    QuestionGroupsResult that = (QuestionGroupsResult) o;
+    return Objects.equals(questionsNumber, that.questionsNumber);
   }
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((grammar == null) ? 0 : grammar.hashCode());
-    result = prime * result + ((horizons == null) ? 0 : horizons.hashCode());
-    result = prime * result + ((logic == null) ? 0 : logic.hashCode());
-    result = prime * result + ((math == null) ? 0 : math.hashCode());
-    return result;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
-    QuestionGroupsResult other = (QuestionGroupsResult) obj;
-    if (grammar == null) {
-      if (other.grammar != null)
-        return false;
-    } else if (!grammar.equals(other.grammar))
-      return false;
-    if (horizons == null) {
-      if (other.horizons != null)
-        return false;
-    } else if (!horizons.equals(other.horizons))
-      return false;
-    if (logic == null) {
-      if (other.logic != null)
-        return false;
-    } else if (!logic.equals(other.logic))
-      return false;
-    if (math == null) {
-      if (other.math != null)
-        return false;
-    } else if (!math.equals(other.math))
-      return false;
-    return true;
+    return Objects.hash(questionsNumber);
   }
 }

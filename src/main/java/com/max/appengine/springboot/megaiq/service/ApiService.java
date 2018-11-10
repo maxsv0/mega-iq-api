@@ -58,6 +58,10 @@ public class ApiService {
     return testResultService.getTestResultByCode(testCode, locale);
   }
 
+  public TestResult submitUserAnswer(TestResult testResult, Integer questionIq, Integer answerUser) {
+    return testResultService.submitUserAnswer(testResult, questionIq, answerUser);
+  }
+
   public Optional<TestResult> iqTestDetailsPrivate(UUID testCode, User user, Locale locale) {
     Optional<TestResult> resultData = iqTestDetailsPublic(testCode, locale);
 
