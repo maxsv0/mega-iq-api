@@ -41,10 +41,9 @@ public class QuestionUser extends AbstractQuestionUser {
 
   @Override
   public String toString() {
-    // TODO: display getGroups()
     return "QuestionUser [id=" + getId() + ", testId=" + getTestId() + ", questionIq="
         + getQuestionIq() + ", points=" + getPoints() + ", answerCorrect=" + getAnswerCorrect()
-        + ", answerUser=" + getAnswerUser() + ", groups=.., createDate="
+        + ", answerUser=" + getAnswerUser() + ", groups=" + getGroups() + ", createDate="
         + getCreateDate() + ", updateDate=" + getUpdateDate() + ", locale=" + getLocale() + "]";
   }
 }

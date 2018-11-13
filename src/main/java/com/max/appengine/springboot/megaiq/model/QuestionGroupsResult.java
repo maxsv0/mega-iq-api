@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public class QuestionGroupsResult implements Serializable {
-  private Map<IqQuestionGroup, Integer> questionsNumber = new HashMap();
+  private Map<IqQuestionGroup, Integer> questionsNumber = new HashMap<IqQuestionGroup, Integer>();
 
   public QuestionGroupsResult(Integer math, Integer grammar, Integer hor, Integer logic) {
     this.questionsNumber.put(IqQuestionGroup.MATH, math);
@@ -45,5 +45,10 @@ public class QuestionGroupsResult implements Serializable {
   @Override
   public int hashCode() {
     return Objects.hash(questionsNumber);
+  }
+
+  @Override
+  public String toString() {
+    return "QuestionGroupsResult [questionsNumber=" + questionsNumber + "]";
   }
 }
