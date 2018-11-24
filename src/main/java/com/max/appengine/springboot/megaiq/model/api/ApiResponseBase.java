@@ -49,4 +49,38 @@ public class ApiResponseBase {
     this.date = date;
   }
 
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((date == null) ? 0 : date.hashCode());
+    result = prime * result + ((msg == null) ? 0 : msg.hashCode());
+    result = prime * result + (ok ? 1231 : 1237);
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    ApiResponseBase other = (ApiResponseBase) obj;
+    if (date == null) {
+      if (other.date != null)
+        return false;
+    } else if (!date.equals(other.date))
+      return false;
+    if (msg == null) {
+      if (other.msg != null)
+        return false;
+    } else if (!msg.equals(other.msg))
+      return false;
+    if (ok != other.ok)
+      return false;
+    return true;
+  }
+
 }

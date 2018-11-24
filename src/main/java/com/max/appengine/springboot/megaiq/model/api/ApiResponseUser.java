@@ -39,4 +39,53 @@ public class ApiResponseUser extends ApiResponseBase {
     this.setMsg(null);
   }
 
+  public ApiResponseUser() {
+    super();
+  }
+
+  public ApiResponseUser(boolean ok, String msg, Date date, ApiUser user, ApiToken token) {
+    super();
+    this.user = user;
+    this.token = token;
+    this.setOk(ok);
+    this.setMsg(msg);
+    this.setDate(date);
+  }
+
+  @Override
+  public String toString() {
+    return "ApiResponseUser [user=" + user + ", token=" + token + "]";
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((token == null) ? 0 : token.hashCode());
+    result = prime * result + ((user == null) ? 0 : user.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    ApiResponseUser other = (ApiResponseUser) obj;
+    if (token == null) {
+      if (other.token != null)
+        return false;
+    } else if (!token.equals(other.token))
+      return false;
+    if (user == null) {
+      if (other.user != null)
+        return false;
+    } else if (!user.equals(other.user))
+      return false;
+    return true;
+  }
+  
 }
