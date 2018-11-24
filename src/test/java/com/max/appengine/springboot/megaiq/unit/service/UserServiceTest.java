@@ -133,5 +133,15 @@ public class UserServiceTest extends AbstractUnitTest {
     userTokenReporitory.delete(userResult.get().getUserToken());
     userReporitory.delete(testUser2);
   }
-
+  
+  @Test
+  public void testUserRegister() {
+    User user = new User();
+    user.setEmail("test@sometestemail.com");
+    
+    Optional<User> userResult = this.userService.addUser(user);
+    assertTrue(userResult.isPresent());
+    user.setTokenList(userResult.get().getTokenList());
+    assertEquals(user, userResult.get());
+  }
 }

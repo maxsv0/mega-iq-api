@@ -20,10 +20,12 @@ import org.junit.Rule;
 import org.junit.rules.TestName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 public abstract class AbstractIntegrationTest {
 
-  private static final Logger log = LoggerFactory.getLogger(AbstractIntegrationTest.class);
+  protected static final Logger log = LoggerFactory.getLogger(AbstractIntegrationTest.class);
 
   @Rule
   public TestName name = new TestName();
@@ -36,5 +38,15 @@ public abstract class AbstractIntegrationTest {
   @After
   public void printTestEnd() {
     log.debug("IT {}.{}() Ends.", name.getClass(), name.getMethodName());
+  }
+  
+  public static String asJsonString(final Object obj) {
+    try {
+      ObjectMapper objectMapper = new ObjectMapper();
+      objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+      return objectMapper.writeValueAsString(obj);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 }
