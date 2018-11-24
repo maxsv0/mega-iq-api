@@ -21,6 +21,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.model.enums.UserTokenType;
+import com.max.appengine.springboot.megaiq.repository.UserTokenReporitory;
 
 @Entity
 @Table(name = "users", indexes = {@Index(columnList = "locale"), @Index(columnList = "isPublic"),
@@ -33,6 +34,13 @@ public class User extends AbstractUser {
   @Transient
   private List<UserToken> tokenList;
 
+  public UserToken generateToken(UserTokenReporitory tokenReporitory, UserTokenType type) {
+    UserToken tokenNew = new UserToken(this.getId(), type);
+    this.getTokenList().add(tokenNew);
+
+    return tokenReporitory.save(tokenNew);
+  }
+  
   public List<TestResult> getTestResultList() {
     return testResultList;
   }
