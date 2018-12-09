@@ -15,30 +15,31 @@
 package com.max.appengine.springboot.megaiq.model.api;
 
 import java.util.Date;
+import java.util.List;
 
-public class ApiResponseUser extends ApiResponseBase {
-  private ApiUserPublic user;
+public class ApiResponseUsersList extends ApiResponseBase {
+  private List<ApiUserPublic> users;
 
-  public ApiUserPublic getUser() {
-    return user;
+  public List<ApiUserPublic> getUsers() {
+    return users;
   }
   
-  public ApiResponseUser(ApiUserPublic apiUser) {
+  public ApiResponseUsersList(List<ApiUserPublic> apiUsers) {
     super();
-    this.user = apiUser;
+    this.users = apiUsers;
 
     this.setOk();
     this.setDate(new Date());
     this.setMsg(null);
   }
 
-  public ApiResponseUser() {
+  public ApiResponseUsersList() {
     super();
   }
 
-  public ApiResponseUser(boolean ok, String msg, Date date, ApiUser user, ApiToken token) {
+  public ApiResponseUsersList(boolean ok, String msg, Date date, List<ApiUserPublic> users, ApiToken token) {
     super();
-    this.user = user;
+    this.users = users;
     this.setOk(ok);
     this.setMsg(msg);
     this.setDate(date);
@@ -46,14 +47,14 @@ public class ApiResponseUser extends ApiResponseBase {
 
   @Override
   public String toString() {
-    return "ApiResponseUser [user=" + user + "]";
+    return "ApiResponseUser [users=" + users + "]";
   }
 
   @Override
   public int hashCode() {
     final int prime = 31;
-    int result = 1;
-    result = prime * result + ((user == null) ? 0 : user.hashCode());
+    int result = super.hashCode();
+    result = prime * result + ((users == null) ? 0 : users.hashCode());
     return result;
   }
 
@@ -61,17 +62,17 @@ public class ApiResponseUser extends ApiResponseBase {
   public boolean equals(Object obj) {
     if (this == obj)
       return true;
-    if (obj == null)
+    if (!super.equals(obj))
       return false;
     if (getClass() != obj.getClass())
       return false;
-    ApiResponseUser other = (ApiResponseUser) obj;
-    if (user == null) {
-      if (other.user != null)
+    ApiResponseUsersList other = (ApiResponseUsersList) obj;
+    if (users == null) {
+      if (other.users != null)
         return false;
-    } else if (!user.equals(other.user))
+    } else if (!users.equals(other.users))
       return false;
     return true;
   }
-  
+
 }

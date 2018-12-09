@@ -14,6 +14,8 @@
 
 package com.max.appengine.springboot.megaiq.service;
 
+import java.util.Date;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -21,11 +23,20 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import com.max.appengine.springboot.megaiq.model.Question;
 import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
+import com.max.appengine.springboot.megaiq.model.api.ApiResponseError;
+import com.max.appengine.springboot.megaiq.model.api.ApiResponseUser;
+import com.max.appengine.springboot.megaiq.model.api.ApiUser;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.model.enums.UserTokenType;
@@ -34,6 +45,7 @@ import com.max.appengine.springboot.megaiq.model.enums.UserTokenType;
 public class ApiService {
 
   private static final Logger log = LoggerFactory.getLogger(ApiService.class);
+  
   private final QuestionsService qestionsService;
   private final TestResultService testResultService;
   private final UserService userService;
@@ -50,7 +62,9 @@ public class ApiService {
 
   public ApiResponseBase index(HttpServletRequest request) {
     ApiResponseBase result = new ApiResponseBase();
-
+    result.setOk();
+    result.setMsg("API v.0.0.1");
+    result.setDate(new Date());
     return result;
   }
 
@@ -89,7 +103,8 @@ public class ApiService {
     return Optional.of(testResultService.startUserTest(user, testType, questions, locale));
   }
 
-  public Optional<User> addNewUser(User user) {
+  public Optional<User> addNewUser(User user, Locale locale) {
+    user.setLocale(locale);
     return userService.addUser(user);
   }
 
@@ -114,7 +129,7 @@ public class ApiService {
     return testResultService.findByUserId(userId, locale);
   }
 
-  private Optional<User> getUserById(Integer userId) {
+  public Optional<User> getUserById(Integer userId) {
     return userService.getUserById(userId);
   }
 }

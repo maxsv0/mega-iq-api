@@ -88,7 +88,7 @@ public class User extends AbstractUser {
     super();
   }
 
-  public User(String email, String name, String url, String pic, String city,
+  public User(String email, String name, String url, String pic, String location,
       Integer age, Integer iq, Boolean isPublic, String password, String ip, Integer geoId,
       Locale locale) {
     super();
@@ -97,7 +97,7 @@ public class User extends AbstractUser {
     this.setName(name);
     this.setUrl(url);
     this.setPic(pic);
-    this.setCity(city);
+    this.setLocation(location);
     this.setAge(age);
     this.setIq(iq);
     this.setIsPublic(isPublic);
@@ -110,7 +110,7 @@ public class User extends AbstractUser {
   @Override
   public String toString() {
     return "User [id=" + getId() + ", email=" + getEmail() + ", name=" + getName() + ", url="
-        + getUrl() + ", pic=" + getPic() + ", city=" + getCity() + ", age=" + getAge() + ", iq="
+        + getUrl() + ", pic=" + getPic() + ", location=" + getLocation() + ", age=" + getAge() + ", iq="
         + getIq() + ", isPublic=" + getIsPublic() + ", password=" + getPassword() + ", ip="
         + getIp() + ", geoId=" + getGeoId() + ", locale=" + getLocale() + "] Tokens="
         + getTokenList();

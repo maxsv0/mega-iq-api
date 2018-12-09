@@ -34,10 +34,11 @@ public abstract class AbstractUser {
   private String name;
   private String url;
   private String pic;
-  private String city;
+  private String location;
   private Integer age;
   private Integer iq;
   private Boolean isPublic;
+  private Boolean isEmailVerified;
   private String password;
   private String ip;
   private Integer geoId;
@@ -86,12 +87,12 @@ public abstract class AbstractUser {
     this.pic = pic;
   }
 
-  public String getCity() {
-    return city;
+  public String getLocation() {
+    return location;
   }
 
-  public void setCity(String city) {
-    this.city = city;
+  public void setLocation(String location) {
+    this.location = location;
   }
 
   public Integer getAge() {
@@ -150,17 +151,26 @@ public abstract class AbstractUser {
     this.locale = locale;
   }
 
+  public Boolean getIsEmailVerified() {
+    return isEmailVerified;
+  }
+
+  public void setIsEmailVerified(Boolean isEmailVerified) {
+    this.isEmailVerified = isEmailVerified;
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((age == null) ? 0 : age.hashCode());
-    result = prime * result + ((city == null) ? 0 : city.hashCode());
+    result = prime * result + ((location == null) ? 0 : location.hashCode());
     result = prime * result + ((email == null) ? 0 : email.hashCode());
     result = prime * result + ((geoId == null) ? 0 : geoId.hashCode());
     result = prime * result + ((id == null) ? 0 : id.hashCode());
     result = prime * result + ((ip == null) ? 0 : ip.hashCode());
     result = prime * result + ((iq == null) ? 0 : iq.hashCode());
+    result = prime * result + ((isEmailVerified == null) ? 0 : isEmailVerified.hashCode());
     result = prime * result + ((isPublic == null) ? 0 : isPublic.hashCode());
     result = prime * result + ((locale == null) ? 0 : locale.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
@@ -184,10 +194,10 @@ public abstract class AbstractUser {
         return false;
     } else if (!age.equals(other.age))
       return false;
-    if (city == null) {
-      if (other.city != null)
+    if (location == null) {
+      if (other.location != null)
         return false;
-    } else if (!city.equals(other.city))
+    } else if (!location.equals(other.location))
       return false;
     if (email == null) {
       if (other.email != null)
@@ -213,6 +223,11 @@ public abstract class AbstractUser {
       if (other.iq != null)
         return false;
     } else if (!iq.equals(other.iq))
+      return false;
+    if (isEmailVerified == null) {
+      if (other.isEmailVerified != null)
+        return false;
+    } else if (!isEmailVerified.equals(other.isEmailVerified))
       return false;
     if (isPublic == null) {
       if (other.isPublic != null)

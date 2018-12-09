@@ -14,14 +14,16 @@
 
 package com.max.appengine.springboot.megaiq.rest;
 
+import java.util.Enumeration;
 import java.util.Optional;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,17 +33,19 @@ import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseError;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseTestResult;
-import com.max.appengine.springboot.megaiq.model.api.ApiResponseUser;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.service.ApiService;
 
 @RestController
 public class ApiController {
+  protected static final Logger log = LoggerFactory.getLogger(ApiController.class);
+  
   private final static Locale DEFAULT_LOCALE = Locale.EN;
-
+  public static String BEARER_TYPE = "Bearer";
+  
   private final ApiService serviceApi;
-
+  
   //
   // pre-load:
   // questions DB
@@ -58,7 +62,7 @@ public class ApiController {
   public ResponseEntity<ApiResponseBase> index(HttpServletRequest request) {
     return new ResponseEntity<ApiResponseBase>(serviceApi.index(request), HttpStatus.OK);
   }
-
+  
   @RequestMapping(value = "/test/{testCode}", method = RequestMethod.GET)
   public ResponseEntity<ApiResponseBase> requestTestDetails(@PathVariable UUID testCode,
       @RequestParam Optional<String> token, @RequestParam Optional<String> locale) {
@@ -98,33 +102,6 @@ public class ApiController {
         HttpStatus.OK);
   }
 
-  @RequestMapping(value = "/user/new", method = RequestMethod.POST)
-  public ResponseEntity<ApiResponseBase> requestNewUser(@RequestBody User user) {
-    Optional<User> userResult = serviceApi.addNewUser(user);
-   
-    if (userResult.isPresent()) {
-      ApiResponseBase resultResponse = new ApiResponseUser(userResult.get());
-
-      return new ResponseEntity<ApiResponseBase>(resultResponse, HttpStatus.OK);
-    } else {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-    }
-  }
-
-  @RequestMapping(value = "/user/login", method = RequestMethod.GET)
-  public ResponseEntity<ApiResponseBase> requestUserLogin(@PathVariable String login,
-      @PathVariable String password) {
-    Optional<User> user = serviceApi.userLogin(login, password);
-
-    if (user.isPresent()) {
-      ApiResponseBase resultResponse = new ApiResponseUser(user.get());
-
-      return new ResponseEntity<ApiResponseBase>(resultResponse, HttpStatus.OK);
-    } else {
-      return new ResponseEntity<ApiResponseBase>(new ApiResponseError("Wrong request"),
-          HttpStatus.OK);
-    }
-  }
 
   private ResponseEntity<ApiResponseBase> iqTestDetailsPublic(UUID testCode, Locale locale) {
     Optional<TestResult> testResult = serviceApi.iqTestDetailsPublic(testCode, locale);
@@ -156,7 +133,7 @@ public class ApiController {
 
   private Locale loadLocale(Optional<String> locale) {
     Locale userLocale = DEFAULT_LOCALE;
-    if (locale.isPresent()) {
+    if (!locale.isPresent()) {
       return userLocale;
     }
 

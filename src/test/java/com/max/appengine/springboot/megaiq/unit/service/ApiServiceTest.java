@@ -95,7 +95,7 @@ public class ApiServiceTest extends AbstractUnitTest {
     Optional<User> testUserResult = generateNewUser();
     User testUser = testUserResult.get();
 
-    Optional<User> userResultDuplicate = apiService.addNewUser(testUser);
+    Optional<User> userResultDuplicate = apiService.addNewUser(testUser, null);
     log.info("Test duplicate result={}", userResultDuplicate);
     assertFalse(userResultDuplicate.isPresent());
   }
@@ -267,7 +267,7 @@ public class ApiServiceTest extends AbstractUnitTest {
     User testUser = new User(email, "test", "url", "pic", "city", age, iq, true,
         USER_PASSWORD_HASH, "ip", 0, Locale.EN);
 
-    Optional<User> userResult = apiService.addNewUser(testUser);
+    Optional<User> userResult = apiService.addNewUser(testUser, Locale.EN);
     log.info("Test user result={}", userResult);
 
     return userResult;

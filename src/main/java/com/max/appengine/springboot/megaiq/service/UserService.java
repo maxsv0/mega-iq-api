@@ -14,8 +14,6 @@
 
 package com.max.appengine.springboot.megaiq.service;
 
-import static com.fasterxml.jackson.annotation.JsonFormat.DEFAULT_LOCALE;
-
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -29,6 +27,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.UserToken;
+import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.model.enums.UserTokenType;
 import com.max.appengine.springboot.megaiq.repository.UserReporitory;
 import com.max.appengine.springboot.megaiq.repository.UserTokenReporitory;
@@ -46,6 +45,11 @@ public class UserService {
     this.userTokenReporitory = userTokenReporitory;
   }
 
+
+  public List<User> getUsersTop(Locale locale) {
+    return userReporitory.findTop10ByLocaleAndIsPublicIsTrueAndIqIsNotNullOrderByIqDesc(locale);
+  }
+  
   public Optional<User> addUser(User user) {
     User userResult = null;
 
@@ -54,11 +58,16 @@ public class UserService {
       return Optional.empty();
     }
 
+    user.setPassword(convertPassowrdToHash(user.getPassword()));
+
     try {
       userResult = userReporitory.save(user);
     } catch (DataAccessException e) {
       e.printStackTrace();
     }
+    
+    userResult.setUrl("/user/"+userResult.getId());
+    userReporitory.save(userResult);
 
     userResult = initUserTokens(userResult);
 
@@ -66,7 +75,7 @@ public class UserService {
   }
 
   public User saveUser(User user) {
-    userTokenReporitory.saveAll(user.getTokenList());
+    ///userTokenReporitory.saveAll(user.getTokenList()); TODO: remove
     return userReporitory.save(user);
   }
 
@@ -99,22 +108,7 @@ public class UserService {
       return Optional.empty();
     }
 
-    String hashString = null;
-
-    try {
-      byte[] bytesPassword = password.getBytes(StandardCharsets.UTF_8);
-      MessageDigest md = MessageDigest.getInstance("MD5");
-      byte[] hashPassword = md.digest(bytesPassword);
-      StringBuilder sb = new StringBuilder(2 * hashPassword.length);
-      for (byte b : hashPassword) {
-        sb.append(String.format("%02x", b & 0xff));
-      }
-      hashString = sb.toString().toLowerCase();
-    } catch (NoSuchAlgorithmException e) {
-      e.printStackTrace();
-      return Optional.empty();
-    }
-
+    String hashString = convertPassowrdToHash(password);
     log.debug("Got hash={}", hashString);
     User user = userResult.get();
 
@@ -153,4 +147,22 @@ public class UserService {
     return user;
   }
 
+  private String convertPassowrdToHash(String password) {
+    String hashString = null;
+
+    byte[] bytesPassword = password.getBytes(StandardCharsets.UTF_8);
+    try {
+      MessageDigest md = MessageDigest.getInstance("MD5");
+      byte[] hashPassword = md.digest(bytesPassword);
+      StringBuilder sb = new StringBuilder(2 * hashPassword.length);
+      for (byte b : hashPassword) {
+        sb.append(String.format("%02x", b & 0xff));
+      }
+      hashString = sb.toString().toLowerCase();
+      
+    } catch (NoSuchAlgorithmException e) {
+      e.printStackTrace();
+    }
+    return hashString;
+  } 
 }
