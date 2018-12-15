@@ -139,11 +139,23 @@ public class ApiUserController extends AbstractApiController {
     return sendResponseUser(new ApiUser(userResult));
   }
 
-
   @RequestMapping(value = "/user/top", method = RequestMethod.GET)
   public ResponseEntity<ApiResponseBase> getUsersTop(@RequestParam Optional<String> locale) {
     Locale userLocale = loadLocale(locale);
-    List<User> usersList = this.userService.getUsersTop(userLocale);
+    List<User> usersList = this.userService.getUsersListTopToday(userLocale);
+
+    List<ApiUserPublic> usersPublicList = new ArrayList<ApiUserPublic>();
+    for (User user : usersList) {
+      usersPublicList.add(new ApiUserPublic(user));
+    }
+    return sendResponseUsersList(usersPublicList);
+  }
+
+  @RequestMapping(value = "/user/list", method = RequestMethod.GET)
+  public ResponseEntity<ApiResponseBase> getUsersList(@RequestParam Optional<String> locale,
+      Optional<Integer> page) {
+    Locale userLocale = loadLocale(locale);
+    List<User> usersList = this.userService.getUsersListTopMonth(userLocale, page);
 
     List<ApiUserPublic> usersPublicList = new ArrayList<ApiUserPublic>();
     for (User user : usersList) {

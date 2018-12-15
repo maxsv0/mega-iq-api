@@ -17,13 +17,18 @@ package com.max.appengine.springboot.megaiq.service;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.UserToken;
@@ -34,10 +39,15 @@ import com.max.appengine.springboot.megaiq.repository.UserTokenReporitory;
 
 @Service
 public class UserService {
+  public static final Integer LIMIT_LIST_PAGE = 15;
+  
+  public static final Integer LIMIT_HOME_PAGE = 8;
+
+  private final UserReporitory userReporitory;
+
+  private final UserTokenReporitory userTokenReporitory;
 
   private static final Logger log = LoggerFactory.getLogger(UserService.class);
-  private final UserReporitory userReporitory;
-  private final UserTokenReporitory userTokenReporitory;
 
   @Autowired
   public UserService(UserReporitory userReporitory, UserTokenReporitory userTokenReporitory) {
@@ -45,11 +55,19 @@ public class UserService {
     this.userTokenReporitory = userTokenReporitory;
   }
 
-
-  public List<User> getUsersTop(Locale locale) {
-    return userReporitory.findTop10ByLocaleAndIsPublicIsTrueAndIqIsNotNullOrderByIqDesc(locale);
+  public List<User> getUsersListTopMonth(Locale locale, Optional<Integer> page) {
+    int currentPage = 0;
+    if (page.isPresent() && page.get() > 0) {
+      currentPage = page.get();
+    }
+    
+    return loadUsersList(locale, 30, PageRequest.of(currentPage, LIMIT_LIST_PAGE));
   }
-  
+
+  public List<User> getUsersListTopToday(Locale locale) {
+    return loadUsersList(locale, 1, PageRequest.of(0, LIMIT_HOME_PAGE));
+  }
+
   public Optional<User> addUser(User user) {
     User userResult = null;
 
@@ -59,14 +77,15 @@ public class UserService {
     }
 
     user.setPassword(convertPassowrdToHash(user.getPassword()));
+    user.setCreateDate(new Date());
 
     try {
       userResult = userReporitory.save(user);
     } catch (DataAccessException e) {
       e.printStackTrace();
     }
-    
-    userResult.setUrl("/user/"+userResult.getId());
+
+    userResult.setUrl("/user/" + userResult.getId());
     userReporitory.save(userResult);
 
     userResult = initUserTokens(userResult);
@@ -75,7 +94,9 @@ public class UserService {
   }
 
   public User saveUser(User user) {
-    ///userTokenReporitory.saveAll(user.getTokenList()); TODO: remove
+    user.setUpdateDate(new Date());
+
+    /// userTokenReporitory.saveAll(user.getTokenList()); TODO: remove
     return userReporitory.save(user);
   }
 
@@ -159,10 +180,19 @@ public class UserService {
         sb.append(String.format("%02x", b & 0xff));
       }
       hashString = sb.toString().toLowerCase();
-      
+
     } catch (NoSuchAlgorithmException e) {
       e.printStackTrace();
     }
     return hashString;
-  } 
+  }
+  
+  private List<User> loadUsersList(Locale locale, Integer period, Pageable pageRequest) {
+    LocalDate dateLocal = LocalDate.now().minusDays(period);
+    Date date = Date.from(dateLocal.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+    return userReporitory
+        .findByLocaleAndCreateDateAfterAndIsPublicIsTrueAndIqIsNotNullOrderByIqDesc(locale,
+            date, pageRequest);
+  }
 }
