@@ -57,6 +57,25 @@ public class ApiUserController extends AbstractApiController {
     this.userService = userService;
   }
 
+  @RequestMapping(value = "/user", method = RequestMethod.GET)
+  public ResponseEntity<ApiResponseBase> requestNewUser(HttpServletRequest request,
+      @RequestParam Optional<String> locale) {
+    Locale userLocale = loadLocale(locale);
+
+    Optional<String> token = getTokenFromHeader(request);
+    if (token.isPresent()) {
+      Optional<User> userCurrentResult = serviceApi.getUserByToken(token.get(), userLocale);
+      
+      if (!userCurrentResult.isPresent()) {
+        return sendResponseError(MESSAGE_INVALID_ACCESS);
+      } else {
+        return sendResponseUser(new ApiUser(userCurrentResult.get()));
+      }
+    } else {
+      return sendResponseError(MESSAGE_INVALID_ACCESS);
+    }
+  }
+  
   @RequestMapping(value = "/user/new", method = RequestMethod.POST, consumes = "application/json")
   public ResponseEntity<ApiResponseBase> requestNewUser(HttpServletRequest request,
       @RequestBody User user, @RequestParam Optional<String> locale) {
@@ -106,8 +125,13 @@ public class ApiUserController extends AbstractApiController {
       @PathVariable Integer userId, @RequestBody User user, @RequestParam Optional<String> locale) {
 
     Locale userLocale = loadLocale(locale);
-    String token = getTokenFromHeader(request);
-    Optional<User> userCurrentResult = serviceApi.getUserByToken(token, userLocale);
+    Optional<String> token = getTokenFromHeader(request);
+    
+    if (token.isPresent()) {
+      return sendResponseError(MESSAGE_INVALID_ACCESS);
+    }
+    
+    Optional<User> userCurrentResult = serviceApi.getUserByToken(token.get(), userLocale);
     if (!userCurrentResult.isPresent()) {
       return sendResponseError(MESSAGE_INVALID_ACCESS);
     }

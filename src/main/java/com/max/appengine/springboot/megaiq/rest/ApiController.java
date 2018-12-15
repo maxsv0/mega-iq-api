@@ -37,6 +37,8 @@ import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.service.ApiService;
 
+//TODO: REMOVE this file
+
 @RestController
 public class ApiController {
   protected static final Logger log = LoggerFactory.getLogger(ApiController.class);
@@ -56,11 +58,6 @@ public class ApiController {
   @Autowired
   public ApiController(ApiService service) {
     this.serviceApi = service;
-  }
-
-  @RequestMapping(value = "/", method = RequestMethod.GET)
-  public ResponseEntity<ApiResponseBase> index(HttpServletRequest request) {
-    return new ResponseEntity<ApiResponseBase>(serviceApi.index(request), HttpStatus.OK);
   }
   
   @RequestMapping(value = "/test/{testCode}", method = RequestMethod.GET)

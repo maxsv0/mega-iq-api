@@ -33,30 +33,34 @@ public abstract class AbstractApiController {
   public static final String BEARER_TYPE = "Bearer";
   
   protected ResponseEntity<ApiResponseBase> sendResponseUsersList(List<ApiUserPublic> apiUsers) {
-    return new ResponseEntity<ApiResponseBase>(new ApiResponseUsersList(apiUsers), HttpStatus.OK);
+    return sendResponseOk(new ApiResponseUsersList(apiUsers));
   }
   
   protected ResponseEntity<ApiResponseBase> sendResponseUser(ApiUserPublic apiUser) {
-    return new ResponseEntity<ApiResponseBase>(new ApiResponseUser(apiUser), HttpStatus.OK);
+    return sendResponseOk(new ApiResponseUser(apiUser));
   }
 
   protected ResponseEntity<ApiResponseBase> sendResponseError(String message) {
-    return new ResponseEntity<ApiResponseBase>(new ApiResponseError(message), HttpStatus.OK);
+    return sendResponseOk(new ApiResponseError(message));
   }
 
+  protected ResponseEntity<ApiResponseBase> sendResponseOk(ApiResponseBase response) {
+    return new ResponseEntity<ApiResponseBase>(response, HttpStatus.OK);
+  }
+  
   protected String getIp(HttpServletRequest request) {
     return request.getRemoteAddr();
   }
 
-  protected String getTokenFromHeader(HttpServletRequest request) {
+  protected Optional<String> getTokenFromHeader(HttpServletRequest request) {
     Enumeration<String> headers = request.getHeaders("Authorization");
     while (headers.hasMoreElements()) { // typically there is only one (most servers enforce that)
       String value = headers.nextElement();
       if ((value.toLowerCase().startsWith(BEARER_TYPE.toLowerCase()))) {
-        return value.substring(BEARER_TYPE.length()).trim();
+        return Optional.of(value.substring(BEARER_TYPE.length()).trim());
       }
     }
-    return null;
+    return Optional.empty();
   }
 
   protected Locale loadLocale(Optional<String> locale) {
