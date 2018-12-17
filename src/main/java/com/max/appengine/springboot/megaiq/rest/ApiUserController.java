@@ -127,7 +127,7 @@ public class ApiUserController extends AbstractApiController {
     Locale userLocale = loadLocale(locale);
     Optional<String> token = getTokenFromHeader(request);
     
-    if (token.isPresent()) {
+    if (!token.isPresent()) {
       return sendResponseError(MESSAGE_INVALID_ACCESS);
     }
     
