@@ -16,6 +16,7 @@ package com.max.appengine.springboot.megaiq.model.api;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import com.max.appengine.springboot.megaiq.model.Answer;
 import com.max.appengine.springboot.megaiq.model.AbstractQuestionUser;
 import com.max.appengine.springboot.megaiq.model.Question;
@@ -27,7 +28,7 @@ public class ApiQuestion {
   private String title;
   private String description;
   private Date updateDate;
-  private ArrayList<ApiAnswer> answers;
+  private List<ApiAnswer> answers;
 
   public ApiQuestion(AbstractQuestionUser questionUser, Question questionData) {
     super();
@@ -92,5 +93,11 @@ public class ApiQuestion {
     this.updateDate = updateDate;
   }
 
+  public List<ApiAnswer> getAnswers() {
+    return answers;
+  }
 
+  public void setAnswers(List<ApiAnswer> answers) {
+    this.answers = answers;
+  }
 }

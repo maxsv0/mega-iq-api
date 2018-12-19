@@ -15,18 +15,17 @@
 package com.max.appengine.springboot.megaiq.model.api;
 
 import java.util.Date;
-import com.max.appengine.springboot.megaiq.model.TestResult;
 
 public class ApiResponseTestResult extends ApiResponseBase {
-  private TestResult testResult;
+  private ApiTestResult test;
 
-  public TestResult getTestResult() {
-    return testResult;
+  public ApiTestResult getTest() {
+    return test;
   }
 
-  public ApiResponseTestResult(TestResult testResult) {
+  public ApiResponseTestResult(ApiTestResult testResult) {
     super();
-    this.testResult = testResult;
+    this.test = testResult;
 
     this.setOk();
     this.setDate(new Date());

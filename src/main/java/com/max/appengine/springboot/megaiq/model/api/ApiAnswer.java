@@ -20,6 +20,9 @@ public class ApiAnswer {
   private Integer id;
   private String pic;
 
+  public ApiAnswer() {
+    super();
+  }
 
   public ApiAnswer(AbstractAnswer answer) {
     super();

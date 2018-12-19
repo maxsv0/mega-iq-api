@@ -18,7 +18,7 @@ import java.util.Date;
 
 public class ApiResponseBase {
   private boolean ok;
-  private String message;
+  private String msg;
   private Date date;
 
   public boolean isOk() {
@@ -34,11 +34,11 @@ public class ApiResponseBase {
   }
 
   public String getMsg() {
-    return message;
+    return msg;
   }
 
   public void setMsg(String msg) {
-    this.message = msg;
+    this.msg = msg;
   }
 
   public Date getDate() {
@@ -54,7 +54,7 @@ public class ApiResponseBase {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((date == null) ? 0 : date.hashCode());
-    result = prime * result + ((message == null) ? 0 : message.hashCode());
+    result = prime * result + ((msg == null) ? 0 : msg.hashCode());
     result = prime * result + (ok ? 1231 : 1237);
     return result;
   }
@@ -73,10 +73,10 @@ public class ApiResponseBase {
         return false;
     } else if (!date.equals(other.date))
       return false;
-    if (message == null) {
-      if (other.message != null)
+    if (msg == null) {
+      if (other.msg != null)
         return false;
-    } else if (!message.equals(other.message))
+    } else if (!msg.equals(other.msg))
       return false;
     if (ok != other.ok)
       return false;

@@ -43,10 +43,7 @@ public class ApiTestResult {
   private QuestionGroupsResult groupsGraph;
   private ArrayList<ApiQuestion> questionSet;
 
-  @Autowired
-  private QuestionsService serviceQuestions;
-
-  public ApiTestResult(TestResult testResult, boolean showPrivate) {
+  public ApiTestResult(QuestionsService serviceQuestions, TestResult testResult, boolean showPrivate) {
     super();
 
     this.setCode(testResult.getCode());
@@ -66,7 +63,12 @@ public class ApiTestResult {
       if (testResult.getQuestionSet() != null) {
         for (AbstractQuestionUser questionUser : testResult.getQuestionSet()) {
           ApiQuestion apiQuestion = new ApiQuestion(questionUser,
-              serviceQuestions.getQuestionById(questionUser.getId(), questionUser.getLocale()));
+              serviceQuestions.getQuestionById(questionUser.getQuestionIq(), questionUser.getLocale()));
+          
+          if (testResult.getStatus().equals(IqTestStatus.ACTIVE)) {
+            apiQuestion.setAnswerCorrect(null);
+          }
+          
           this.getQuestionSet().add(apiQuestion);
         }
       }
