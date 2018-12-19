@@ -92,7 +92,7 @@ public class QuestionsService {
     if (this.questionsList.isEmpty()) {
       throw new IllegalStateException("Questions DB is empty");
     }
-    
+
     for (Question question : this.questionsList) {
       if (question.getLocale().equals(locale))
         questionList.add(question);
@@ -121,6 +121,11 @@ public class QuestionsService {
     for (Answer answer : this.answersList) {
       if (answer.getQuestionId().equals(questionId) && answer.getLocale().equals(locale))
         answersList.add(answer);
+    }
+
+    if (answersList.isEmpty()) {
+      throw new IllegalStateException(
+          "No answers for question ID=" + questionId + ", locale=" + locale);
     }
 
     return answersList;

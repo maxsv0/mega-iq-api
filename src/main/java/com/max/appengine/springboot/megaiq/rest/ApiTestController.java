@@ -16,19 +16,23 @@ import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseError;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseTestResult;
+import com.max.appengine.springboot.megaiq.model.api.ApiTestResult;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.service.ApiService;
+import com.max.appengine.springboot.megaiq.service.QuestionsService;
 
 @RestController
 public class ApiTestController extends AbstractApiController {
   public static final String MESSAGE_INVALID_ACCESS = "Can't access. Please log in again";
 
   private final ApiService serviceApi;
+  private final QuestionsService serviceQuestions;
 
   @Autowired
-  public ApiTestController(ApiService service) {
+  public ApiTestController(ApiService service, QuestionsService serviceQuestions) {
     this.serviceApi = service;
+    this.serviceQuestions = serviceQuestions;
   }
 
   @RequestMapping(value = "/test/start", method = RequestMethod.GET)
@@ -37,11 +41,11 @@ public class ApiTestController extends AbstractApiController {
 
     Locale userLocale = loadLocale(locale);
     Optional<String> token = getTokenFromHeader(request);
-    
+
     if (!token.isPresent()) {
       return sendResponseError(MESSAGE_INVALID_ACCESS);
     }
-    
+
     Optional<User> user = serviceApi.getUserByToken(token.get(), userLocale);
     if (!user.isPresent()) {
       return new ResponseEntity<ApiResponseBase>(new ApiResponseError("Wrong request"),
@@ -54,7 +58,9 @@ public class ApiTestController extends AbstractApiController {
           HttpStatus.OK);
     }
 
-    return new ResponseEntity<ApiResponseBase>(new ApiResponseTestResult(testResult.get()),
+    ApiTestResult apiTestResult = new ApiTestResult(serviceQuestions, testResult.get(), true);
+
+    return new ResponseEntity<ApiResponseBase>(new ApiResponseTestResult(apiTestResult),
         HttpStatus.OK);
   }
 
@@ -64,7 +70,7 @@ public class ApiTestController extends AbstractApiController {
 
     Locale userLocale = loadLocale(locale);
     Optional<String> token = getTokenFromHeader(request);
-    
+
     if (token.isPresent()) {
       Optional<User> user = serviceApi.getUserByToken(token.get(), userLocale);
 
@@ -82,7 +88,9 @@ public class ApiTestController extends AbstractApiController {
     Optional<TestResult> testResult = serviceApi.iqTestDetailsPrivate(testCode, user, locale);
 
     if (testResult.isPresent()) {
-      ApiResponseBase resultResponse = new ApiResponseTestResult(testResult.get());
+      ApiTestResult apiTestResult = new ApiTestResult(serviceQuestions, testResult.get(), true);
+
+      ApiResponseBase resultResponse = new ApiResponseTestResult(apiTestResult);
 
       return new ResponseEntity<ApiResponseBase>(resultResponse, HttpStatus.OK);
     } else {
@@ -95,7 +103,9 @@ public class ApiTestController extends AbstractApiController {
     Optional<TestResult> testResult = serviceApi.iqTestDetailsPublic(testCode, locale);
 
     if (testResult.isPresent()) {
-      ApiResponseBase resultResponse = new ApiResponseTestResult(testResult.get());
+      ApiTestResult apiTestResult = new ApiTestResult(serviceQuestions, testResult.get(), false);
+
+      ApiResponseBase resultResponse = new ApiResponseTestResult(apiTestResult);
 
       return new ResponseEntity<ApiResponseBase>(resultResponse, HttpStatus.OK);
     } else {

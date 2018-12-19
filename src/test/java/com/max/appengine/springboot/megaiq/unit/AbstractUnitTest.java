@@ -70,10 +70,10 @@ public abstract class AbstractUnitTest {
     int answerId = 1;
     int questionId = 1;
     if (locale.equals(Locale.DE)) {
-      answerId = 100;
+      answerId = 10000;
       questionId = 100;
     } else if (locale.equals(Locale.RU)) {
-      answerId = 1000;
+      answerId = 50000;
       questionId = 1000;
     }
     
