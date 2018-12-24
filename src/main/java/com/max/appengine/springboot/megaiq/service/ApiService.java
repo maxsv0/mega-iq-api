@@ -129,7 +129,7 @@ public class ApiService {
     return Optional.of(user);
   }
 
-  private List<TestResult> loadAllResults(Integer userId, Locale locale) {
+  public List<TestResult> loadAllResults(Integer userId, Locale locale) {
     return testResultService.findByUserId(userId, locale);
   }
 

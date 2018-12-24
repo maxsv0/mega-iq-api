@@ -16,6 +16,7 @@ package com.max.appengine.springboot.megaiq.service;
 
 import com.max.appengine.springboot.megaiq.model.QuestionGroupsResult;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -36,9 +37,18 @@ import com.max.appengine.springboot.megaiq.repository.UserReporitory;
 
 @Service
 public class TestResultService {
+  public static final Integer RESULT_EXPIRE_MINUTES = 24 * 60;
+
+  public static final Integer RESULT_EXPIRE_MINUTES_STANDART = 60;
+  
+  public static final Integer RESULT_EXPIRE_MINUTES_MEGA_IQ = 2 * 60;
+  
   private static final Logger log = LoggerFactory.getLogger(TestResultService.class);
+  
   private final UserReporitory userReporitory;
+  
   private final TestResultReporitory testResultReporitory;
+  
   private final QuestionUserRepository questionUserRepository;
 
   @Autowired
@@ -139,7 +149,7 @@ public class TestResultService {
   }
 
   public List<TestResult> findByUserId(Integer userId, Locale locale) {
-    return testResultReporitory.findByUserIdAndLocale(userId, locale);
+    return testResultReporitory.findByUserIdAndLocaleOrderByCreateDateDesc(userId, locale);
   }
 
   public TestResult loadQuestions(TestResult testResult) {
@@ -150,7 +160,31 @@ public class TestResultService {
     }
     return testResult;
   }
-
+  
+  public void expireTestResults() {
+    expireByType(RESULT_EXPIRE_MINUTES, IqTestType.GRAMMAR);
+    expireByType(RESULT_EXPIRE_MINUTES, IqTestType.MATH);
+    expireByType(RESULT_EXPIRE_MINUTES, IqTestType.PRACTICE_IQ);
+    expireByType(RESULT_EXPIRE_MINUTES_STANDART, IqTestType.STANDART_IQ);
+    expireByType(RESULT_EXPIRE_MINUTES_MEGA_IQ, IqTestType.MEGA_IQ);
+  }
+  
+  private void expireByType(Integer minutes, IqTestType type) {
+    Date date = new Date();
+    Calendar c = Calendar.getInstance();
+    c.setTime(date);
+    c.add(Calendar.MINUTE, -1 * minutes);
+    
+    List<TestResult> testResultsList = testResultReporitory.findByCreateDateBeforeAndTypeAndStatus(c.getTime(), type, IqTestStatus.ACTIVE);
+    if (!testResultsList.isEmpty()) {
+      for (TestResult testResult : testResultsList) {
+        testResult.setStatus(IqTestStatus.EXPIRED);
+        testResult.setUpdateDate(new Date());
+        testResultReporitory.save(testResult);
+      }
+    }
+  }
+  
   private TestResult loadTestDetails(TestResult testResult) {
     Optional<User> user = userReporitory.findById(testResult.getUserId());
     if (user.isPresent()) {
