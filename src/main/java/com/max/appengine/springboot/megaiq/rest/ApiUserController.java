@@ -43,10 +43,6 @@ public class ApiUserController extends AbstractApiController {
 
   public static final String MESSAGE_USER_NOT_FOUND = "User not found or profile is private";
 
-  public static final String MESSAGE_INVALID_INPUT = "Invalid input";
-
-  public static final String MESSAGE_INVALID_ACCESS = "Can't access. Please log in again";
-
   private final ApiService serviceApi;
 
   private final UserService userService;
@@ -143,7 +139,7 @@ public class ApiUserController extends AbstractApiController {
 
     // validate user input
     if (!userCurrent.getId().equals(user.getId())) {
-      return sendResponseError(MESSAGE_INVALID_INPUT);
+      return sendResponseError(MESSAGE_WRONG_REQUEST);
     }
 
     // email change

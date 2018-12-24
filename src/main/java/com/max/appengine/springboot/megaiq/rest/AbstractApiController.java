@@ -22,15 +22,30 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseError;
+import com.max.appengine.springboot.megaiq.model.api.ApiResponseTestResult;
+import com.max.appengine.springboot.megaiq.model.api.ApiResponseTestResultList;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseUser;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseUsersList;
+import com.max.appengine.springboot.megaiq.model.api.ApiTestResult;
 import com.max.appengine.springboot.megaiq.model.api.ApiUserPublic;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
 public abstract class AbstractApiController {
+  public static final String MESSAGE_INVALID_ACCESS = "Access denied, Please log in and try again";
+
+  public static final String MESSAGE_WRONG_REQUEST = "Wrong request";
+  
   public static final Locale DEFAULT_LOCALE = Locale.EN;
   
   public static final String BEARER_TYPE = "Bearer";
+  
+  protected ResponseEntity<ApiResponseBase> sendResponseTestResultList(List<ApiTestResult> testResultList) {
+    return sendResponseOk(new ApiResponseTestResultList(testResultList));
+  }
+  
+  protected ResponseEntity<ApiResponseBase> sendResponseTestResult(ApiTestResult testResult) {
+    return sendResponseOk(new ApiResponseTestResult(testResult));
+  }
   
   protected ResponseEntity<ApiResponseBase> sendResponseUsersList(List<ApiUserPublic> apiUsers) {
     return sendResponseOk(new ApiResponseUsersList(apiUsers));
@@ -56,7 +71,8 @@ public abstract class AbstractApiController {
     Enumeration<String> headers = request.getHeaders("Authorization");
     while (headers.hasMoreElements()) { // typically there is only one (most servers enforce that)
       String value = headers.nextElement();
-      if ((value.toLowerCase().startsWith(BEARER_TYPE.toLowerCase()))) {
+      if (value != null && !value.isEmpty() && 
+          value.toLowerCase().startsWith(BEARER_TYPE.toLowerCase())) {
         return Optional.of(value.substring(BEARER_TYPE.length()).trim());
       }
     }

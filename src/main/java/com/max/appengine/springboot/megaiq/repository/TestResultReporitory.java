@@ -14,17 +14,21 @@
 
 package com.max.appengine.springboot.megaiq.repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.max.appengine.springboot.megaiq.model.TestResult;
+import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
+import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
 public interface TestResultReporitory extends JpaRepository<TestResult, Integer> {
 
   Optional<TestResult> findByCodeAndLocale(UUID code, Locale locale);
   
-  List<TestResult> findByUserIdAndLocale(Integer userId, Locale locale);
-  
+  List<TestResult> findByUserIdAndLocaleOrderByCreateDateDesc(Integer userId, Locale locale);
+ 
+  List<TestResult> findByCreateDateBeforeAndTypeAndStatus(Date createDate, IqTestType type, IqTestStatus status);
 }
