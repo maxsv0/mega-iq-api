@@ -36,5 +36,24 @@
 		<url-pattern>/</url-pattern>
 	</servlet-mapping>
 	
+	<servlet>
+		<servlet-name>storageUpload</servlet-name>
+		<servlet-class>com.max.appengine.springboot.megaiq.service.StorageUploadServlet</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>storageUpload</servlet-name>
+		<url-pattern>/storage/upload</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>storageServe</servlet-name>
+		<servlet-class>com.max.appengine.springboot.megaiq.service.StorageServeServlet</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>storageServe</servlet-name>
+		<url-pattern>/storage/serve</url-pattern>
+	</servlet-mapping>
 </web-app>
 <!-- [END webxml] -->
