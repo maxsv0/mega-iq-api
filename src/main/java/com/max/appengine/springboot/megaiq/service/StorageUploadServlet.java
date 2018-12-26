@@ -1,3 +1,17 @@
+/*
+ * Copyright 2018 mega-iq.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
 package com.max.appengine.springboot.megaiq.service;
 
 import java.io.IOException;
@@ -11,9 +25,12 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
+import com.google.appengine.api.blobstore.UploadOptions;
 
 @MultipartConfig
 public class StorageUploadServlet extends HttpServlet {
+  public static final String GCS_BUCKET_NAME = "msvhost.appspot.com/mega-iq/user-pic";
+  
   private BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
 
   @Override
@@ -46,7 +63,10 @@ public class StorageUploadServlet extends HttpServlet {
   }
 
   public String createUploadUrl(String url) {
-    String uploadUrl = blobstoreService.createUploadUrl(url);
+    UploadOptions uploadOptions = UploadOptions.Builder
+        .withGoogleStorageBucketName(GCS_BUCKET_NAME);
+    
+    String uploadUrl = blobstoreService.createUploadUrl(url, uploadOptions);
     
     return uploadUrl.substring(26);
   }
