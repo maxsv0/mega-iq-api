@@ -25,50 +25,21 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
-import com.google.appengine.api.blobstore.UploadOptions;
 
 @MultipartConfig
 public class StorageUploadServlet extends HttpServlet {
-  public static final String GCS_BUCKET_NAME = "msvhost.appspot.com/mega-iq/user-pic";
-  
-  private BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
+  public static final String FORM_PARAMETER = "uploadFile";
 
-  @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response)
-      throws ServletException, IOException {
-    
-    response.setContentType("text/plain");
-    response.getWriter().write("{\"ok\":true,\"msg\":\"" + this.createUploadUrl("/storage/upload") +  "\",\"date\":\"2018-12-25T09:53:16.716+0000\"}");
-  }
+  private BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
 
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
 
     Map<String, List<BlobKey>> blobs = blobstoreService.getUploads(request);
-    List<BlobKey> blobKeys = blobs.get("uploadFile");
+    List<BlobKey> blobKeys = blobs.get(FORM_PARAMETER);
 
-    String url = "/api/v1/storage/serve?key=" + blobKeys.get(0).getKeyString();
-
-    response.setContentType("text/plain");
-    response.getWriter().write("{\"ok\":true,\"msg\":\"" + url +  "\",\"date\":\"2018-12-25T09:53:16.716+0000\"}");
+    response.sendRedirect(
+        "/storage/serve?" + StorageService.URL_PARAMETER + "=" + blobKeys.get(0).getKeyString());
   }
-
-  public String uploadFile(HttpServletRequest request) throws ServletException, IOException {
-
-    Map<String, List<BlobKey>> blobs = blobstoreService.getUploads(request);
-    List<BlobKey> blobKeys = blobs.get("uploadFile");
-
-    return blobKeys.get(0).getKeyString();
-  }
-
-  public String createUploadUrl(String url) {
-    UploadOptions uploadOptions = UploadOptions.Builder
-        .withGoogleStorageBucketName(GCS_BUCKET_NAME);
-    
-    String uploadUrl = blobstoreService.createUploadUrl(url, uploadOptions);
-    
-    return uploadUrl.substring(26);
-  }
-
 }

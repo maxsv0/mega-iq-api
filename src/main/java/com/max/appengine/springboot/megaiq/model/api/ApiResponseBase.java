@@ -21,6 +21,17 @@ public class ApiResponseBase {
   private String msg;
   private Date date;
 
+  public ApiResponseBase() {
+    super();
+  }
+
+  public ApiResponseBase(String msg) {
+    super();
+    this.date = new Date();
+    this.ok = true;
+    this.msg = msg;
+  }
+
   public boolean isOk() {
     return ok;
   }

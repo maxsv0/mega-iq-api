@@ -26,7 +26,6 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -78,12 +77,7 @@ public class UserService {
 
     user.setPassword(convertPassowrdToHash(user.getPassword()));
     user.setCreateDate(new Date());
-
-    try {
-      userResult = userReporitory.save(user);
-    } catch (DataAccessException e) {
-      e.printStackTrace();
-    }
+    userResult = userReporitory.save(user);
 
     userResult.setUrl("/user/" + userResult.getId());
     userReporitory.save(userResult);

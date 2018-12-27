@@ -20,8 +20,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class HealthCheckServlet extends HttpServlet {
-  private static final long serialVersionUID = -3660195311159174394L;
-
   @Override
   public void service(HttpServletRequest request, HttpServletResponse response) throws IOException {
     response.setContentType("text/plain");

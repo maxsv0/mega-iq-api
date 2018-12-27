@@ -37,8 +37,6 @@ public abstract class AbstractApiController {
   
   public static final Locale DEFAULT_LOCALE = Locale.EN;
   
-  public static final String BEARER_TYPE = "Bearer";
-  
   protected ResponseEntity<ApiResponseBase> sendResponseTestResultList(List<ApiTestResult> testResultList) {
     return sendResponseOk(new ApiResponseTestResultList(testResultList));
   }
@@ -58,6 +56,10 @@ public abstract class AbstractApiController {
   protected ResponseEntity<ApiResponseBase> sendResponseError(String message) {
     return sendResponseOk(new ApiResponseError(message));
   }
+  
+  protected ResponseEntity<ApiResponseBase> sendResponseBase(String message) {
+    return sendResponseOk(new ApiResponseBase(message));
+  }
 
   protected ResponseEntity<ApiResponseBase> sendResponseOk(ApiResponseBase response) {
     return new ResponseEntity<ApiResponseBase>(response, HttpStatus.OK);
@@ -72,8 +74,8 @@ public abstract class AbstractApiController {
     while (headers.hasMoreElements()) { // typically there is only one (most servers enforce that)
       String value = headers.nextElement();
       if (value != null && !value.isEmpty() && 
-          value.toLowerCase().startsWith(BEARER_TYPE.toLowerCase())) {
-        return Optional.of(value.substring(BEARER_TYPE.length()).trim());
+          value.toLowerCase().startsWith("bearer")) {
+        return Optional.of(value.substring(6).trim());
       }
     }
     return Optional.empty();
