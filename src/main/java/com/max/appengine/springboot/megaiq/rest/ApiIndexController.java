@@ -14,23 +14,22 @@
 
 package com.max.appengine.springboot.megaiq.rest;
 
-import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import com.google.appengine.api.utils.SystemProperty;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
 
 @RestController
 public class ApiIndexController extends AbstractApiController {
+  public static final String VERSION_NAME = "Mega-IQ API v.1";
+  
   @RequestMapping(value = "/", method = RequestMethod.GET)
   public ResponseEntity<ApiResponseBase> index(HttpServletRequest request) {
-    ApiResponseBase result = new ApiResponseBase();
-    result.setOk();
-    result.setMsg("API v.0.0.1");
-    result.setDate(new Date());
-    
-    return sendResponseOk(result);
+    String version = SystemProperty.version.get();
+    String applicationVersion = SystemProperty.applicationVersion.get();
+    return sendResponseBase(VERSION_NAME + " Build " + applicationVersion + " " + version);
   }
 }
