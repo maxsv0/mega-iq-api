@@ -27,13 +27,14 @@ import com.max.appengine.springboot.megaiq.model.enums.Locale;
 @MappedSuperclass
 public abstract class AbstractUser {
   @Id
-  @GeneratedValue(strategy=GenerationType.IDENTITY)
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
-  
-  @Column(unique=true)
+
+  @Column(unique = true)
   private String email;
   private String name;
   private String url;
+  @Column(length = 512)
   private String pic;
   private String location;
   private Integer age;
