@@ -27,6 +27,8 @@ public class GeoIpController extends AbstractApiController {
   
   @RequestMapping(value = "/ip", method = RequestMethod.GET)
   public ResponseEntity<ApiResponseBase> uploadFile(HttpServletRequest request) {
+
+    // TODO: add code here
     String location = "Berlin, Germany";
     
     ApiResponseBase result = new ApiResponseBase();
