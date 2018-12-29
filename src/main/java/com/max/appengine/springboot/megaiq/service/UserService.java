@@ -137,11 +137,24 @@ public class UserService {
     return Optional.of(user);
   }
 
+  public UserToken getUserToken(User user, UserTokenType type) {
+    Optional<UserToken> tokenCurrent = user.getUserTokenByType(type);
+    if (tokenCurrent.isPresent()) return tokenCurrent.get();
+    
+    return createUserToken(user, type);
+  }
+  
+  private UserToken createUserToken(User user, UserTokenType type) {
+    UserToken tokenNew = new UserToken(user.getId(), type);
+    user.getTokenList().add(tokenNew);
+    return userTokenReporitory.save(tokenNew);
+  }
+  
   private User initUserTokens(User user) {
     user = loadUserToken(user);
 
-    UserToken tokenAccess = user.getUserTokenByType(UserTokenType.ACCESS);
-    if (tokenAccess == null) {
+    Optional<UserToken> tokenAccess = user.getUserTokenByType(UserTokenType.ACCESS);
+    if (!tokenAccess.isPresent()) {
       UserToken tokenAccessNew = new UserToken(user.getId(), UserTokenType.ACCESS);
       user.getTokenList().add(tokenAccessNew);
 

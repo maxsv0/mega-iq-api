@@ -15,6 +15,7 @@
 package com.max.appengine.springboot.megaiq.model;
 
 import java.util.List;
+import java.util.Optional;
 import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.Table;
@@ -49,7 +50,7 @@ public class User extends AbstractUser {
     this.testResultList = testResultList;
   }
 
-  public UserToken getUserToken() {
+  public Optional<UserToken> getUserToken() {
     return getUserTokenByType(UserTokenType.ACCESS);
   }
 
@@ -61,27 +62,23 @@ public class User extends AbstractUser {
     this.tokenList = tokenList;
   }
 
-  public UserToken getUserTokenByType(UserTokenType type) {
+  public Optional<UserToken> getUserTokenByType(UserTokenType type) {
     if (this.tokenList == null || this.tokenList.isEmpty()) {
-      return null;
+      return Optional.empty();
     }
 
     for (UserToken token : this.tokenList) {
       if (token.getType().equals(type)) {
-        return token;
+        return Optional.of(token);
       }
     }
 
-    return null;
+    return Optional.empty();
   }
 
   public boolean checkToken(UserTokenType type) {
-    UserToken token = getUserTokenByType(type);
-    if (token == null) {
-      return false;
-    } else {
-      return true;
-    }
+    Optional<UserToken> token = getUserTokenByType(type);
+    return token.isPresent();
   }
 
   public User() {

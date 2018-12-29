@@ -27,11 +27,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.max.appengine.springboot.megaiq.model.User;
+import com.max.appengine.springboot.megaiq.model.UserToken;
 import com.max.appengine.springboot.megaiq.model.api.ApiRequestLogin;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
 import com.max.appengine.springboot.megaiq.model.api.ApiUser;
 import com.max.appengine.springboot.megaiq.model.api.ApiUserPublic;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
+import com.max.appengine.springboot.megaiq.model.enums.UserTokenType;
 import com.max.appengine.springboot.megaiq.service.ApiService;
 import com.max.appengine.springboot.megaiq.service.UserService;
 
@@ -43,6 +45,10 @@ public class ApiUserController extends AbstractApiController {
 
   public static final String MESSAGE_USER_NOT_FOUND = "User not found or profile is private";
 
+  public static final String MESSAGE_VERIFY_EMAIL_SEND = "Email containig verification code was sent";
+
+  public static final String MESSAGE_VERIFY_SUCCESS = "Email successfully verified";
+  
   private final ApiService serviceApi;
 
   private final UserService userService;
@@ -61,7 +67,7 @@ public class ApiUserController extends AbstractApiController {
     Optional<String> token = getTokenFromHeader(request);
     if (token.isPresent()) {
       Optional<User> userCurrentResult = serviceApi.getUserByToken(token.get(), userLocale);
-      
+
       if (!userCurrentResult.isPresent()) {
         return sendResponseError(MESSAGE_INVALID_ACCESS);
       } else {
@@ -71,7 +77,7 @@ public class ApiUserController extends AbstractApiController {
       return sendResponseError(MESSAGE_INVALID_ACCESS);
     }
   }
-  
+
   @RequestMapping(value = "/user/new", method = RequestMethod.POST, consumes = "application/json")
   public ResponseEntity<ApiResponseBase> requestNewUser(HttpServletRequest request,
       @RequestBody User user, @RequestParam Optional<String> locale) {
@@ -122,11 +128,11 @@ public class ApiUserController extends AbstractApiController {
 
     Locale userLocale = loadLocale(locale);
     Optional<String> token = getTokenFromHeader(request);
-    
+
     if (!token.isPresent()) {
       return sendResponseError(MESSAGE_INVALID_ACCESS);
     }
-    
+
     Optional<User> userCurrentResult = serviceApi.getUserByToken(token.get(), userLocale);
     if (!userCurrentResult.isPresent()) {
       return sendResponseError(MESSAGE_INVALID_ACCESS);
@@ -182,6 +188,67 @@ public class ApiUserController extends AbstractApiController {
       usersPublicList.add(new ApiUserPublic(user));
     }
     return sendResponseUsersList(usersPublicList);
+  }
+
+  @RequestMapping(value = "/user/verify", method = RequestMethod.GET)
+  public ResponseEntity<ApiResponseBase> verifyEmail(HttpServletRequest request,
+      @RequestParam Optional<String> locale) {
+    Locale userLocale = loadLocale(locale);
+
+    Optional<String> token = getTokenFromHeader(request);
+    if (!token.isPresent()) {
+      return sendResponseError(MESSAGE_INVALID_ACCESS);
+    }
+
+    Optional<User> userCurrentResult = serviceApi.getUserByToken(token.get(), userLocale);
+    if (!userCurrentResult.isPresent()) {
+      return sendResponseError(MESSAGE_INVALID_ACCESS);
+    }
+
+    User userCurrent = userCurrentResult.get();
+    if (userCurrent.getIsEmailVerified()) {
+      return sendResponseBase(MESSAGE_VERIFY_SUCCESS);
+    }
+    
+    UserToken tokenVerify = userService.getUserToken(userCurrent, UserTokenType.VERIFY);
+    // tokenVerify.getValue();
+    // TODO: code here
+    // send email
+    
+    return sendResponseBase(MESSAGE_VERIFY_EMAIL_SEND);
+  }
+  
+  @RequestMapping(value = "/user/verify", method = RequestMethod.POST)
+  public ResponseEntity<ApiResponseBase> verifyEmailUpdate(HttpServletRequest request,
+      @RequestBody String code, @RequestParam Optional<String> locale) {
+    Locale userLocale = loadLocale(locale);
+
+    Optional<String> token = getTokenFromHeader(request);
+    if (!token.isPresent()) {
+      return sendResponseError(MESSAGE_INVALID_ACCESS);
+    }
+
+    Optional<User> userCurrentResult = serviceApi.getUserByToken(token.get(), userLocale);
+    if (!userCurrentResult.isPresent()) {
+      return sendResponseError(MESSAGE_INVALID_ACCESS);
+    }
+    
+    Optional<User> userVerifyResult = userService.getUserByToken(code, UserTokenType.VERIFY);
+    if (!userVerifyResult.isPresent()) {
+      return sendResponseError(MESSAGE_INVALID_ACCESS);
+    }
+    
+    User userVerify = userVerifyResult.get();
+    
+    User userCurrent = userCurrentResult.get();
+    if (!userCurrent.getId().equals(userVerify.getId())) {
+      return sendResponseError(MESSAGE_INVALID_ACCESS);
+    }
+    
+    userVerify.setIsEmailVerified(true);
+    this.userService.saveUser(userVerify);
+    
+    return sendResponseBase(MESSAGE_VERIFY_SUCCESS);
   }
 
 }

@@ -87,7 +87,7 @@ public class ApiServiceTest extends AbstractUnitTest {
     assertTrue(userResult.isPresent());
     assertNotNull(userResult.get().getUserToken());
 
-    this.tokenUser = userResult.get().getUserToken().getValue();
+    this.tokenUser = userResult.get().getUserToken().get().getValue();
   }
 
   @Test
@@ -118,7 +118,7 @@ public class ApiServiceTest extends AbstractUnitTest {
     for (Locale locale : Locale.values()) {
       Optional<User> userResult = testUserGetByToken(locale);
       assertTrue(userResult.isPresent());
-      assertEquals(tokenUser, userResult.get().getUserToken().getValue());
+      assertEquals(tokenUser, userResult.get().getUserToken().get().getValue());
     }
   }
 

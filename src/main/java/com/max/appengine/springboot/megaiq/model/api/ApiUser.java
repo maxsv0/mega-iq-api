@@ -14,6 +14,7 @@
 
 package com.max.appengine.springboot.megaiq.model.api;
 
+import java.util.Optional;
 import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.UserToken;
 import com.max.appengine.springboot.megaiq.model.enums.UserTokenType;
@@ -45,8 +46,10 @@ public class ApiUser extends ApiUserPublic {
     this.setEmail(user.getEmail());
     this.setPassword(user.getPassword());
 
-    UserToken token = user.getUserTokenByType(UserTokenType.ACCESS);
-    this.setToken(token.getValue());
+    Optional<UserToken> token = user.getUserTokenByType(UserTokenType.ACCESS);
+    if (token.isPresent()) {
+      this.setToken(token.get().getValue());
+    }
   }
 
   public String getEmail() {

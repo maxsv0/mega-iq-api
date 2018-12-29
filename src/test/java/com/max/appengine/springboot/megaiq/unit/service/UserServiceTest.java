@@ -127,10 +127,10 @@ public class UserServiceTest extends AbstractUnitTest {
     assertTrue(userResult.isPresent());
     assertEquals(testUser2, userResult.get());
     assertEquals(testUser2.getId(),
-        userResult.get().getUserTokenByType(UserTokenType.ACCESS).getUserId());
+        userResult.get().getUserTokenByType(UserTokenType.ACCESS).get().getUserId());
     assertNull(userResult.get().getUserTokenByType(UserTokenType.FORGET));
 
-    userTokenReporitory.delete(userResult.get().getUserToken());
+    userTokenReporitory.delete(userResult.get().getUserToken().get());
     userReporitory.delete(testUser2);
   }
   
