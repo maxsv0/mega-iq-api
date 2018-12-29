@@ -26,25 +26,32 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.max.appengine.springboot.megaiq.model.Question;
 import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
 import com.max.appengine.springboot.megaiq.model.api.ApiTestResult;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
-import com.max.appengine.springboot.megaiq.service.ApiService;
+import com.max.appengine.springboot.megaiq.model.enums.UserTokenType;
 import com.max.appengine.springboot.megaiq.service.QuestionsService;
+import com.max.appengine.springboot.megaiq.service.TestResultService;
+import com.max.appengine.springboot.megaiq.service.UserService;
 
 @RestController
 public class ApiTestController extends AbstractApiController {
-  private final ApiService serviceApi;
-  
-  private final QuestionsService serviceQuestions;
+  private final QuestionsService questionsService;
+
+  private final UserService userService;
+
+  private final TestResultService testResultService;
 
   @Autowired
-  public ApiTestController(ApiService service, QuestionsService serviceQuestions) {
-    this.serviceApi = service;
-    this.serviceQuestions = serviceQuestions;
+  public ApiTestController(UserService userService, QuestionsService questionsService,
+      TestResultService testResultService) {
+    this.questionsService = questionsService;
+    this.userService = userService;
+    this.testResultService = testResultService;
   }
 
   @RequestMapping(value = "/test/start", method = RequestMethod.GET)
@@ -58,17 +65,16 @@ public class ApiTestController extends AbstractApiController {
       return sendResponseError(MESSAGE_INVALID_ACCESS);
     }
 
-    Optional<User> user = serviceApi.getUserByToken(token.get(), userLocale);
+    Optional<User> user = userService.getUserByToken(token.get(), UserTokenType.ACCESS);
     if (!user.isPresent()) {
       return sendResponseError(MESSAGE_INVALID_ACCESS);
     }
 
-    Optional<TestResult> testResult = serviceApi.startUserTest(type, user.get(), userLocale);
-    if (!testResult.isPresent()) {
-      return sendResponseError(MESSAGE_WRONG_REQUEST);
-    }
+    List<Question> questions = this.questionsService.getQuestionsSet(type, userLocale);
+    TestResult testResult =
+        testResultService.startUserTest(user.get(), type, questions, userLocale);
 
-    ApiTestResult apiTestResult = new ApiTestResult(serviceQuestions, testResult.get(), true);
+    ApiTestResult apiTestResult = new ApiTestResult(this.questionsService, testResult, true);
 
     return sendResponseTestResult(apiTestResult);
   }
@@ -81,10 +87,10 @@ public class ApiTestController extends AbstractApiController {
     Optional<String> token = getTokenFromHeader(request);
 
     if (token.isPresent()) {
-      Optional<User> user = serviceApi.getUserByToken(token.get(), userLocale);
+      Optional<User> userResult = userService.getUserByToken(token.get(), UserTokenType.ACCESS);
 
-      if (user.isPresent()) {
-        return iqTestDetailsPrivate(testCode, user.get(), userLocale);
+      if (userResult.isPresent()) {
+        return iqTestDetailsPrivate(testCode, userResult.get(), userLocale);
       }
     }
 
@@ -99,31 +105,32 @@ public class ApiTestController extends AbstractApiController {
     if (!token.isPresent()) {
       return sendResponseError(MESSAGE_INVALID_ACCESS);
     }
-    
+
     Locale userLocale = loadLocale(locale);
-    
-    Optional<User> user = serviceApi.getUserByToken(token.get(), userLocale);
+
+    Optional<User> user = userService.getUserByToken(token.get(), UserTokenType.ACCESS);
     if (!user.isPresent()) {
       return sendResponseError(MESSAGE_INVALID_ACCESS);
     }
-    
-    List<TestResult> listResults = serviceApi.loadAllResults(user.get().getId(), userLocale);
-    
+
+    List<TestResult> listResults = loadAllResults(user.get().getId(), userLocale);
+
     List<ApiTestResult> usersPublicList = new ArrayList<ApiTestResult>();
     for (TestResult testResult : listResults) {
-      usersPublicList.add(new ApiTestResult(serviceQuestions, testResult, true));
+      usersPublicList.add(new ApiTestResult(this.questionsService, testResult, true));
     }
-    
+
     return sendResponseTestResultList(usersPublicList);
   }
 
   private ResponseEntity<ApiResponseBase> iqTestDetailsPrivate(UUID testCode, User user,
       Locale locale) {
 
-    Optional<TestResult> testResult = serviceApi.iqTestDetailsPrivate(testCode, user, locale);
+    Optional<TestResult> testResult = loadIqTestDetailsPrivate(testCode, user, locale);
 
     if (testResult.isPresent()) {
-      ApiTestResult apiTestResult = new ApiTestResult(serviceQuestions, testResult.get(), true);
+      ApiTestResult apiTestResult =
+          new ApiTestResult(this.questionsService, testResult.get(), true);
 
       return sendResponseTestResult(apiTestResult);
     } else {
@@ -132,14 +139,35 @@ public class ApiTestController extends AbstractApiController {
   }
 
   private ResponseEntity<ApiResponseBase> iqTestDetailsPublic(UUID testCode, Locale locale) {
-    Optional<TestResult> testResult = serviceApi.iqTestDetailsPublic(testCode, locale);
+    Optional<TestResult> testResult = loadIqTestDetailsPublic(testCode, locale);
 
     if (testResult.isPresent()) {
-      ApiTestResult apiTestResult = new ApiTestResult(serviceQuestions, testResult.get(), false);
+      ApiTestResult apiTestResult =
+          new ApiTestResult(this.questionsService, testResult.get(), false);
 
       return sendResponseTestResult(apiTestResult);
     } else {
       return sendResponseError(MESSAGE_WRONG_REQUEST);
+    }
+  }
+
+  private List<TestResult> loadAllResults(Integer userId, Locale locale) {
+    return testResultService.findByUserId(userId, locale);
+  }
+
+  private Optional<TestResult> loadIqTestDetailsPublic(UUID testCode, Locale locale) {
+    return testResultService.getTestResultByCode(testCode, locale);
+  }
+
+  private Optional<TestResult> loadIqTestDetailsPrivate(UUID testCode, User user, Locale locale) {
+    Optional<TestResult> result = testResultService.getTestResultByCode(testCode, locale);
+
+    // private result can be requested only be user himself
+    if (!user.getId().equals(result.get().getUserId())) {
+      return Optional.empty();
+    } else {
+      TestResult testData = testResultService.loadQuestions(result.get());
+      return Optional.of(testData);
     }
   }
 }
