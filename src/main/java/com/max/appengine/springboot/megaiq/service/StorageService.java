@@ -14,6 +14,8 @@
 
 package com.max.appengine.springboot.megaiq.service;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +34,8 @@ import com.google.appengine.api.images.ServingUrlOptions;
 public class StorageService  {
   public static final String URL_PARAMETER = "key";
   
+  public static final String GCS_BUCKET = "msvhost.appspot.com";
+  
   public static final String GCS_BUCKET_NAME = "msvhost.appspot.com/mega-iq/user-pic";
 
   public static final String FORM_PARAMETER = "uploadFile";
@@ -39,7 +43,6 @@ public class StorageService  {
   private ImagesService imagesService = ImagesServiceFactory.getImagesService();
   
   private BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
-
   
   public String uploadFile(HttpServletRequest request) throws ServletException, IOException {
     Map<String, List<BlobKey>> blobs = blobstoreService.getUploads(request);
@@ -59,6 +62,36 @@ public class StorageService  {
     // remove: https://msvhost.appspot.com         
     // TODO: use URL class
     return uploadUrl.substring(26);
+  }
+  
+  public void fetchFile(String key, File file) throws IOException {
+    BlobKey blobKey = new BlobKey(key);
+    FileOutputStream stream = new FileOutputStream(file);
+        
+    long blockSize = 1024 * 256;
+    long inxStart = 0;
+    long inxEnd = blockSize;
+    boolean flag = false;
+
+    do {
+      try {
+        byte[] b = blobstoreService.fetchData(blobKey, inxStart, inxEnd);
+        
+        stream.write(b);
+
+        if (b.length < blockSize)
+          flag = true;
+
+        inxStart = inxEnd + 1;
+        inxEnd += blockSize + 1;
+
+      } catch (Exception e) {
+        flag = true;
+      }
+
+    } while (!flag);
+    
+    stream.close();
   }
   
   public String serveFile(String key) {

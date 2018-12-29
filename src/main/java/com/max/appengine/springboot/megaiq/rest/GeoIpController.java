@@ -14,29 +14,45 @@
 
 package com.max.appengine.springboot.megaiq.rest;
 
-import java.util.Date;
+import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
+import com.max.appengine.springboot.megaiq.service.GeoIpService;
 
 @RestController
 public class GeoIpController extends AbstractApiController {
-  
-  @RequestMapping(value = "/ip", method = RequestMethod.GET)
-  public ResponseEntity<ApiResponseBase> uploadFile(HttpServletRequest request) {
 
-    // TODO: add code here
-    String location = "Berlin, Germany";
-    
-    ApiResponseBase result = new ApiResponseBase();
-    result.setOk();
-    result.setMsg(location);
-    result.setDate(new Date());
-    
-    return sendResponseOk(result);
+  private final GeoIpService geoIpService;
+
+  @Autowired
+  public GeoIpController(GeoIpService geoIpService) {
+    this.geoIpService = geoIpService;
   }
-  
+
+  @RequestMapping(value = "/ip", method = RequestMethod.GET)
+  public ResponseEntity<ApiResponseBase> getLocationFromIp(HttpServletRequest request) {
+
+    Optional<String> location = geoIpService.getLocationFromIp(getIp(request));
+    if (location.isPresent()) {
+      return sendResponseBase(location.get());
+    } else {
+      return sendResponseError("GeoIp Service not ready");
+    }
+  }
+
+  @RequestMapping(value = "/geoip", method = RequestMethod.GET)
+  public ResponseEntity<ApiResponseBase> status(HttpServletRequest request) {
+    StringBuilder status = new StringBuilder();
+    status.append("Your IP: " + getIp(request) + "\n");
+    status.append("GeoIp file: " + geoIpService.fileDb.getAbsolutePath() + " size: "
+        + geoIpService.fileDb.length() + "\n");
+    status.append("GeoIp DB reader: " + geoIpService.reader);
+
+    return sendResponseBase(status.toString());
+  }
 }

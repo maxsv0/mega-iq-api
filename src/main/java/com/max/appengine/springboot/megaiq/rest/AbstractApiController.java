@@ -34,21 +34,22 @@ public abstract class AbstractApiController {
   public static final String MESSAGE_INVALID_ACCESS = "Access denied, Please log in and try again";
 
   public static final String MESSAGE_WRONG_REQUEST = "Wrong request";
-  
+
   public static final Locale DEFAULT_LOCALE = Locale.EN;
-  
-  protected ResponseEntity<ApiResponseBase> sendResponseTestResultList(List<ApiTestResult> testResultList) {
+
+  protected ResponseEntity<ApiResponseBase> sendResponseTestResultList(
+      List<ApiTestResult> testResultList) {
     return sendResponseOk(new ApiResponseTestResultList(testResultList));
   }
-  
+
   protected ResponseEntity<ApiResponseBase> sendResponseTestResult(ApiTestResult testResult) {
     return sendResponseOk(new ApiResponseTestResult(testResult));
   }
-  
+
   protected ResponseEntity<ApiResponseBase> sendResponseUsersList(List<ApiUserPublic> apiUsers) {
     return sendResponseOk(new ApiResponseUsersList(apiUsers));
   }
-  
+
   protected ResponseEntity<ApiResponseBase> sendResponseUser(ApiUserPublic apiUser) {
     return sendResponseOk(new ApiResponseUser(apiUser));
   }
@@ -56,7 +57,7 @@ public abstract class AbstractApiController {
   protected ResponseEntity<ApiResponseBase> sendResponseError(String message) {
     return sendResponseOk(new ApiResponseError(message));
   }
-  
+
   protected ResponseEntity<ApiResponseBase> sendResponseBase(String message) {
     return sendResponseOk(new ApiResponseBase(message));
   }
@@ -64,17 +65,20 @@ public abstract class AbstractApiController {
   protected ResponseEntity<ApiResponseBase> sendResponseOk(ApiResponseBase response) {
     return new ResponseEntity<ApiResponseBase>(response, HttpStatus.OK);
   }
-  
+
   protected String getIp(HttpServletRequest request) {
-    return request.getRemoteAddr();
+    String ipProxy = request.getHeader("X-FORWARDED-FOR");
+    if (ipProxy == null) {
+      return request.getRemoteAddr();
+    }
+    return ipProxy;
   }
 
   protected Optional<String> getTokenFromHeader(HttpServletRequest request) {
     Enumeration<String> headers = request.getHeaders("Authorization");
     while (headers.hasMoreElements()) { // typically there is only one (most servers enforce that)
       String value = headers.nextElement();
-      if (value != null && !value.isEmpty() && 
-          value.toLowerCase().startsWith("bearer")) {
+      if (value != null && !value.isEmpty() && value.toLowerCase().startsWith("bearer")) {
         return Optional.of(value.substring(6).trim());
       }
     }
