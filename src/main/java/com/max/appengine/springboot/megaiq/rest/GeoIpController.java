@@ -49,10 +49,8 @@ public class GeoIpController extends AbstractApiController {
   public ResponseEntity<ApiResponseBase> status(HttpServletRequest request) {
     StringBuilder status = new StringBuilder();
     status.append("Your IP: " + getIp(request) + "\n");
-    status.append("GeoIp file: " + geoIpService.fileDb.getAbsolutePath() + " size: "
-        + geoIpService.fileDb.length() + "\n");
-    status.append("GeoIp DB reader: " + geoIpService.reader);
-
+    status.append(geoIpService.getDatabaseFileStatus() + "\n");
+    status.append(geoIpService.getDatabaseReaderStatus());
     return sendResponseBase(status.toString());
   }
 }

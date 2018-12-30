@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.UserToken;
 import com.max.appengine.springboot.megaiq.model.api.ApiRequestLogin;
@@ -34,7 +35,7 @@ import com.max.appengine.springboot.megaiq.model.api.ApiUser;
 import com.max.appengine.springboot.megaiq.model.api.ApiUserPublic;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.model.enums.UserTokenType;
-import com.max.appengine.springboot.megaiq.service.ApiService;
+import com.max.appengine.springboot.megaiq.service.TestResultService;
 import com.max.appengine.springboot.megaiq.service.UserService;
 
 @RestController
@@ -45,28 +46,29 @@ public class ApiUserController extends AbstractApiController {
 
   public static final String MESSAGE_USER_NOT_FOUND = "User not found or profile is private";
 
-  public static final String MESSAGE_VERIFY_EMAIL_SEND = "Email containig verification code was sent";
+  public static final String MESSAGE_VERIFY_EMAIL_SEND =
+      "Email containig verification code was sent";
 
   public static final String MESSAGE_VERIFY_SUCCESS = "Email successfully verified";
-  
-  private final ApiService serviceApi;
 
   private final UserService userService;
 
+  private final TestResultService testResultService;
+
   @Autowired
-  public ApiUserController(ApiService service, UserService userService) {
-    this.serviceApi = service;
+  public ApiUserController(TestResultService testResultService, UserService userService) {
     this.userService = userService;
+    this.testResultService = testResultService;
   }
 
   @RequestMapping(value = "/user", method = RequestMethod.GET)
   public ResponseEntity<ApiResponseBase> requestNewUser(HttpServletRequest request,
       @RequestParam Optional<String> locale) {
-    Locale userLocale = loadLocale(locale);
 
     Optional<String> token = getTokenFromHeader(request);
     if (token.isPresent()) {
-      Optional<User> userCurrentResult = serviceApi.getUserByToken(token.get(), userLocale);
+      Optional<User> userCurrentResult =
+          userService.getUserByToken(token.get(), UserTokenType.ACCESS);
 
       if (!userCurrentResult.isPresent()) {
         return sendResponseError(MESSAGE_INVALID_ACCESS);
@@ -84,7 +86,9 @@ public class ApiUserController extends AbstractApiController {
     Locale userLocale = loadLocale(locale);
 
     user.setIp(getIp(request));
-    Optional<User> userResult = serviceApi.addNewUser(user, userLocale);
+    user.setLocale(userLocale);
+
+    Optional<User> userResult = userService.addUser(user);
 
     if (userResult.isPresent()) {
       return sendResponseUser(new ApiUser(userResult.get()));
@@ -97,7 +101,7 @@ public class ApiUserController extends AbstractApiController {
   public ResponseEntity<ApiResponseBase> requestUserLogin(
       @RequestBody ApiRequestLogin requestLogin) {
     Optional<User> userResult =
-        serviceApi.userLogin(requestLogin.getLogin(), requestLogin.getPassword());
+        userService.authUserLogin(requestLogin.getLogin(), requestLogin.getPassword());
 
     if (userResult.isPresent()) {
       return sendResponseUser(new ApiUser(userResult.get()));
@@ -109,10 +113,14 @@ public class ApiUserController extends AbstractApiController {
   @RequestMapping(value = "/user/{userId}", method = RequestMethod.GET)
   public ResponseEntity<ApiResponseBase> requestUserById(HttpServletRequest request,
       @PathVariable Integer userId, @RequestParam Optional<String> locale) {
-    Optional<User> userResult = serviceApi.getUserById(userId);
+    Locale userLocale = loadLocale(locale);
 
+    Optional<User> userResult = userService.getUserById(userId);
     if (userResult.isPresent()) {
       if (userResult.get().getIsPublic()) {
+        List<TestResult> listResults = this.testResultService.findByUserId(userId, userLocale);
+        userResult.get().setTestResultList(listResults);
+
         return sendResponseUser(new ApiUserPublic(userResult.get()));
       } else {
         return sendResponseError(MESSAGE_USER_NOT_FOUND);
@@ -133,7 +141,8 @@ public class ApiUserController extends AbstractApiController {
       return sendResponseError(MESSAGE_INVALID_ACCESS);
     }
 
-    Optional<User> userCurrentResult = serviceApi.getUserByToken(token.get(), userLocale);
+    Optional<User> userCurrentResult =
+        userService.getUserByToken(token.get(), UserTokenType.ACCESS);
     if (!userCurrentResult.isPresent()) {
       return sendResponseError(MESSAGE_INVALID_ACCESS);
     }
@@ -154,6 +163,7 @@ public class ApiUserController extends AbstractApiController {
       userCurrent.setEmail(user.getEmail());
     }
 
+    userCurrent.setLocale(userLocale);
     userCurrent.setName(user.getName());
     userCurrent.setAge(user.getAge());
     userCurrent.setLocation(user.getLocation());
@@ -200,7 +210,8 @@ public class ApiUserController extends AbstractApiController {
       return sendResponseError(MESSAGE_INVALID_ACCESS);
     }
 
-    Optional<User> userCurrentResult = serviceApi.getUserByToken(token.get(), userLocale);
+    Optional<User> userCurrentResult =
+        userService.getUserByToken(token.get(), UserTokenType.ACCESS);
     if (!userCurrentResult.isPresent()) {
       return sendResponseError(MESSAGE_INVALID_ACCESS);
     }
@@ -209,15 +220,15 @@ public class ApiUserController extends AbstractApiController {
     if (userCurrent.getIsEmailVerified()) {
       return sendResponseBase(MESSAGE_VERIFY_SUCCESS);
     }
-    
+
     UserToken tokenVerify = userService.getUserToken(userCurrent, UserTokenType.VERIFY);
     // tokenVerify.getValue();
     // TODO: code here
     // send email
-    
+
     return sendResponseBase(MESSAGE_VERIFY_EMAIL_SEND);
   }
-  
+
   @RequestMapping(value = "/user/verify", method = RequestMethod.POST)
   public ResponseEntity<ApiResponseBase> verifyEmailUpdate(HttpServletRequest request,
       @RequestBody String code, @RequestParam Optional<String> locale) {
@@ -228,26 +239,27 @@ public class ApiUserController extends AbstractApiController {
       return sendResponseError(MESSAGE_INVALID_ACCESS);
     }
 
-    Optional<User> userCurrentResult = serviceApi.getUserByToken(token.get(), userLocale);
+    Optional<User> userCurrentResult =
+        userService.getUserByToken(token.get(), UserTokenType.ACCESS);
     if (!userCurrentResult.isPresent()) {
       return sendResponseError(MESSAGE_INVALID_ACCESS);
     }
-    
+
     Optional<User> userVerifyResult = userService.getUserByToken(code, UserTokenType.VERIFY);
     if (!userVerifyResult.isPresent()) {
       return sendResponseError(MESSAGE_INVALID_ACCESS);
     }
-    
+
     User userVerify = userVerifyResult.get();
-    
+
     User userCurrent = userCurrentResult.get();
     if (!userCurrent.getId().equals(userVerify.getId())) {
       return sendResponseError(MESSAGE_INVALID_ACCESS);
     }
-    
+
     userVerify.setIsEmailVerified(true);
     this.userService.saveUser(userVerify);
-    
+
     return sendResponseBase(MESSAGE_VERIFY_SUCCESS);
   }
 
