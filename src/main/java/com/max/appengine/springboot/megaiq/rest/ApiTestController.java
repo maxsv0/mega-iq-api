@@ -113,7 +113,7 @@ public class ApiTestController extends AbstractApiController {
       return sendResponseError(MESSAGE_INVALID_ACCESS);
     }
 
-    List<TestResult> listResults = loadAllResults(user.get().getId(), userLocale);
+    List<TestResult> listResults = loadResultsByUserId(user.get().getId(), userLocale);
 
     List<ApiTestResult> usersPublicList = new ArrayList<ApiTestResult>();
     for (TestResult testResult : listResults) {
@@ -151,7 +151,7 @@ public class ApiTestController extends AbstractApiController {
     }
   }
 
-  private List<TestResult> loadAllResults(Integer userId, Locale locale) {
+  private List<TestResult> loadResultsByUserId(Integer userId, Locale locale) {
     return testResultService.findByUserId(userId, locale);
   }
 
