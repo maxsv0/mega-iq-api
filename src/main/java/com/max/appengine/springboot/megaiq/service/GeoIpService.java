@@ -29,11 +29,15 @@ import com.maxmind.geoip2.record.Country;
 @Service
 public class GeoIpService {
   public static final String GEOIP_DATABASE_KEY =
-      "AMIfv94d9g07ScMscVKvOmsiFWDUisjFcePQQ3ByFOmNwpcFQhF8DfPo1tEh_y8V4zMlNlUm_rqEc8Ce9fCzIhtu1OU-VJ4xFY1UnRYxA-N3heVCD5Y0ktebI61_cdLg-KgUA7UnN22Y-8tj-2zPIaHUx_8nW1Rs_MXafpK8mBB2GwM4a8yUc595T08J57wU02jl8-L0HIWzp8hZDNCZCtRmEhhJeJZW6RM660z3KudvtGluML5n2FkivFtPVgtqg3pV89Dz-7NeXsvzw2YxnplVPYNxppCBQav2nvVyGVD2Bd9wHYLtQgQ";
+      "AMIfv94d9g07ScMscVKvOmsiFWDUisjFcePQQ3ByFOmNwpcFQhF8DfPo1tEh_y8V4zMlNlUm_"
+          + "rqEc8Ce9fCzIhtu1OU-VJ4xFY1UnRYxA-N3heVCD5Y0ktebI61_cdLg-KgUA7UnN22Y-8tj"
+          + "-2zPIaHUx_8nW1Rs_MXafpK8mBB2GwM4a8yUc595T08J57wU02jl8-L0HIWzp8hZDNCZCtR"
+          + "mEhhJeJZW6RM660z3KudvtGluML5n2FkivFtPVgtqg3pV89Dz-7NeXsvzw2YxnplVPYNxpp"
+          + "CBQav2nvVyGVD2Bd9wHYLtQgQ";
 
-  public DatabaseReader reader;
+  private DatabaseReader reader;
 
-  public File fileDb;
+  private File fileDb;
 
   private final StorageService storageService;
 
@@ -41,29 +45,10 @@ public class GeoIpService {
   public GeoIpService(StorageService storageService) {
     this.storageService = storageService;
 
-      this.fileDb = createDatabaseFile();
-      
-      if (this.fileDb != null) {
-        this.reader = createDatabaseReader();
-      }
-  }
-  
-  private File createDatabaseFile() {
-    File dbFile = null;
-    try {
-      dbFile = File.createTempFile("geoip-", ".tmp");
-      this.storageService.fetchFile(GEOIP_DATABASE_KEY, dbFile);
-    } catch (IOException e) {
-      return null; 
-    }
-    return dbFile;
-  }
-   
-  private DatabaseReader createDatabaseReader() {
-    try {
-      return new DatabaseReader.Builder(this.fileDb).build();
-    } catch (IOException e) {
-      return null;
+    this.fileDb = createDatabaseFile();
+
+    if (this.fileDb != null) {
+      this.reader = createDatabaseReader();
     }
   }
 
@@ -78,16 +63,51 @@ public class GeoIpService {
       Country country = response.getCountry();
       City city = response.getCity();
       String location;
-      
+
       if (city == null) {
         location = country.getName();
       } else {
         location = city.getName() + ", " + country.getName();
       }
-      
+
       return Optional.of(location);
     } catch (GeoIp2Exception | IOException error) {
       return Optional.empty();
+    }
+  }
+
+  public String getDatabaseReaderStatus() {
+    if (this.fileDb == null) {
+      return "GeoIp reader is null";
+    } else {
+      return "GeoIp reader: " + this.reader;
+    }
+  }
+
+  public String getDatabaseFileStatus() {
+    if (this.fileDb == null) {
+      return "GeoIp file is null";
+    } else {
+      return "GeoIp file: " + this.fileDb.getAbsolutePath() + " size: " + this.fileDb.length();
+    }
+  }
+
+  private File createDatabaseFile() {
+    File dbFile = null;
+    try {
+      dbFile = File.createTempFile("geoip-", ".tmp");
+      this.storageService.fetchFile(GEOIP_DATABASE_KEY, dbFile);
+    } catch (IOException e) {
+      return null;
+    }
+    return dbFile;
+  }
+
+  private DatabaseReader createDatabaseReader() {
+    try {
+      return new DatabaseReader.Builder(this.fileDb).build();
+    } catch (IOException e) {
+      return null;
     }
   }
 }
