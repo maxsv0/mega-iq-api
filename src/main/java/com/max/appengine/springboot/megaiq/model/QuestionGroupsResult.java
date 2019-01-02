@@ -14,41 +14,72 @@
 
 package com.max.appengine.springboot.megaiq.model;
 
-import com.max.appengine.springboot.megaiq.model.enums.IqQuestionGroup;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
-public class QuestionGroupsResult implements Serializable {
-  private Map<IqQuestionGroup, Integer> questionsNumber = new HashMap<IqQuestionGroup, Integer>();
-
-  public QuestionGroupsResult(Integer math, Integer grammar, Integer hor, Integer logic) {
-    this.questionsNumber.put(IqQuestionGroup.MATH, math);
-    this.questionsNumber.put(IqQuestionGroup.GRAMMAR, grammar);
-    this.questionsNumber.put(IqQuestionGroup.HORIZONS, hor);
-    this.questionsNumber.put(IqQuestionGroup.LOGIC, logic);
+@Entity
+@Table(name = "result_groups")
+public class QuestionGroupsResult {
+  @Id
+  private Integer id;
+  
+  private Integer math; 
+  
+  private Integer grammar;
+  
+  private Integer horizons;
+  
+  private Integer logic;
+  
+  public QuestionGroupsResult() {
+    super();
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (!(o instanceof QuestionGroupsResult)) {
-      return false;
-    }
-    QuestionGroupsResult that = (QuestionGroupsResult) o;
-    return Objects.equals(questionsNumber, that.questionsNumber);
+  public QuestionGroupsResult(Integer math, Integer grammar, Integer horizons, Integer logic) {
+    super();
+    this.math = math;
+    this.grammar = grammar;
+    this.horizons = horizons;
+    this.logic = logic;
   }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(questionsNumber);
+  public Integer getMath() {
+    return math;
   }
 
-  @Override
-  public String toString() {
-    return "QuestionGroupsResult [questionsNumber=" + questionsNumber + "]";
+
+  public void setMath(Integer math) {
+    this.math = math;
+  }
+
+
+  public Integer getGrammar() {
+    return grammar;
+  }
+
+
+  public void setGrammar(Integer grammar) {
+    this.grammar = grammar;
+  }
+
+
+  public Integer getHorizons() {
+    return horizons;
+  }
+
+
+  public void setHorizons(Integer horizons) {
+    this.horizons = horizons;
+  }
+
+
+  public Integer getLogic() {
+    return logic;
+  }
+
+
+  public void setLogic(Integer logic) {
+    this.logic = logic;
   }
 }

@@ -22,7 +22,9 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.OneToOne;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
@@ -48,6 +50,9 @@ public abstract class AbstractTestResult {
   private Date updateDate;
   private Date finishDate;
   private Integer points;
+  
+  @OneToOne
+  @JoinColumn(name = "groups_graph", referencedColumnName = "id")
   private QuestionGroupsResult groupsGraph;
 
   @Enumerated(EnumType.STRING)
