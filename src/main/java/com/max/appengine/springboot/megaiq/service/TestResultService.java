@@ -87,13 +87,10 @@ public class TestResultService {
     return testResult;
   }
 
-  public TestResult submitUserAnswer(TestResult testResult, Integer questionIq, Integer answerUser) {
-    for (QuestionUser question : testResult.getQuestionSet()) {
-      if (question.getQuestionIq().equals(questionIq)) {
-        question.setAnswerUser(answerUser);
-        question.setUpdateDate(new Date());
-      }
-    }
+  public TestResult submitUserAnswer(TestResult testResult, Integer questionId, Integer answerUser) {
+    
+    testResult.getQuestionSet().get(questionId - 1).setAnswerUser(answerUser);
+    testResult.getQuestionSet().get(questionId - 1).setUpdateDate(new Date());
 
     questionUserRepository.saveAll(testResult.getQuestionSet());
 

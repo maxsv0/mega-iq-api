@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.max.appengine.springboot.megaiq.model.Question;
 import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.User;
+import com.max.appengine.springboot.megaiq.model.api.ApiRequestSubmitAnswer;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
 import com.max.appengine.springboot.megaiq.model.api.ApiTestResult;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
@@ -55,7 +57,7 @@ public class ApiTestController extends AbstractApiController {
   }
 
   @RequestMapping(value = "/test/start", method = RequestMethod.GET)
-  public ResponseEntity<ApiResponseBase> requestTestDetails(HttpServletRequest request,
+  public ResponseEntity<ApiResponseBase> startTest(HttpServletRequest request,
       @RequestParam IqTestType type, @RequestParam Optional<String> locale) {
 
     Locale userLocale = loadLocale(locale);
@@ -91,6 +93,42 @@ public class ApiTestController extends AbstractApiController {
 
       if (userResult.isPresent()) {
         return iqTestDetailsPrivate(testCode, userResult.get(), userLocale);
+      }
+    }
+
+    return iqTestDetailsPublic(testCode, userLocale);
+  }
+
+  @RequestMapping(value = "/test/{testCode}", method = RequestMethod.POST,
+      consumes = "application/json")
+  public ResponseEntity<ApiResponseBase> submitAnswer(HttpServletRequest request,
+      @PathVariable UUID testCode, @RequestBody ApiRequestSubmitAnswer requestSubmitAnswer,
+      @RequestParam Optional<String> locale) {
+
+    Locale userLocale = loadLocale(locale);
+    Optional<String> token = getTokenFromHeader(request);
+
+    if (token.isPresent()) {
+      Optional<User> userResult = userService.getUserByToken(token.get(), UserTokenType.ACCESS);
+
+      if (userResult.isPresent()) {
+        Optional<TestResult> testResult =
+            loadIqTestDetailsPrivate(testCode, userResult.get(), userLocale);
+
+        if (testResult.isPresent()) {
+          TestResult testResultNew = this.testResultService.submitUserAnswer(testResult.get(),
+              requestSubmitAnswer.getQuestion(), requestSubmitAnswer.getAnswer());
+          
+          ApiTestResult apiTestResult =
+              new ApiTestResult(this.questionsService, testResultNew, true);
+
+          return sendResponseTestResult(apiTestResult);
+        } else {
+          return sendResponseError(MESSAGE_INVALID_ACCESS);
+        }
+
+      } else {
+        return sendResponseError(MESSAGE_INVALID_ACCESS);
       }
     }
 
