@@ -39,7 +39,6 @@ public class StorageUploadServlet extends HttpServlet {
     Map<String, List<BlobKey>> blobs = blobstoreService.getUploads(request);
     List<BlobKey> blobKeys = blobs.get(FORM_PARAMETER);
 
-    response.addHeader("Access-Control-Allow-Origin", "*");
     response.sendRedirect(
         "/storage/serve?" + StorageService.URL_PARAMETER + "=" + blobKeys.get(0).getKeyString());
   }
