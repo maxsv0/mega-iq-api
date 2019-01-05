@@ -23,7 +23,7 @@ import com.google.appengine.api.utils.SystemProperty;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
 
 @RestController
-public class ApiIndexController extends AbstractApiController {
+public class IndexController extends AbstractApiController {
   public static final String VERSION_NAME = "Mega-IQ API v.1";
   
   @RequestMapping(value = "/", method = RequestMethod.GET)

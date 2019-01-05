@@ -39,7 +39,7 @@ import com.max.appengine.springboot.megaiq.service.TestResultService;
 import com.max.appengine.springboot.megaiq.service.UserService;
 
 @RestController
-public class ApiUserController extends AbstractApiController {
+public class UserController extends AbstractApiController {
   public static final String MESSAGE_REGISTRATION_FAILED = "Registration failed. Please try again";
 
   public static final String MESSAGE_LOGIN_FAILED = "Wrong login or password";
@@ -56,7 +56,7 @@ public class ApiUserController extends AbstractApiController {
   private final TestResultService testResultService;
 
   @Autowired
-  public ApiUserController(TestResultService testResultService, UserService userService) {
+  public UserController(TestResultService testResultService, UserService userService) {
     this.userService = userService;
     this.testResultService = testResultService;
   }

@@ -41,7 +41,7 @@ import com.max.appengine.springboot.megaiq.service.TestResultService;
 import com.max.appengine.springboot.megaiq.service.UserService;
 
 @RestController
-public class ApiTestController extends AbstractApiController {
+public class TestController extends AbstractApiController {
   private final QuestionsService questionsService;
 
   private final UserService userService;
@@ -49,7 +49,7 @@ public class ApiTestController extends AbstractApiController {
   private final TestResultService testResultService;
 
   @Autowired
-  public ApiTestController(UserService userService, QuestionsService questionsService,
+  public TestController(UserService userService, QuestionsService questionsService,
       TestResultService testResultService) {
     this.questionsService = questionsService;
     this.userService = userService;
