@@ -14,16 +14,19 @@
 
 package com.max.appengine.springboot.megaiq.rest;
 
+import java.io.IOException;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
 import com.max.appengine.springboot.megaiq.service.GeoIpService;
 
+@CrossOrigin
 @RestController
 public class GeoIpController extends AbstractApiController {
 
@@ -46,11 +49,25 @@ public class GeoIpController extends AbstractApiController {
   }
 
   @RequestMapping(value = "/geoip", method = RequestMethod.GET)
-  public ResponseEntity<ApiResponseBase> status(HttpServletRequest request) {
+  public ResponseEntity<ApiResponseBase> status(HttpServletRequest request,
+      Optional<String> action) {
     StringBuilder status = new StringBuilder();
     status.append("Your IP: " + getIp(request) + "\n");
     status.append(geoIpService.getDatabaseFileStatus() + "\n");
     status.append(geoIpService.getDatabaseReaderStatus());
+    
+    if (action.isPresent() && action.get().equals("reload")) {
+      status.append("Service reloaded\n");
+      try {
+        geoIpService.initGeoIpDatabase();
+      } catch (IOException e) {
+        status.append("Reload failed\n");
+      }
+      
+      status.append(geoIpService.getDatabaseFileStatus() + "\n");
+      status.append(geoIpService.getDatabaseReaderStatus());
+    }
+    
     return sendResponseBase(status.toString());
   }
 }
