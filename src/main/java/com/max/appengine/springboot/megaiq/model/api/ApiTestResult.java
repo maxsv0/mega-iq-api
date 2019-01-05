@@ -17,7 +17,6 @@ package com.max.appengine.springboot.megaiq.model.api;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.max.appengine.springboot.megaiq.model.AbstractQuestionUser;
@@ -67,6 +66,7 @@ public class ApiTestResult {
           
           if (testResult.getStatus().equals(IqTestStatus.ACTIVE)) {
             apiQuestion.setAnswerCorrect(null);
+            apiQuestion.setDescription(null);
           }
           
           this.getQuestionSet().add(apiQuestion);

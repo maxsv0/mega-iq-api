@@ -150,7 +150,7 @@ public class TestResultService {
   }
 
   public TestResult loadQuestions(TestResult testResult) {
-    List<QuestionUser> questions = questionUserRepository.findByTestId(testResult.getId());
+    List<QuestionUser> questions = questionUserRepository.findByTestIdOrderByIdDesc(testResult.getId());
 
     if (!questions.isEmpty()) {
       testResult.setQuestionSet(questions);
