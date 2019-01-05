@@ -45,7 +45,7 @@ public class StorageController extends AbstractApiController {
 
     return sendResponseBase(servedUrl);
   }
-  
+
   @RequestMapping(value = "/storage/serve2", method = RequestMethod.GET)
   public ResponseEntity<ApiResponseBase> serveFileByPath(HttpServletRequest request,
       @RequestParam String path) {
@@ -53,5 +53,5 @@ public class StorageController extends AbstractApiController {
 
     return sendResponseBase(servedUrl);
   }
-  
+
 }

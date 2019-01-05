@@ -22,18 +22,18 @@ import org.springframework.stereotype.Service;
 public class SchedulerService {
 
   private final TestResultService testResultService;
-  
+
   @Autowired
   public SchedulerService(TestResultService testResultService) {
     super();
 
     this.testResultService = testResultService;
   }
-  
+
   @Scheduled(cron = "5 * * * * ?")
   private void triggerScheduleJobs() {
-    
+
     testResultService.expireTestResults();
-    
+
   }
 }

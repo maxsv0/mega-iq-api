@@ -16,7 +16,7 @@ package com.max.appengine.springboot.megaiq.model.api;
 
 public class ApiRequestSubmitAnswer {
   private Integer question;
-  
+
   private Integer answer;
 
   public ApiRequestSubmitAnswer() {

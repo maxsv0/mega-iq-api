@@ -41,7 +41,7 @@ public class User extends AbstractUser {
 
     return tokenReporitory.save(tokenNew);
   }
-  
+
   public List<TestResult> getTestResultList() {
     return testResultList;
   }
@@ -85,9 +85,8 @@ public class User extends AbstractUser {
     super();
   }
 
-  public User(String email, String name, String url, String pic, String location,
-      Integer age, Integer iq, Boolean isPublic, String password, String ip, Integer geoId,
-      Locale locale) {
+  public User(String email, String name, String url, String pic, String location, Integer age,
+      Integer iq, Boolean isPublic, String password, String ip, Integer geoId, Locale locale) {
     super();
 
     this.setEmail(email);
@@ -107,9 +106,9 @@ public class User extends AbstractUser {
   @Override
   public String toString() {
     return "User [id=" + getId() + ", email=" + getEmail() + ", name=" + getName() + ", url="
-        + getUrl() + ", pic=" + getPic() + ", location=" + getLocation() + ", age=" + getAge() + ", iq="
-        + getIq() + ", isPublic=" + getIsPublic() + ", password=" + getPassword() + ", ip="
-        + getIp() + ", geoId=" + getGeoId() + ", locale=" + getLocale() + "] Tokens="
+        + getUrl() + ", pic=" + getPic() + ", location=" + getLocation() + ", age=" + getAge()
+        + ", iq=" + getIq() + ", isPublic=" + getIsPublic() + ", password=" + getPassword()
+        + ", ip=" + getIp() + ", geoId=" + getGeoId() + ", locale=" + getLocale() + "] Tokens="
         + getTokenList();
   }
 }

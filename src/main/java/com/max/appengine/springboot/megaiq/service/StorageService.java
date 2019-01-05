@@ -37,7 +37,7 @@ public class StorageService {
   public static final String GCS_FOLDER_USER_UPLOAD = "user-pic";
 
   public static final String URL_PARAMETER = "key";
-  
+
   public static final String FORM_PARAMETER = "uploadFile";
 
   private ImagesService imagesService = ImagesServiceFactory.getImagesService();
@@ -61,19 +61,19 @@ public class StorageService {
 
   public void fetchFile(String fileName, File file) throws IOException {
     BlobKey blobKey = blobstoreService.createGsBlobKey("/gs/" + GCS_BUCKET + "/" + fileName);
-    
+
     // TODO: rewrite this procedure properly
     // check blobkey
     // know file size
     // don't throw
     // avoid void
-    
-//    if (blobKey != null) {
-//      
-//    }
-    
+
+    // if (blobKey != null) {
+    //
+    // }
+
     FileOutputStream stream = new FileOutputStream(file);
-        
+
     long blockSize = 1024 * 512;
     long inxStart = 0;
     long inxEnd = blockSize;
@@ -82,7 +82,7 @@ public class StorageService {
     do {
       try {
         byte[] b = blobstoreService.fetchData(blobKey, inxStart, inxEnd);
-        
+
         stream.write(b);
 
         if (b.length < blockSize)
@@ -96,7 +96,7 @@ public class StorageService {
       }
 
     } while (!flag);
-    
+
     stream.close();
   }
 
@@ -109,8 +109,8 @@ public class StorageService {
   }
 
   public String serveFileByPath(String path) {
-    ServingUrlOptions options =
-        ServingUrlOptions.Builder.withGoogleStorageFileName("/gs/" + GCS_BUCKET + "/" + path).secureUrl(true);
+    ServingUrlOptions options = ServingUrlOptions.Builder
+        .withGoogleStorageFileName("/gs/" + GCS_BUCKET + "/" + path).secureUrl(true);
 
     return imagesService.getServingUrl(options);
   }

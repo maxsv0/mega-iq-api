@@ -22,7 +22,7 @@ public class ApiResponseUser extends ApiResponseBase {
   public ApiUserPublic getUser() {
     return user;
   }
-  
+
   public ApiResponseUser(ApiUserPublic apiUser) {
     super();
     this.user = apiUser;
@@ -73,5 +73,5 @@ public class ApiResponseUser extends ApiResponseBase {
       return false;
     return true;
   }
-  
+
 }

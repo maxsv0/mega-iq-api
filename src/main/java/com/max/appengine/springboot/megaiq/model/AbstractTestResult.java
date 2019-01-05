@@ -32,7 +32,7 @@ import com.max.appengine.springboot.megaiq.model.enums.Locale;
 @MappedSuperclass
 public abstract class AbstractTestResult {
   @Id
-  @GeneratedValue(strategy=GenerationType.IDENTITY)
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
   private UUID code;
   private String url;
@@ -50,7 +50,7 @@ public abstract class AbstractTestResult {
   private Date updateDate;
   private Date finishDate;
   private Integer points;
-  
+
   @OneToOne
   @JoinColumn(name = "groups_graph", referencedColumnName = "id")
   private QuestionGroupsResult groupsGraph;

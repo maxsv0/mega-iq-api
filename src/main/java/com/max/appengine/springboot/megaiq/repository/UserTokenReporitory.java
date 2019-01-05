@@ -23,7 +23,7 @@ import com.max.appengine.springboot.megaiq.model.enums.UserTokenType;
 public interface UserTokenReporitory extends JpaRepository<UserToken, Integer> {
 
   Optional<UserToken> findByValueAndType(String value, UserTokenType type);
-  
+
   List<UserToken> findByUserId(Integer userId);
-  
+
 }

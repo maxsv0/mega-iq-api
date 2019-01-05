@@ -27,14 +27,14 @@ import com.max.appengine.springboot.megaiq.model.enums.UserTokenType;
 @MappedSuperclass
 public abstract class AbstractUserToken {
   @Id
-  @GeneratedValue(strategy=GenerationType.IDENTITY)
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
   private Integer userId;
-  
+
   @Enumerated(EnumType.STRING)
   @Column(length = 20)
   private UserTokenType type;
-  
+
   private String value;
   private Date createDate;
   private Date expireDate;

@@ -40,15 +40,15 @@ public class TestResultService {
   public static final Integer RESULT_EXPIRE_MINUTES = 24 * 60;
 
   public static final Integer RESULT_EXPIRE_MINUTES_STANDART = 60;
-  
+
   public static final Integer RESULT_EXPIRE_MINUTES_MEGA_IQ = 2 * 60;
-  
+
   private static final Logger log = LoggerFactory.getLogger(TestResultService.class);
-  
+
   private final UserReporitory userReporitory;
-  
+
   private final TestResultReporitory testResultReporitory;
-  
+
   private final QuestionUserRepository questionUserRepository;
 
   @Autowired
@@ -87,8 +87,9 @@ public class TestResultService {
     return testResult;
   }
 
-  public TestResult submitUserAnswer(TestResult testResult, Integer questionId, Integer answerUser) {
-    
+  public TestResult submitUserAnswer(TestResult testResult, Integer questionId,
+      Integer answerUser) {
+
     testResult.getQuestionSet().get(questionId - 1).setAnswerUser(answerUser);
     testResult.getQuestionSet().get(questionId - 1).setUpdateDate(new Date());
 
@@ -102,8 +103,8 @@ public class TestResultService {
     }
 
     if (allDone) {
-      if (testResult.getType().equals(IqTestType.STANDART_IQ) ||
-          testResult.getType().equals(IqTestType.MEGA_IQ)) {
+      if (testResult.getType().equals(IqTestType.STANDART_IQ)
+          || testResult.getType().equals(IqTestType.MEGA_IQ)) {
         QuestionGroupsResult questionGroupsResult = new QuestionGroupsResult(0, 0, 0, 0);
         QuestionGroupsResult questionGroupsCorrect = new QuestionGroupsResult(0, 0, 0, 0);
         Integer points = 80;
@@ -130,7 +131,8 @@ public class TestResultService {
     return testResultDb;
   }
 
-  public TestResult startUserTest(User user, IqTestType testType, List<Question> questions, Locale locale) {
+  public TestResult startUserTest(User user, IqTestType testType, List<Question> questions,
+      Locale locale) {
     TestResult testResult = new TestResult(user.getId(), testType, locale);
     testResult.newQuestionSet(questions);
     testResult.setUser(user);
@@ -150,14 +152,15 @@ public class TestResultService {
   }
 
   public TestResult loadQuestions(TestResult testResult) {
-    List<QuestionUser> questions = questionUserRepository.findByTestIdOrderByIdDesc(testResult.getId());
+    List<QuestionUser> questions =
+        questionUserRepository.findByTestIdOrderByIdDesc(testResult.getId());
 
     if (!questions.isEmpty()) {
       testResult.setQuestionSet(questions);
     }
     return testResult;
   }
-  
+
   public void expireTestResults() {
     expireByType(RESULT_EXPIRE_MINUTES, IqTestType.GRAMMAR);
     expireByType(RESULT_EXPIRE_MINUTES, IqTestType.MATH);
@@ -165,14 +168,15 @@ public class TestResultService {
     expireByType(RESULT_EXPIRE_MINUTES_STANDART, IqTestType.STANDART_IQ);
     expireByType(RESULT_EXPIRE_MINUTES_MEGA_IQ, IqTestType.MEGA_IQ);
   }
-  
+
   private void expireByType(Integer minutes, IqTestType type) {
     Date date = new Date();
     Calendar c = Calendar.getInstance();
     c.setTime(date);
     c.add(Calendar.MINUTE, -1 * minutes);
-    
-    List<TestResult> testResultsList = testResultReporitory.findByCreateDateBeforeAndTypeAndStatus(c.getTime(), type, IqTestStatus.ACTIVE);
+
+    List<TestResult> testResultsList = testResultReporitory
+        .findByCreateDateBeforeAndTypeAndStatus(c.getTime(), type, IqTestStatus.ACTIVE);
     if (!testResultsList.isEmpty()) {
       for (TestResult testResult : testResultsList) {
         testResult.setStatus(IqTestStatus.EXPIRED);
@@ -181,7 +185,7 @@ public class TestResultService {
       }
     }
   }
-  
+
   private TestResult loadTestDetails(TestResult testResult) {
     Optional<User> user = userReporitory.findById(testResult.getUserId());
     if (user.isPresent()) {

@@ -118,7 +118,7 @@ public class TestController extends AbstractApiController {
         if (testResult.isPresent()) {
           TestResult testResultNew = this.testResultService.submitUserAnswer(testResult.get(),
               requestSubmitAnswer.getQuestion(), requestSubmitAnswer.getAnswer());
-          
+
           ApiTestResult apiTestResult =
               new ApiTestResult(this.questionsService, testResultNew, true);
 

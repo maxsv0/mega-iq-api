@@ -23,8 +23,9 @@ import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
 public interface UserReporitory extends JpaRepository<User, Integer> {
-  
+
   Optional<User> findByEmail(String email);
-  
-  List<User> findByLocaleAndCreateDateAfterAndIsPublicIsTrueAndIqIsNotNullOrderByIqDesc(Locale locale, Date createDate, Pageable pageable);
+
+  List<User> findByLocaleAndCreateDateAfterAndIsPublicIsTrueAndIqIsNotNullOrderByIqDesc(
+      Locale locale, Date createDate, Pageable pageable);
 }

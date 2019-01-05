@@ -24,7 +24,7 @@ public class ApiUserPublic {
   private Integer age;
   private Integer iq;
   private String location;
-  
+
   public ApiUserPublic() {
     super();
   }

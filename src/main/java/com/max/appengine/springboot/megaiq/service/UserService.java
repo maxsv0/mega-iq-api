@@ -39,7 +39,7 @@ import com.max.appengine.springboot.megaiq.repository.UserTokenReporitory;
 @Service
 public class UserService {
   public static final Integer LIMIT_LIST_PAGE = 15;
-  
+
   public static final Integer LIMIT_HOME_PAGE = 8;
 
   private final UserReporitory userReporitory;
@@ -59,7 +59,7 @@ public class UserService {
     if (page.isPresent() && page.get() > 0) {
       currentPage = page.get();
     }
-    
+
     return loadUsersList(locale, 30, PageRequest.of(currentPage, LIMIT_LIST_PAGE));
   }
 
@@ -139,17 +139,18 @@ public class UserService {
 
   public UserToken getUserToken(User user, UserTokenType type) {
     Optional<UserToken> tokenCurrent = user.getUserTokenByType(type);
-    if (tokenCurrent.isPresent()) return tokenCurrent.get();
-    
+    if (tokenCurrent.isPresent())
+      return tokenCurrent.get();
+
     return createUserToken(user, type);
   }
-  
+
   private UserToken createUserToken(User user, UserTokenType type) {
     UserToken tokenNew = new UserToken(user.getId(), type);
     user.getTokenList().add(tokenNew);
     return userTokenReporitory.save(tokenNew);
   }
-  
+
   private User initUserTokens(User user) {
     user = loadUserToken(user);
 
@@ -193,13 +194,13 @@ public class UserService {
     }
     return hashString;
   }
-  
+
   private List<User> loadUsersList(Locale locale, Integer period, Pageable pageRequest) {
     LocalDate dateLocal = LocalDate.now().minusDays(period);
     Date date = Date.from(dateLocal.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
     return userReporitory
-        .findByLocaleAndCreateDateAfterAndIsPublicIsTrueAndIqIsNotNullOrderByIqDesc(locale,
-            date, pageRequest);
+        .findByLocaleAndCreateDateAfterAndIsPublicIsTrueAndIqIsNotNullOrderByIqDesc(locale, date,
+            pageRequest);
   }
 }

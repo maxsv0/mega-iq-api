@@ -57,13 +57,13 @@ public class TestResult extends AbstractTestResult {
 
   public void newQuestionSet(List<Question> quesions) {
     List<QuestionUser> questionSet = new ArrayList<QuestionUser>();
-    
+
     for (Question question : quesions) {
       questionSet.add(new QuestionUser(question));
     }
     setQuestionSet(questionSet);
   }
-  
+
   public TestResult() {
     super();
   }
@@ -102,9 +102,10 @@ public class TestResult extends AbstractTestResult {
 
   @Override
   public String toString() {
-    return "TestResult [id=" + getId() + ", code=" + getCode() + ", url=" + getUrl() + ", userId=" + getUserId()
-        + ", type=" + getType() + ", status=" + getStatus() + ", createDate=" + getCreateDate() + ", updateDate="
-        + getUpdateDate() + ", finishDate=" + getFinishDate() + ", points=" + getPoints() + ", groupsGraph="
-        + getGroupsGraph() + ", locale=" + getLocale() + "] user = " + getUser() + ", questionSet= " + getQuestionSet();
+    return "TestResult [id=" + getId() + ", code=" + getCode() + ", url=" + getUrl() + ", userId="
+        + getUserId() + ", type=" + getType() + ", status=" + getStatus() + ", createDate="
+        + getCreateDate() + ", updateDate=" + getUpdateDate() + ", finishDate=" + getFinishDate()
+        + ", points=" + getPoints() + ", groupsGraph=" + getGroupsGraph() + ", locale="
+        + getLocale() + "] user = " + getUser() + ", questionSet= " + getQuestionSet();
   }
 }

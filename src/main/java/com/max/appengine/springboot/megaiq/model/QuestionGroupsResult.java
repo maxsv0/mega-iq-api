@@ -23,15 +23,15 @@ import javax.persistence.Table;
 public class QuestionGroupsResult {
   @Id
   private Integer id;
-  
-  private Integer math; 
-  
+
+  private Integer math;
+
   private Integer grammar;
-  
+
   private Integer horizons;
-  
+
   private Integer logic;
-  
+
   public QuestionGroupsResult() {
     super();
   }

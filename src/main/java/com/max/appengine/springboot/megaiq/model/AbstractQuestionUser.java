@@ -33,7 +33,7 @@ import com.max.appengine.springboot.megaiq.model.enums.Locale;
 @MappedSuperclass
 public abstract class AbstractQuestionUser {
   @Id
-  @GeneratedValue(strategy=GenerationType.IDENTITY)
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
   private Integer testId;
   private Integer questionIq;
@@ -139,8 +139,8 @@ public abstract class AbstractQuestionUser {
     int result = 1;
     result = prime * result + ((answerCorrect == null) ? 0 : answerCorrect.hashCode());
     result = prime * result + ((answerUser == null) ? 0 : answerUser.hashCode());
-    //result = prime * result + ((createDate == null) ? 0 : createDate.hashCode());
-    //result = prime * result + ((groups == null) ? 0 : groups.hashCode());
+    // result = prime * result + ((createDate == null) ? 0 : createDate.hashCode());
+    // result = prime * result + ((groups == null) ? 0 : groups.hashCode());
     result = prime * result + ((id == null) ? 0 : id.hashCode());
     result = prime * result + ((locale == null) ? 0 : locale.hashCode());
     result = prime * result + ((points == null) ? 0 : points.hashCode());
@@ -169,16 +169,16 @@ public abstract class AbstractQuestionUser {
         return false;
     } else if (!answerUser.equals(other.answerUser))
       return false;
-//    if (createDate == null) {
-//      if (other.createDate != null)
-//        return false;
-//    } else if (!createDate.equals(other.createDate))
-//      return false;
-//    if (groups == null) {
-//      if (other.groups != null)
-//        return false;
-//    } else if (!groups.equals(other.groups))
-//      return false;
+    // if (createDate == null) {
+    // if (other.createDate != null)
+    // return false;
+    // } else if (!createDate.equals(other.createDate))
+    // return false;
+    // if (groups == null) {
+    // if (other.groups != null)
+    // return false;
+    // } else if (!groups.equals(other.groups))
+    // return false;
     if (id == null) {
       if (other.id != null)
         return false;

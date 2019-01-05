@@ -20,5 +20,5 @@ import com.max.appengine.springboot.megaiq.model.QuestionUser;
 
 public interface QuestionUserRepository extends JpaRepository<QuestionUser, Integer> {
 
-    List<QuestionUser> findByTestIdOrderByIdDesc(Integer testId);
+  List<QuestionUser> findByTestIdOrderByIdDesc(Integer testId);
 }

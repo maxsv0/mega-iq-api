@@ -23,7 +23,7 @@ public class ApiResponseUsersList extends ApiResponseBase {
   public List<ApiUserPublic> getUsers() {
     return users;
   }
-  
+
   public ApiResponseUsersList(List<ApiUserPublic> apiUsers) {
     super();
     this.users = apiUsers;
@@ -37,7 +37,8 @@ public class ApiResponseUsersList extends ApiResponseBase {
     super();
   }
 
-  public ApiResponseUsersList(boolean ok, String msg, Date date, List<ApiUserPublic> users, ApiToken token) {
+  public ApiResponseUsersList(boolean ok, String msg, Date date, List<ApiUserPublic> users,
+      ApiToken token) {
     super();
     this.users = users;
     this.setOk(ok);
