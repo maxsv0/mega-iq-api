@@ -31,19 +31,19 @@ import com.google.appengine.api.images.ImagesServiceFactory;
 import com.google.appengine.api.images.ServingUrlOptions;
 
 @Service
-public class StorageService  {
+public class StorageService {
+  public static final String GCS_BUCKET = "mega-iq-build";
+
+  public static final String GCS_FOLDER_USER_UPLOAD = "user-pic";
+
   public static final String URL_PARAMETER = "key";
   
-  public static final String GCS_BUCKET = "msvhost.appspot.com";
-  
-  public static final String GCS_BUCKET_NAME = "msvhost.appspot.com/mega-iq/user-pic";
-
   public static final String FORM_PARAMETER = "uploadFile";
-  
+
   private ImagesService imagesService = ImagesServiceFactory.getImagesService();
-  
+
   private BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
-  
+
   public String uploadFile(HttpServletRequest request) throws ServletException, IOException {
     Map<String, List<BlobKey>> blobs = blobstoreService.getUploads(request);
     List<BlobKey> blobKeys = blobs.get(FORM_PARAMETER);
@@ -52,23 +52,29 @@ public class StorageService  {
   }
 
   public String createUploadUrl() {
-    UploadOptions uploadOptions =
-        UploadOptions.Builder
-        //.withMaxUploadSizeBytes(maxUploadSizeBytes) TODO: set it
-        .withGoogleStorageBucketName(GCS_BUCKET_NAME);
+    UploadOptions uploadOptions = UploadOptions.Builder
+        // .withMaxUploadSizeBytes(maxUploadSizeBytes) TODO: set it
+        .withGoogleStorageBucketName(GCS_BUCKET + "/" + GCS_FOLDER_USER_UPLOAD);
 
-    String uploadUrl = blobstoreService.createUploadUrl("/storage/upload", uploadOptions);
-
-    // remove: https://msvhost.appspot.com         
-    // TODO: use URL class
-    return uploadUrl.substring(26);
+    return blobstoreService.createUploadUrl("/storage/upload", uploadOptions);
   }
-  
-  public void fetchFile(String key, File file) throws IOException {
-    BlobKey blobKey = new BlobKey(key);
+
+  public void fetchFile(String fileName, File file) throws IOException {
+    BlobKey blobKey = blobstoreService.createGsBlobKey("/gs/" + GCS_BUCKET + "/" + fileName);
+    
+    // TODO: rewrite this procedure properly
+    // check blobkey
+    // know file size
+    // don't throw
+    // avoid void
+    
+//    if (blobKey != null) {
+//      
+//    }
+    
     FileOutputStream stream = new FileOutputStream(file);
         
-    long blockSize = 1024 * 256;
+    long blockSize = 1024 * 512;
     long inxStart = 0;
     long inxEnd = blockSize;
     boolean flag = false;
@@ -93,22 +99,19 @@ public class StorageService  {
     
     stream.close();
   }
-  
+
   public String serveFile(String key) {
     BlobKey blobKey = new BlobKey(key);
-    
-    ServingUrlOptions options = ServingUrlOptions.Builder
-        .withBlobKey(blobKey)
-        .secureUrl(true);
-    
+
+    ServingUrlOptions options = ServingUrlOptions.Builder.withBlobKey(blobKey).secureUrl(true);
+
     return imagesService.getServingUrl(options);
   }
-  
+
   public String serveFileByPath(String path) {
-    ServingUrlOptions options = ServingUrlOptions.Builder
-        .withGoogleStorageFileName(path)
-        .secureUrl(true);
-    
+    ServingUrlOptions options =
+        ServingUrlOptions.Builder.withGoogleStorageFileName("/gs/" + GCS_BUCKET + "/" + path).secureUrl(true);
+
     return imagesService.getServingUrl(options);
   }
 }

@@ -28,12 +28,7 @@ import com.maxmind.geoip2.record.Country;
 
 @Service
 public class GeoIpService {
-  public static final String GEOIP_DATABASE_KEY =
-      "AMIfv94d9g07ScMscVKvOmsiFWDUisjFcePQQ3ByFOmNwpcFQhF8DfPo1tEh_y8V4zMlNlUm_"
-          + "rqEc8Ce9fCzIhtu1OU-VJ4xFY1UnRYxA-N3heVCD5Y0ktebI61_cdLg-KgUA7UnN22Y-8tj"
-          + "-2zPIaHUx_8nW1Rs_MXafpK8mBB2GwM4a8yUc595T08J57wU02jl8-L0HIWzp8hZDNCZCtR"
-          + "mEhhJeJZW6RM660z3KudvtGluML5n2FkivFtPVgtqg3pV89Dz-7NeXsvzw2YxnplVPYNxpp"
-          + "CBQav2nvVyGVD2Bd9wHYLtQgQ";
+  public static final String GEOIP_DATABASE_PATH = "GeoIP2-City.mmdb";
 
   private DatabaseReader reader;
 
@@ -42,14 +37,10 @@ public class GeoIpService {
   private final StorageService storageService;
 
   @Autowired
-  public GeoIpService(StorageService storageService) {
+  public GeoIpService(StorageService storageService) throws IOException {
     this.storageService = storageService;
 
-    this.fileDb = createDatabaseFile();
-
-    if (this.fileDb != null) {
-      this.reader = createDatabaseReader();
-    }
+    initGeoIpDatabase();
   }
 
   public Optional<String> getLocationFromIp(String ip) {
@@ -91,14 +82,22 @@ public class GeoIpService {
       return "GeoIp file: " + this.fileDb.getAbsolutePath() + " size: " + this.fileDb.length();
     }
   }
+  
+  public void initGeoIpDatabase() throws IOException {
+    this.fileDb = createDatabaseFile();
 
-  private File createDatabaseFile() {
+    if (this.fileDb != null) {
+      this.reader = createDatabaseReader();
+    }
+  }
+
+  private File createDatabaseFile() throws IOException {
     File dbFile = null;
     try {
       dbFile = File.createTempFile("geoip-", ".tmp");
-      this.storageService.fetchFile(GEOIP_DATABASE_KEY, dbFile);
+      this.storageService.fetchFile(GEOIP_DATABASE_PATH, dbFile);
     } catch (IOException e) {
-      return null;
+      throw e;
     }
     return dbFile;
   }
