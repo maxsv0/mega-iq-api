@@ -45,6 +45,7 @@ public abstract class AbstractQuestionUser {
   @CollectionTable(name = "question_user_groups",
       joinColumns = @JoinColumn(name = "question_user_id"),
       indexes = {@Index(columnList = "question_user_id"), @Index(columnList = "groups")})
+  @Enumerated(EnumType.STRING)
   private List<IqQuestionGroup> groups;
   private Date createDate;
   private Date updateDate;
