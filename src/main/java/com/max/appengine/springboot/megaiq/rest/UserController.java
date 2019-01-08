@@ -28,13 +28,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.User;
-import com.max.appengine.springboot.megaiq.model.UserToken;
 import com.max.appengine.springboot.megaiq.model.api.ApiRequestLogin;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
 import com.max.appengine.springboot.megaiq.model.api.ApiUser;
 import com.max.appengine.springboot.megaiq.model.api.ApiUserPublic;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.model.enums.UserTokenType;
+import com.max.appengine.springboot.megaiq.service.EmailService;
 import com.max.appengine.springboot.megaiq.service.TestResultService;
 import com.max.appengine.springboot.megaiq.service.UserService;
 
@@ -54,11 +54,14 @@ public class UserController extends AbstractApiController {
   private final UserService userService;
 
   private final TestResultService testResultService;
+  
+  private final EmailService emailService;
 
   @Autowired
-  public UserController(TestResultService testResultService, UserService userService) {
+  public UserController(TestResultService testResultService, UserService userService, EmailService emailService) {
     this.userService = userService;
     this.testResultService = testResultService;
+    this.emailService = emailService;
   }
 
   @RequestMapping(value = "/user", method = RequestMethod.GET)
@@ -91,6 +94,8 @@ public class UserController extends AbstractApiController {
     Optional<User> userResult = userService.addUser(user);
 
     if (userResult.isPresent()) {
+      emailService.sendEmailRegistration(userResult.get(), userLocale);
+      
       return sendResponseUser(new ApiUser(userResult.get()));
     } else {
       return sendResponseError(MESSAGE_REGISTRATION_FAILED);
@@ -221,10 +226,9 @@ public class UserController extends AbstractApiController {
       return sendResponseBase(MESSAGE_VERIFY_SUCCESS);
     }
 
-    UserToken tokenVerify = userService.getUserToken(userCurrent, UserTokenType.VERIFY);
-    // tokenVerify.getValue();
-    // TODO: code here
-    // send email
+    userService.getUserToken(userCurrent, UserTokenType.VERIFY);
+    
+    emailService.sendEmailVerify(userCurrent, userLocale);
 
     return sendResponseBase(MESSAGE_VERIFY_EMAIL_SEND);
   }
