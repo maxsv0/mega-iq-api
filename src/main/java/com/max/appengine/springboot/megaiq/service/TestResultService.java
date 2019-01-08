@@ -90,8 +90,12 @@ public class TestResultService {
   public TestResult submitUserAnswer(TestResult testResult, Integer questionId,
       Integer answerUser) {
 
-    testResult.getQuestionSet().get(questionId - 1).setAnswerUser(answerUser);
-    testResult.getQuestionSet().get(questionId - 1).setUpdateDate(new Date());
+    try {
+      testResult.getQuestionSet().get(questionId - 1).setAnswerUser(answerUser);
+      testResult.getQuestionSet().get(questionId - 1).setUpdateDate(new Date());
+    } catch (IndexOutOfBoundsException e) {
+      return testResult;
+    }
 
     questionUserRepository.saveAll(testResult.getQuestionSet());
 
@@ -131,7 +135,7 @@ public class TestResultService {
     return testResultDb;
   }
 
-  public TestResult startUserTest(User user, IqTestType testType, List<Question> questions,
+  public Optional<TestResult> startUserTest(User user, IqTestType testType, List<Question> questions,
       Locale locale) {
     TestResult testResult = new TestResult(user.getId(), testType, locale);
     testResult.newQuestionSet(questions);
@@ -143,8 +147,8 @@ public class TestResultService {
       question.setTestId(testResultDb.getId());
     }
     questionUserRepository.saveAll(testResult.getQuestionSet());
-
-    return testResultDb;
+    
+    return getTestResultById(testResultDb.getId());
   }
 
   public List<TestResult> findByUserId(Integer userId, Locale locale) {
@@ -169,6 +173,10 @@ public class TestResultService {
     expireByType(RESULT_EXPIRE_MINUTES_MEGA_IQ, IqTestType.MEGA_IQ);
   }
 
+  public void deleteTestResult(TestResult testResult) {
+    testResultReporitory.delete(testResult);
+  }
+  
   private void expireByType(Integer minutes, IqTestType type) {
     Date date = new Date();
     Calendar c = Calendar.getInstance();
@@ -191,9 +199,8 @@ public class TestResultService {
     if (user.isPresent()) {
       testResult.setUser(user.get());
     }
-
-    return testResult;
+    
+    return loadQuestions(testResult);
   }
-
 
 }

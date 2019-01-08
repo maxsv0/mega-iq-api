@@ -42,6 +42,12 @@ import com.max.appengine.springboot.megaiq.service.UserService;
 
 @RestController
 public class TestController extends AbstractApiController {
+  public static final String MESSAGE_START_TEST_FAIL =
+      "An error occurred while starting a test. Please try again later";
+
+  public static final String MESSAGE_DELETE_SUCCESS =
+      "Test result successfully deleted";
+
   private final QuestionsService questionsService;
 
   private final UserService userService;
@@ -73,10 +79,17 @@ public class TestController extends AbstractApiController {
     }
 
     List<Question> questions = this.questionsService.getQuestionsSet(type, userLocale);
-    TestResult testResult =
-        testResultService.startUserTest(user.get(), type, questions, userLocale);
+    if (questions == null || questions.isEmpty()) {
+      return sendResponseError(MESSAGE_START_TEST_FAIL);
+    }
 
-    ApiTestResult apiTestResult = new ApiTestResult(this.questionsService, testResult, true);
+    Optional<TestResult> testResult =
+        testResultService.startUserTest(user.get(), type, questions, userLocale);
+    if (!testResult.isPresent()) {
+      return sendResponseError(MESSAGE_START_TEST_FAIL);
+    }
+
+    ApiTestResult apiTestResult = new ApiTestResult(this.questionsService, testResult.get(), true);
 
     return sendResponseTestResult(apiTestResult);
   }
@@ -133,6 +146,34 @@ public class TestController extends AbstractApiController {
     }
 
     return iqTestDetailsPublic(testCode, userLocale);
+  }
+
+  @RequestMapping(value = "/test/{testCode}", method = RequestMethod.DELETE)
+  public ResponseEntity<ApiResponseBase> deleteTestResult(HttpServletRequest request,
+      @PathVariable UUID testCode, @RequestParam Optional<String> locale) {
+    Locale userLocale = loadLocale(locale);
+
+    Optional<String> token = getTokenFromHeader(request);
+    if (!token.isPresent()) {
+      return sendResponseError(MESSAGE_INVALID_ACCESS);
+    }
+
+    Optional<User> userCurrentResult =
+        userService.getUserByToken(token.get(), UserTokenType.ACCESS);
+    if (!userCurrentResult.isPresent()) {
+      return sendResponseError(MESSAGE_INVALID_ACCESS);
+    }
+
+    Optional<TestResult> testResult =
+        loadIqTestDetailsPrivate(testCode, userCurrentResult.get(), userLocale);
+
+    if (!testResult.isPresent()) {
+      return sendResponseBase(MESSAGE_DELETE_SUCCESS);
+    }
+
+    this.testResultService.deleteTestResult(testResult.get());
+
+    return sendResponseBase(MESSAGE_DELETE_SUCCESS);
   }
 
   @RequestMapping(value = "/list-my", method = RequestMethod.GET)
