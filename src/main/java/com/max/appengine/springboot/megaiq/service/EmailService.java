@@ -40,7 +40,7 @@ public class EmailService {
   public static final String EMAIL_FROM = "mail@mega-iq.com";
 
   public static final String SENDGRID_API_KEY =
-      "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";
+      "";
 
   public boolean sendEmailRegistration(User user, Locale locale) {
     String subject = "Welcome to Mega-IQ";
