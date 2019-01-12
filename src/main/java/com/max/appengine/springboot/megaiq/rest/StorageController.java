@@ -35,7 +35,7 @@ public class StorageController extends AbstractApiController {
   public ResponseEntity<ApiResponseBase> createUploadUrl(HttpServletRequest request) {
     String uploadUrl = storageService.createUploadUrl();
 
-    return sendResponseBase(uploadUrl);
+    return sendResponseBase(uploadUrl.substring(23));
   }
 
   @RequestMapping(value = "/storage/serve", method = RequestMethod.GET)

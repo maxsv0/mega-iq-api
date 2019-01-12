@@ -54,11 +54,11 @@ public class QuestionsService {
     }
 
     this.questionsNumber = new HashMap<IqTestType, Integer>();
-    this.questionsNumber.put(IqTestType.PRACTICE_IQ, 5);
-    this.questionsNumber.put(IqTestType.STANDART_IQ, 15);
-    this.questionsNumber.put(IqTestType.MEGA_IQ, 30);
-    this.questionsNumber.put(IqTestType.MATH, 10);
-    this.questionsNumber.put(IqTestType.GRAMMAR, 10);
+    this.questionsNumber.put(IqTestType.PRACTICE_IQ, 4);
+    this.questionsNumber.put(IqTestType.STANDART_IQ, 16);
+    this.questionsNumber.put(IqTestType.MEGA_IQ, 36);
+    this.questionsNumber.put(IqTestType.MATH, 12);
+    this.questionsNumber.put(IqTestType.GRAMMAR, 12);
   }
 
   public int getQuestionsLimitByType(IqTestType testType) {
