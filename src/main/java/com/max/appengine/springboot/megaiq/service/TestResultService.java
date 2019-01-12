@@ -59,6 +59,10 @@ public class TestResultService {
     this.questionUserRepository = questionUserRepository;
   }
 
+  public long getResultCount() {
+    return testResultReporitory.count();
+  }
+  
   public void saveUserResults(User user) {
     testResultReporitory.saveAll(user.getTestResultList());
   }

@@ -20,13 +20,28 @@ import java.util.List;
 public class ApiResponseUsersList extends ApiResponseBase {
   private List<ApiUserPublic> users;
 
+  private long count;
+
   public List<ApiUserPublic> getUsers() {
     return users;
   }
 
-  public ApiResponseUsersList(List<ApiUserPublic> apiUsers) {
+  public void setUsers(List<ApiUserPublic> users) {
+    this.users = users;
+  }
+
+  public long getCount() {
+    return count;
+  }
+
+  public void setCount(Integer count) {
+    this.count = count;
+  }
+
+  public ApiResponseUsersList(List<ApiUserPublic> apiUsers, long count) {
     super();
     this.users = apiUsers;
+    this.count = count;
 
     this.setOk();
     this.setDate(new Date());

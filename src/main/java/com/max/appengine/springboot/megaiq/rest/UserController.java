@@ -189,7 +189,7 @@ public class UserController extends AbstractApiController {
     for (User user : usersList) {
       usersPublicList.add(new ApiUserPublic(user));
     }
-    return sendResponseUsersList(usersPublicList);
+    return sendResponseUsersList(usersPublicList, this.testResultService.getResultCount());
   }
 
   @RequestMapping(value = "/user/list", method = RequestMethod.GET)
@@ -202,7 +202,7 @@ public class UserController extends AbstractApiController {
     for (User user : usersList) {
       usersPublicList.add(new ApiUserPublic(user));
     }
-    return sendResponseUsersList(usersPublicList);
+    return sendResponseUsersList(usersPublicList, this.testResultService.getResultCount());
   }
 
   @RequestMapping(value = "/user/verify", method = RequestMethod.GET)
@@ -228,9 +228,12 @@ public class UserController extends AbstractApiController {
 
     userService.getUserToken(userCurrent, UserTokenType.VERIFY);
     
-    emailService.sendEmailVerify(userCurrent, userLocale);
-
-    return sendResponseBase(MESSAGE_VERIFY_EMAIL_SEND);
+    boolean result = emailService.sendEmailVerify(userCurrent, userLocale);
+    if (result) {
+      return sendResponseBase(MESSAGE_VERIFY_EMAIL_SEND);
+    } else {
+      return sendResponseError(INTERNAL_ERROR);
+    }
   }
 
   @RequestMapping(value = "/user/verify", method = RequestMethod.POST)

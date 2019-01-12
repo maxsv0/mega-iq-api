@@ -35,6 +35,8 @@ public abstract class AbstractApiController {
 
   public static final String MESSAGE_WRONG_REQUEST = "Wrong request";
 
+  public static final String INTERNAL_ERROR = "Internal error. Please try again later";
+  
   public static final Locale DEFAULT_LOCALE = Locale.EN;
 
   protected ResponseEntity<ApiResponseBase> sendResponseTestResultList(
@@ -46,8 +48,8 @@ public abstract class AbstractApiController {
     return sendResponseOk(new ApiResponseTestResult(testResult));
   }
 
-  protected ResponseEntity<ApiResponseBase> sendResponseUsersList(List<ApiUserPublic> apiUsers) {
-    return sendResponseOk(new ApiResponseUsersList(apiUsers));
+  protected ResponseEntity<ApiResponseBase> sendResponseUsersList(List<ApiUserPublic> apiUsers, long count) {
+    return sendResponseOk(new ApiResponseUsersList(apiUsers, count));
   }
 
   protected ResponseEntity<ApiResponseBase> sendResponseUser(ApiUserPublic apiUser) {
