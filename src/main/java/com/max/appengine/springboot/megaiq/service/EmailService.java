@@ -21,7 +21,7 @@ import java.io.InputStreamReader;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
-import com.max.appengine.springboot.megaiq.Application;
+import com.google.api.client.util.Value;
 import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.UserToken;
@@ -39,8 +39,8 @@ import com.sendgrid.SendGrid;
 public class EmailService {
   public static final String EMAIL_FROM = "mail@mega-iq.com";
 
-  public static final String SENDGRID_API_KEY =
-      "";
+  @Value("${sendgrid.api.key}")
+  public String sendgridApiKey;
 
   public boolean sendEmailRegistration(User user, Locale locale) {
     String subject = "Welcome to Mega-IQ";
@@ -72,7 +72,7 @@ public class EmailService {
 
   private String loadTemplateFromPath(String name, Locale locale) {
     String path = "email/" + locale.toString() + "/" + name + ".html";
-    InputStream inputStream = Application.class.getClassLoader().getResourceAsStream(path);
+    InputStream inputStream = EmailService.class.getClassLoader().getResourceAsStream(path);
     
     return new BufferedReader(new InputStreamReader(inputStream))
         .lines().collect(Collectors.joining("\n"));
@@ -115,7 +115,7 @@ public class EmailService {
     Content contentObj = new Content("text/html", content);
     Mail mail = new Mail(fromEmail, subject, toEmail, contentObj);
 
-    SendGrid sg = new SendGrid(SENDGRID_API_KEY);
+    SendGrid sg = new SendGrid(sendgridApiKey);
     Request request = new Request();
     try {
       request.setMethod(Method.POST);
