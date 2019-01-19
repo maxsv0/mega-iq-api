@@ -23,8 +23,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -46,7 +46,7 @@ public class UserService {
 
   private final UserTokenReporitory userTokenReporitory;
 
-  private static final Logger log = LoggerFactory.getLogger(UserService.class);
+  private static final Logger log = Logger.getLogger(UserService.class.getName());
 
   @Autowired
   public UserService(UserReporitory userReporitory, UserTokenReporitory userTokenReporitory) {
@@ -105,8 +105,10 @@ public class UserService {
   }
 
   public Optional<User> getUserByToken(String token, UserTokenType tokenType) {
-    Optional<UserToken> userToken = userTokenReporitory.findByValueAndType(token, tokenType);
-    log.debug("Try to auth. Token={} type={}, userToken={}", token, tokenType, userToken);
+    Optional<UserToken> userToken =
+        userTokenReporitory.findByValueAndType(token, tokenType);
+    log.log(Level.INFO, "Try to auth. Token=" + token + " type=" + tokenType + ", userToken={0}",
+        userToken);
 
     if (!userToken.isPresent()) {
       return Optional.empty();
@@ -117,14 +119,14 @@ public class UserService {
 
   public Optional<User> authUserLogin(String login, String password) {
     Optional<User> userResult = userReporitory.findByEmail(login);
-    log.debug("Search for user login={}. Result={}", login, userResult);
+    log.log(Level.INFO, "Search for user login=" + login + ". Result={0}", userResult);
 
     if (!userResult.isPresent()) {
       return Optional.empty();
     }
 
     String hashString = convertPassowrdToHash(password);
-    log.debug("Got hash={}", hashString);
+    log.log(Level.INFO, "Got hash={0}", hashString);
     User user = userResult.get();
 
     if (!user.getPassword().equals(hashString)) {
@@ -132,7 +134,7 @@ public class UserService {
     }
 
     user = initUserTokens(user);
-    log.debug("Auth successful for user={}", user);
+    log.log(Level.INFO, "Auth successful for user={0}", user);
 
     return Optional.of(user);
   }

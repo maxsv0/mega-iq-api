@@ -10,7 +10,7 @@
 	<packaging>war</packaging>
 
 	<name>megaiq-springboot-appengine</name>
-	<description>Demo project for Spring Boot</description>
+	<description>Mega IQ API v.0.0.1</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>

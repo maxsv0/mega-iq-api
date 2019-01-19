@@ -35,7 +35,7 @@ public abstract class AbstractApiController {
 
   public static final String MESSAGE_WRONG_REQUEST = "Wrong request";
 
-  public static final String INTERNAL_ERROR = "Internal error. Please try again later";
+  public static final String INTERNAL_ERROR = "Service error. Please try again later";
   
   public static final Locale DEFAULT_LOCALE = Locale.EN;
 

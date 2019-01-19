@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.api.ApiRequestLogin;
+import com.max.appengine.springboot.megaiq.model.api.ApiRequestLoginToken;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
 import com.max.appengine.springboot.megaiq.model.api.ApiUser;
 import com.max.appengine.springboot.megaiq.model.api.ApiUserPublic;
@@ -51,14 +53,17 @@ public class UserController extends AbstractApiController {
 
   public static final String MESSAGE_VERIFY_SUCCESS = "Email successfully verified";
 
+  public static final String MESSAGE_EMAIL_ALREADY_USED = "Email '%s' already exists";
+  
   private final UserService userService;
 
   private final TestResultService testResultService;
-  
+
   private final EmailService emailService;
 
   @Autowired
-  public UserController(TestResultService testResultService, UserService userService, EmailService emailService) {
+  public UserController(TestResultService testResultService, UserService userService,
+      EmailService emailService) {
     this.userService = userService;
     this.testResultService = testResultService;
     this.emailService = emailService;
@@ -95,7 +100,7 @@ public class UserController extends AbstractApiController {
 
     if (userResult.isPresent()) {
       emailService.sendEmailRegistration(userResult.get(), userLocale);
-      
+
       return sendResponseUser(new ApiUser(userResult.get()));
     } else {
       return sendResponseError(MESSAGE_REGISTRATION_FAILED);
@@ -107,6 +112,20 @@ public class UserController extends AbstractApiController {
       @RequestBody ApiRequestLogin requestLogin) {
     Optional<User> userResult =
         userService.authUserLogin(requestLogin.getLogin(), requestLogin.getPassword());
+
+    if (userResult.isPresent()) {
+      return sendResponseUser(new ApiUser(userResult.get()));
+    } else {
+      return sendResponseError(MESSAGE_LOGIN_FAILED);
+    }
+  }
+
+  @RequestMapping(value = "/user/loginToken", method = RequestMethod.POST,
+      consumes = "application/json")
+  public ResponseEntity<ApiResponseBase> requestUserLoginWithToken(
+      @RequestBody ApiRequestLoginToken requestLoginToken) {
+    Optional<User> userResult =
+        userService.getUserByToken(requestLoginToken.getToken(), UserTokenType.ACCESS);
 
     if (userResult.isPresent()) {
       return sendResponseUser(new ApiUser(userResult.get()));
@@ -176,8 +195,13 @@ public class UserController extends AbstractApiController {
     userCurrent.setIsPublic(user.getIsPublic());
 
     userCurrent.setIp(getIp(request));
-    User userResult = this.userService.saveUser(userCurrent);
-    return sendResponseUser(new ApiUser(userResult));
+    
+    try {
+      User userResult = this.userService.saveUser(userCurrent);
+      return sendResponseUser(new ApiUser(userResult));
+    } catch (DataIntegrityViolationException exeption) {
+      return sendResponseError(String.format(MESSAGE_EMAIL_ALREADY_USED, userCurrent.getEmail()));
+    }
   }
 
   @RequestMapping(value = "/user/top", method = RequestMethod.GET)
@@ -227,7 +251,7 @@ public class UserController extends AbstractApiController {
     }
 
     userService.getUserToken(userCurrent, UserTokenType.VERIFY);
-    
+
     boolean result = emailService.sendEmailVerify(userCurrent, userLocale);
     if (result) {
       return sendResponseBase(MESSAGE_VERIFY_EMAIL_SEND);

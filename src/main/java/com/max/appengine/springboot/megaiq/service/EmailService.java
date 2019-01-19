@@ -21,7 +21,6 @@ import java.io.InputStreamReader;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
-import com.google.api.client.util.Value;
 import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.UserToken;
@@ -37,10 +36,9 @@ import com.sendgrid.SendGrid;
 
 @Service
 public class EmailService {
-  public static final String EMAIL_FROM = "mail@mega-iq.com";
+  public static final String EMAIL_FROM = "Mega-IQ <mail@mega-iq.com>";
 
-  @Value("${sendgrid.api.key}")
-  public String sendgridApiKey;
+  public String sendgridApiKey = "";
 
   public boolean sendEmailRegistration(User user, Locale locale) {
     String subject = "Welcome to Mega-IQ";
@@ -73,42 +71,51 @@ public class EmailService {
   private String loadTemplateFromPath(String name, Locale locale) {
     String path = "email/" + locale.toString() + "/" + name + ".html";
     InputStream inputStream = EmailService.class.getClassLoader().getResourceAsStream(path);
-    
-    return new BufferedReader(new InputStreamReader(inputStream))
-        .lines().collect(Collectors.joining("\n"));
+
+    return new BufferedReader(new InputStreamReader(inputStream)).lines()
+        .collect(Collectors.joining("\n"));
   }
 
   private String insertTestResultInfo(TestResult testResult, String content) {
-    content.replace("{test_url}", testResult.getUrl());
+    String contentNew = new String(content);
+    contentNew = contentNew.replace("{test_url}", testResult.getUrl());
 
-    return content;
+    return contentNew;
   }
 
   private String insertUserInfo(User user, String content) {
     String contentNew = new String(content);
-    
-    contentNew.replace("{email}", user.getEmail());
-    contentNew.replace("{name}", user.getName());
+
+    contentNew = contentNew.replace("{email}", user.getEmail());
+    contentNew = contentNew.replace("{name}", user.getName());
     if (user.getIq() != null) {
-      contentNew.replace("{iq}", user.getIq().toString());
+      contentNew = contentNew.replace("{iq}", user.getIq().toString());
     }
-    contentNew.replace("{url}", user.getUrl());
-    contentNew.replace("{password}", user.getPassword());
+    contentNew = contentNew.replace("{url}", user.getUrl());
+    contentNew = contentNew.replace("{password}", user.getPassword());
 
     Optional<UserToken> tokenAccess = user.getUserTokenByType(UserTokenType.ACCESS);
     if (tokenAccess.isPresent()) {
-      contentNew.replace("{token_access}", tokenAccess.get().getValue());
+      contentNew = contentNew.replace("{token_access}", tokenAccess.get().getValue());
     }
 
     Optional<UserToken> tokenForget = user.getUserTokenByType(UserTokenType.FORGET);
     if (tokenForget.isPresent()) {
-      contentNew.replace("{token_forget}", tokenForget.get().getValue());
+      contentNew = contentNew.replace("{token_forget}", tokenForget.get().getValue());
+    }
+    
+    Optional<UserToken> tokenVerify = user.getUserTokenByType(UserTokenType.VERIFY);
+    if (tokenVerify.isPresent()) {
+      contentNew = contentNew.replace("{token_verify}", tokenVerify.get().getValue());
     }
 
     return contentNew;
   }
 
   private boolean sendEmail(String to, String subject, String content) {
+    if (sendgridApiKey == null)
+      throw new RuntimeException("Email Service API key not set");
+
     Email fromEmail = new Email(EMAIL_FROM);
     Email toEmail = new Email(to);
 
@@ -123,12 +130,11 @@ public class EmailService {
       request.setBody(mail.build());
       Response response = sg.api(request);
 
-      if (response.getStatusCode() == 200) {
+      if (response.getStatusCode() >= 200 && response.getStatusCode() < 300) {
         return true;
       }
     } catch (IOException ex) {
-      // throw ex;
-      return false;
+      throw new RuntimeException(ex);
     }
 
     return false;
