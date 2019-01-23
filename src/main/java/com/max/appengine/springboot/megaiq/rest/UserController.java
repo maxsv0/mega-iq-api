@@ -17,6 +17,8 @@ package com.max.appengine.springboot.megaiq.rest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -29,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.User;
+import com.max.appengine.springboot.megaiq.model.UserToken;
 import com.max.appengine.springboot.megaiq.model.api.ApiRequestLogin;
 import com.max.appengine.springboot.megaiq.model.api.ApiRequestLoginToken;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
@@ -54,7 +57,9 @@ public class UserController extends AbstractApiController {
   public static final String MESSAGE_VERIFY_SUCCESS = "Email successfully verified";
 
   public static final String MESSAGE_EMAIL_ALREADY_USED = "Email '%s' already exists";
-  
+
+  private static final Logger log = Logger.getLogger(UserController.class.getName());
+
   private final UserService userService;
 
   private final TestResultService testResultService;
@@ -95,11 +100,13 @@ public class UserController extends AbstractApiController {
 
     user.setIp(getIp(request));
     user.setLocale(userLocale);
+    user.setIsEmailVerified(false);
 
     Optional<User> userResult = userService.addUser(user);
 
     if (userResult.isPresent()) {
-      emailService.sendEmailRegistration(userResult.get(), userLocale);
+      userService.getUserToken(userResult.get(), UserTokenType.VERIFY);
+      emailService.sendEmailRegistrationWithVerify(userResult.get());
 
       return sendResponseUser(new ApiUser(userResult.get()));
     } else {
@@ -195,7 +202,7 @@ public class UserController extends AbstractApiController {
     userCurrent.setIsPublic(user.getIsPublic());
 
     userCurrent.setIp(getIp(request));
-    
+
     try {
       User userResult = this.userService.saveUser(userCurrent);
       return sendResponseUser(new ApiUser(userResult));
@@ -230,7 +237,7 @@ public class UserController extends AbstractApiController {
   }
 
   @RequestMapping(value = "/user/verify", method = RequestMethod.GET)
-  public ResponseEntity<ApiResponseBase> verifyEmail(HttpServletRequest request,
+  public ResponseEntity<ApiResponseBase> sendVerifyEmail(HttpServletRequest request,
       @RequestParam Optional<String> locale) {
     Locale userLocale = loadLocale(locale);
 
@@ -250,9 +257,12 @@ public class UserController extends AbstractApiController {
       return sendResponseBase(MESSAGE_VERIFY_SUCCESS);
     }
 
-    userService.getUserToken(userCurrent, UserTokenType.VERIFY);
+    UserToken tokenVerify = userService.getUserToken(userCurrent, UserTokenType.VERIFY);
+    boolean result = emailService.sendEmailVerify(userCurrent);
 
-    boolean result = emailService.sendEmailVerify(userCurrent, userLocale);
+    log.log(Level.INFO, "Sending token VERIFY ID=" + tokenVerify.getId() + " to a userID="
+        + userCurrent.getId() + ". Result={0}", result);
+
     if (result) {
       return sendResponseBase(MESSAGE_VERIFY_EMAIL_SEND);
     } else {

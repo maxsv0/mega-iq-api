@@ -17,6 +17,7 @@ package com.max.appengine.springboot.megaiq.unit.service;
 import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,8 +25,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import com.max.appengine.springboot.megaiq.Application;
+import com.max.appengine.springboot.megaiq.model.QuestionGroupsResult;
+import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.UserToken;
+import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
+import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.model.enums.UserTokenType;
 import com.max.appengine.springboot.megaiq.service.EmailService;
@@ -40,27 +45,72 @@ public class EmailServiceTest extends AbstractUnitTest {
 
   @Test
   public void testEmailNewUserRegistration() {
-    User user = new User("max.svistunov@gmail.com", "Max Svistunov", "url", "pic", "city", 40, 150,
-        true, UUID.randomUUID().toString(), "ip", 0, Locale.EN);
+    List<UserTokenType> tokens = new ArrayList<UserTokenType>();
+    tokens.add(UserTokenType.ACCESS);
+
+    User user = generateUserWithTokens(tokens);
+
+    boolean result = this.emailService.sendEmailRegistration(user);
+    assertTrue(result);
+  }
+
+  @Test
+  public void testEmailRegistrationWithVerify() {
+    List<UserTokenType> tokens = new ArrayList<UserTokenType>();
+    tokens.add(UserTokenType.ACCESS);
+    tokens.add(UserTokenType.VERIFY);
+
+    User user = generateUserWithTokens(tokens);
+
+    boolean result = this.emailService.sendEmailRegistrationWithVerify(user);
+    assertTrue(result);
+  }
+
+  @Test
+  public void testEmailVerify() {
+    List<UserTokenType> tokens = new ArrayList<UserTokenType>();
+    tokens.add(UserTokenType.ACCESS);
+    tokens.add(UserTokenType.VERIFY);
+
+    User user = generateUserWithTokens(tokens);
+
+    boolean result = this.emailService.sendEmailVerify(user);
+    assertTrue(result);
+  }
+
+  @Test
+  public void testSendTestResult() {
+    List<UserTokenType> tokens = new ArrayList<UserTokenType>();
+    tokens.add(UserTokenType.ACCESS);
+    tokens.add(UserTokenType.VERIFY);
+
+    User user = generateUserWithTokens(tokens);
+
+    UUID code = UUID.randomUUID();
+    TestResult testUserResultFinished = new TestResult(1, code, "/iqtest/result/" + code,
+        user.getId(), IqTestType.MEGA_IQ, IqTestStatus.FINISHED, new Date(), new Date(), new Date(),
+        150, new QuestionGroupsResult(1, 1, 1, 1), Locale.EN);
+
+    boolean result = this.emailService.sendTestResult(user, testUserResultFinished);
+    assertTrue(result);
+  }
+
+  private User generateUserWithTokens(List<UserTokenType> tokenTypes) {
+    User user = new User("max.svistunov@gmail.com", "Max", "/user/1", "pic",
+        "city", 40, 150, true, UUID.randomUUID().toString(), "ip", 0, Locale.EN);
+    user.setId(1);
 
     Date dateNow = new Date();
     Date dateExpire = new Date(dateNow.getTime() + (1000 * 60 * 60 * 24 * 7));
 
     user.setTokenList(new ArrayList<UserToken>());
-    
-    UserToken testTokenAccess = new UserToken(user.getId(), UserTokenType.ACCESS,
-        UUID.randomUUID().toString(), dateNow, dateExpire);
-    user.getTokenList().add(testTokenAccess);
 
-    UserToken testTokenForget = new UserToken(user.getId(), UserTokenType.FORGET,
-        UUID.randomUUID().toString(), dateNow, dateExpire);
-    user.getTokenList().add(testTokenForget);
+    for (UserTokenType type : tokenTypes) {
+      UserToken testToken =
+          new UserToken(user.getId(), type, UUID.randomUUID().toString(), dateNow, dateExpire);
+      user.getTokenList().add(testToken);
+    }
 
-    UserToken testTokenVerify = new UserToken(user.getId(), UserTokenType.VERIFY,
-        UUID.randomUUID().toString(), dateNow, dateExpire);
-    user.getTokenList().add(testTokenVerify);
-
-    boolean result = this.emailService.sendEmailRegistration(user, Locale.EN);
-    assertTrue(result);
+    return user;
   }
 }

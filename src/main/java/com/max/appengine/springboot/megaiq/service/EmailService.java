@@ -18,6 +18,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
@@ -36,36 +39,137 @@ import com.sendgrid.SendGrid;
 
 @Service
 public class EmailService {
-  public static final String EMAIL_FROM = "Mega-IQ <mail@mega-iq.com>";
+  public static final String EMAIL_SUBJECT_NEW_USER = "Welcome to Mega-IQ";
+
+  public static final String EMAIL_SUBJECT_EMAIL_VERIFY =
+      "Your Mega-IQ account: Email address verification";
+
+  public static final String EMAIL_SUBJECT_TEST_RESULT = "Test finished";
+
+  public static final String EMAIL_FROM = "mail@mega-iq.com";
+
+  public static final String EMAIL_FROM_NAME = "Mega-IQ";
 
   public String sendgridApiKey = "";
 
-  public boolean sendEmailRegistration(User user, Locale locale) {
-    String subject = "Welcome to Mega-IQ";
-    String content = loadTemplateFromPath("new-user-registration", locale);
+  public String domainUrl = "http://new.mega-iq.com";
 
-    content = insertUserInfo(user, content);
+  public boolean sendEmailRegistration(User user) {
+    HashMap<String, String> userData = loadUserData(user);
 
-    return sendEmail(user.getEmail(), subject, content);
+    String content = loadTemplateFromPath("new-user-registration", user.getLocale());
+    List<String> fieldsRequired = new ArrayList<String>();
+    fieldsRequired.add("name");
+    content = insertFields(content, fieldsRequired, userData);
+
+    return loadTemplateAndSend(user.getLocale(), userData, EMAIL_SUBJECT_NEW_USER, content);
   }
 
-  public boolean sendTestResult(User user, TestResult testResult, Locale locale) {
-    String subject = "Test finished";
-    String content = loadTemplateFromPath("user-finish-test", locale);
+  public boolean sendEmailRegistrationWithVerify(User user) {
+    HashMap<String, String> userData = loadUserData(user);
 
-    content = insertUserInfo(user, content);
-    content = insertTestResultInfo(testResult, content);
+    String content = loadTemplateFromPath("new-user-registration-verify", user.getLocale());
+    List<String> fieldsRequired = new ArrayList<String>();
+    fieldsRequired.add("name");
+    fieldsRequired.add("token_verify");
+    content = insertFields(content, fieldsRequired, userData);
 
-    return sendEmail(user.getEmail(), subject, content);
+    return loadTemplateAndSend(user.getLocale(), userData, EMAIL_SUBJECT_NEW_USER, content);
   }
 
-  public boolean sendEmailVerify(User user, Locale locale) {
-    String subject = "Your Mega-IQ account: Email address verification";
-    String content = loadTemplateFromPath("user-email-verify", locale);
+  public boolean sendEmailVerify(User user) {
+    HashMap<String, String> userData = loadUserData(user);
 
-    content = insertUserInfo(user, content);
+    String content = loadTemplateFromPath("user-email-verify", user.getLocale());
+    List<String> fieldsRequired = new ArrayList<String>();
+    fieldsRequired.add("name");
+    fieldsRequired.add("token_verify");
+    content = insertFields(content, fieldsRequired, userData);
 
-    return sendEmail(user.getEmail(), subject, content);
+    return loadTemplateAndSend(user.getLocale(), userData, EMAIL_SUBJECT_EMAIL_VERIFY, content);
+  }
+
+  public boolean sendTestResult(User user, TestResult testResult) {
+    HashMap<String, String> userData = loadUserData(user);
+    userData.put("test_url", domainUrl + testResult.getUrl());
+    userData.put("test_iq_score", testResult.getPoints().toString());
+
+    String content = loadTemplateFromPath("user-finish-test", user.getLocale());
+    List<String> fieldsRequired = new ArrayList<String>();
+    fieldsRequired.add("name");
+    fieldsRequired.add("test_url");
+    fieldsRequired.add("test_iq_score");
+    content = insertFields(content, fieldsRequired, userData);
+
+    return loadTemplateAndSend(user.getLocale(), userData, EMAIL_SUBJECT_TEST_RESULT, content);
+  }
+
+  private boolean loadTemplateAndSend(Locale locale, HashMap<String, String> userData,
+      String subject, String content) {
+    String template = loadTemplateFromPath("_template", locale);
+
+    List<String> fieldsRequiredGlobal = new ArrayList<String>();
+    fieldsRequiredGlobal.add("email_title");
+    fieldsRequiredGlobal.add("email_preheader");
+    fieldsRequiredGlobal.add("email_content");
+    fieldsRequiredGlobal.add("link_unsubscribe");
+    fieldsRequiredGlobal.add("token_access");
+
+    userData.put("link_unsubscribe",
+        domainUrl + "/login?token={token_access}&returnUrl=%2Fsettings");
+    userData.put("email_title", subject);
+    userData.put("email_preheader", subject);
+    userData.put("email_content", content);
+
+    String emailBody = insertFields(template, fieldsRequiredGlobal, userData);
+
+    return sendEmail(userData.get("email"), subject, emailBody);
+  }
+
+  private String insertFields(String content, List<String> fieldsRequired,
+      HashMap<String, String> data) {
+    String contentNew = new String(content);
+
+    for (String key : fieldsRequired) {
+      String keyToReplace = "{" + key + "}";
+
+      if (!data.containsKey(key)) {
+        throw new RuntimeException("Email parsing failed. Data set missing key '" + key + "'");
+      }
+
+      if (!contentNew.contains(keyToReplace)) {
+        throw new RuntimeException(
+            "Email parsing failed. Content missing key '" + keyToReplace + "'");
+      }
+
+      contentNew = contentNew.replace(keyToReplace, data.get(key));
+    }
+
+    return contentNew;
+  }
+
+  private HashMap<String, String> loadUserData(User user) {
+    HashMap<String, String> userData = new HashMap<String, String>();
+
+    userData.put("email", user.getEmail());
+    userData.put("name", user.getName());
+
+    Optional<UserToken> tokenAccess = user.getUserTokenByType(UserTokenType.ACCESS);
+    if (tokenAccess.isPresent()) {
+      userData.put("token_access", tokenAccess.get().getValue());
+    }
+
+    Optional<UserToken> tokenForget = user.getUserTokenByType(UserTokenType.FORGET);
+    if (tokenForget.isPresent()) {
+      userData.put("token_forget", tokenForget.get().getValue());
+    }
+
+    Optional<UserToken> tokenVerify = user.getUserTokenByType(UserTokenType.VERIFY);
+    if (tokenVerify.isPresent()) {
+      userData.put("token_verify", tokenVerify.get().getValue());
+    }
+
+    return userData;
   }
 
   private String loadTemplateFromPath(String name, Locale locale) {
@@ -76,47 +180,11 @@ public class EmailService {
         .collect(Collectors.joining("\n"));
   }
 
-  private String insertTestResultInfo(TestResult testResult, String content) {
-    String contentNew = new String(content);
-    contentNew = contentNew.replace("{test_url}", testResult.getUrl());
-
-    return contentNew;
-  }
-
-  private String insertUserInfo(User user, String content) {
-    String contentNew = new String(content);
-
-    contentNew = contentNew.replace("{email}", user.getEmail());
-    contentNew = contentNew.replace("{name}", user.getName());
-    if (user.getIq() != null) {
-      contentNew = contentNew.replace("{iq}", user.getIq().toString());
-    }
-    contentNew = contentNew.replace("{url}", user.getUrl());
-    contentNew = contentNew.replace("{password}", user.getPassword());
-
-    Optional<UserToken> tokenAccess = user.getUserTokenByType(UserTokenType.ACCESS);
-    if (tokenAccess.isPresent()) {
-      contentNew = contentNew.replace("{token_access}", tokenAccess.get().getValue());
-    }
-
-    Optional<UserToken> tokenForget = user.getUserTokenByType(UserTokenType.FORGET);
-    if (tokenForget.isPresent()) {
-      contentNew = contentNew.replace("{token_forget}", tokenForget.get().getValue());
-    }
-    
-    Optional<UserToken> tokenVerify = user.getUserTokenByType(UserTokenType.VERIFY);
-    if (tokenVerify.isPresent()) {
-      contentNew = contentNew.replace("{token_verify}", tokenVerify.get().getValue());
-    }
-
-    return contentNew;
-  }
-
   private boolean sendEmail(String to, String subject, String content) {
     if (sendgridApiKey == null)
       throw new RuntimeException("Email Service API key not set");
 
-    Email fromEmail = new Email(EMAIL_FROM);
+    Email fromEmail = new Email(EMAIL_FROM, EMAIL_FROM_NAME);
     Email toEmail = new Email(to);
 
     Content contentObj = new Content("text/html", content);
