@@ -1,31 +1,37 @@
-General mail template:  EN/_template.html
+### Mail template [EN/_template.html](EN/_template.html)
 
-List of variables used by general template:
+Variables used by template:
 * {email_title}
 * {email_preheader}
 * {email_content}
 * {link_unsubscribe}
 
 
-### new-user-registration.html 
-
+### [new-user-registration.html](EN/new-user-registration.html) 
+Variables:
 * {name}
 
 
-### user-email-verify.html
-
+### [new-user-registration-verify.html](EN/new-user-registration-verify.html) 
+Variables:
 * {name}
 * {token_verify}
 
 
-### password-forget.html
+### [user-email-verify.html](EN/user-email-verify.html)
+Variables:
+* {name}
+* {token_verify}
 
+
+### [password-forget.html](EN/password-forget.html)
+Variables:
 * {name}
 * {token_access}
 
 
-### user-finish-test.html
-
+### [user-finish-test.html](EN/user-finish-test.html)
+Variables:
 * {name}
 * {test_url}
 
