@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.UserToken;
+import com.max.appengine.springboot.megaiq.model.api.ApiRequestForget;
 import com.max.appengine.springboot.megaiq.model.api.ApiRequestLogin;
 import com.max.appengine.springboot.megaiq.model.api.ApiRequestLoginToken;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
@@ -57,6 +58,9 @@ public class UserController extends AbstractApiController {
   public static final String MESSAGE_VERIFY_SUCCESS = "Email successfully verified";
 
   public static final String MESSAGE_EMAIL_ALREADY_USED = "Email '%s' already exists";
+
+  public static final String MESSAGE_EMAIL_FORGET_WAS_SENT =
+      "An email containing reset instructions was sent";
 
   private static final Logger log = Logger.getLogger(UserController.class.getName());
 
@@ -234,6 +238,25 @@ public class UserController extends AbstractApiController {
       usersPublicList.add(new ApiUserPublic(user));
     }
     return sendResponseUsersList(usersPublicList, this.testResultService.getResultCount());
+  }
+
+  @RequestMapping(value = "/user/forget", method = RequestMethod.POST)
+  public ResponseEntity<ApiResponseBase> forgetPassword(@RequestBody ApiRequestForget request,
+      @RequestParam Optional<String> locale) {
+    Locale userLocale = loadLocale(locale);
+
+    Optional<User> userResult = userService.getUserByEmail(request.getEmail());
+    if (!userResult.isPresent()) {
+      return sendResponseError(MESSAGE_WRONG_REQUEST);
+    }
+
+    boolean resultEmail = emailService.sendEmailForget(userResult.get());
+
+    log.log(Level.INFO,
+        "Sending forget email to a userID=" + userResult.get().getId() + ". Result={0}",
+        resultEmail);
+
+    return sendResponseBase(MESSAGE_EMAIL_FORGET_WAS_SENT);
   }
 
   @RequestMapping(value = "/user/verify", method = RequestMethod.GET)

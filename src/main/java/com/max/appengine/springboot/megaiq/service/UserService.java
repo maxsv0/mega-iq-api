@@ -94,6 +94,7 @@ public class UserService {
     return userReporitory.save(user);
   }
 
+  // TODO: rewrite this and remove init token from here ??? or not
   public Optional<User> getUserById(Integer userId) {
     Optional<User> userResult = userReporitory.findById(userId);
     if (!userResult.isPresent()) {
@@ -104,6 +105,16 @@ public class UserService {
     return Optional.of(user);
   }
 
+  public Optional<User> getUserByEmail(String email) {
+    Optional<User> userResult = userReporitory.findByEmail(email);
+    if (!userResult.isPresent()) {
+      return userResult;
+    }
+
+    User user = loadUserToken(userResult.get());
+    return Optional.of(user);
+  }
+  
   public Optional<User> getUserByToken(String token, UserTokenType tokenType) {
     Optional<UserToken> userToken =
         userTokenReporitory.findByValueAndType(token, tokenType);

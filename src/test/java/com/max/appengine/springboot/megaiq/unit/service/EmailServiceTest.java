@@ -77,7 +77,18 @@ public class EmailServiceTest extends AbstractUnitTest {
     boolean result = this.emailService.sendEmailVerify(user);
     assertTrue(result);
   }
+  
+  @Test
+  public void testEmailForget() {
+    List<UserTokenType> tokens = new ArrayList<UserTokenType>();
+    tokens.add(UserTokenType.ACCESS);
 
+    User user = generateUserWithTokens(tokens);
+
+    boolean result = this.emailService.sendEmailForget(user);
+    assertTrue(result);
+  }
+  
   @Test
   public void testSendTestResult() {
     List<UserTokenType> tokens = new ArrayList<UserTokenType>();

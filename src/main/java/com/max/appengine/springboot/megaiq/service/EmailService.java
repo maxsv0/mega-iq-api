@@ -46,6 +46,8 @@ public class EmailService {
 
   public static final String EMAIL_SUBJECT_TEST_RESULT = "Test finished";
 
+  public static final String EMAIL_SUBJECT_FORGET = "Log in to Mega-IQ with one click";
+
   public static final String EMAIL_FROM = "mail@mega-iq.com";
 
   public static final String EMAIL_FROM_NAME = "Mega-IQ";
@@ -87,6 +89,18 @@ public class EmailService {
     content = insertFields(content, fieldsRequired, userData);
 
     return loadTemplateAndSend(user.getLocale(), userData, EMAIL_SUBJECT_EMAIL_VERIFY, content);
+  }
+
+  public boolean sendEmailForget(User user) {
+    HashMap<String, String> userData = loadUserData(user);
+
+    String content = loadTemplateFromPath("password-forget", user.getLocale());
+    List<String> fieldsRequired = new ArrayList<String>();
+    fieldsRequired.add("name");
+    fieldsRequired.add("token_access");
+    content = insertFields(content, fieldsRequired, userData);
+
+    return loadTemplateAndSend(user.getLocale(), userData, EMAIL_SUBJECT_FORGET, content);
   }
 
   public boolean sendTestResult(User user, TestResult testResult) {
