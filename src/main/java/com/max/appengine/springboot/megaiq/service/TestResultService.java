@@ -62,7 +62,7 @@ public class TestResultService {
   public long getResultCount() {
     return testResultReporitory.count();
   }
-  
+
   public void saveUserResults(User user) {
     testResultReporitory.saveAll(user.getTestResultList());
   }
@@ -103,34 +103,6 @@ public class TestResultService {
 
     questionUserRepository.saveAll(testResult.getQuestionSet());
 
-    boolean allDone = true;
-    for (QuestionUser question : testResult.getQuestionSet()) {
-      if (question.getAnswerUser() == null) {
-        allDone = false;
-      }
-    }
-
-    if (allDone) {
-      if (testResult.getType().equals(IqTestType.STANDART_IQ)
-          || testResult.getType().equals(IqTestType.MEGA_IQ)) {
-        QuestionGroupsResult questionGroupsResult = new QuestionGroupsResult(0, 0, 0, 0);
-        QuestionGroupsResult questionGroupsCorrect = new QuestionGroupsResult(0, 0, 0, 0);
-        Integer points = 80;
-
-        for (QuestionUser question : testResult.getQuestionSet()) {
-          if (question.getAnswerCorrect().equals(question.getAnswerUser())) {
-            points += question.getPoints();
-          }
-
-          // TODO: code here for questionGroupsResult/questionGroupsCorrect
-        }
-        testResult.setGroupsGraph(questionGroupsResult);
-        testResult.setPoints(points);
-      }
-
-      testResult.setStatus(IqTestStatus.FINISHED);
-      testResult.setFinishDate(new Date());
-    }
     testResult.setUpdateDate(new Date());
 
     TestResult testResultDb = testResultReporitory.save(testResult);
@@ -139,8 +111,47 @@ public class TestResultService {
     return testResultDb;
   }
 
-  public Optional<TestResult> startUserTest(User user, IqTestType testType, List<Question> questions,
-      Locale locale) {
+  public Optional<TestResult> submitFinish(TestResult testResult) {
+    boolean allDone = true;
+    for (QuestionUser question : testResult.getQuestionSet()) {
+      if (question.getAnswerUser() == null) {
+        allDone = false;
+      }
+    }
+
+    if (!allDone) {
+      return Optional.empty();
+    }
+    
+    if (testResult.getType().equals(IqTestType.STANDART_IQ)
+        || testResult.getType().equals(IqTestType.MEGA_IQ)) {
+      QuestionGroupsResult questionGroupsResult = new QuestionGroupsResult(0, 0, 0, 0);
+      QuestionGroupsResult questionGroupsCorrect = new QuestionGroupsResult(0, 0, 0, 0);
+      Integer points = 80;
+
+      for (QuestionUser question : testResult.getQuestionSet()) {
+        if (question.getAnswerCorrect().equals(question.getAnswerUser())) {
+          points += question.getPoints();
+        }
+
+        // TODO: code here for questionGroupsResult/questionGroupsCorrect
+      }
+      testResult.setGroupsGraph(questionGroupsResult);
+      testResult.setPoints(points);
+    }
+
+    testResult.setStatus(IqTestStatus.FINISHED);
+    testResult.setFinishDate(new Date());
+    testResult.setUpdateDate(new Date());
+
+    TestResult testResultDb = testResultReporitory.save(testResult);
+    testResultDb.setQuestionSet(testResult.getQuestionSet());
+    testResultDb.setUser(testResult.getUser());
+    return Optional.of(testResultDb);
+  }
+
+  public Optional<TestResult> startUserTest(User user, IqTestType testType,
+      List<Question> questions, Locale locale) {
     TestResult testResult = new TestResult(user.getId(), testType, locale);
     testResult.newQuestionSet(questions);
     testResult.setUser(user);
@@ -151,7 +162,7 @@ public class TestResultService {
       question.setTestId(testResultDb.getId());
     }
     questionUserRepository.saveAll(testResult.getQuestionSet());
-    
+
     return getTestResultById(testResultDb.getId());
   }
 
@@ -180,7 +191,7 @@ public class TestResultService {
   public void deleteTestResult(TestResult testResult) {
     testResultReporitory.delete(testResult);
   }
-  
+
   private void expireByType(Integer minutes, IqTestType type) {
     Date date = new Date();
     Calendar c = Calendar.getInstance();
@@ -203,7 +214,7 @@ public class TestResultService {
     if (user.isPresent()) {
       testResult.setUser(user.get());
     }
-    
+
     return loadQuestions(testResult);
   }
 

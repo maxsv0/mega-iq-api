@@ -45,8 +45,7 @@ public class TestController extends AbstractApiController {
   public static final String MESSAGE_START_TEST_FAIL =
       "An error occurred while starting a test. Please try again later";
 
-  public static final String MESSAGE_DELETE_SUCCESS =
-      "Test result successfully deleted";
+  public static final String MESSAGE_DELETE_SUCCESS = "Test result successfully deleted";
 
   private final QuestionsService questionsService;
 
@@ -92,6 +91,45 @@ public class TestController extends AbstractApiController {
     ApiTestResult apiTestResult = new ApiTestResult(this.questionsService, testResult.get(), true);
 
     return sendResponseTestResult(apiTestResult);
+  }
+  
+  @RequestMapping(value = "/test/finish", method = RequestMethod.GET)
+  public ResponseEntity<ApiResponseBase> submitFinish(HttpServletRequest request,
+      @RequestParam UUID testCode, @RequestParam Optional<String> locale) {
+
+    Locale userLocale = loadLocale(locale);
+    Optional<String> token = getTokenFromHeader(request);
+
+    if (token.isPresent()) {
+      Optional<User> userResult = userService.getUserByToken(token.get(), UserTokenType.ACCESS);
+
+      if (userResult.isPresent()) {
+        Optional<TestResult> testResult =
+            loadIqTestDetailsPrivate(testCode, userResult.get(), userLocale);
+
+        if (testResult.isPresent()) {
+          Optional<TestResult> testResultNew =
+              this.testResultService.submitFinish(testResult.get());
+
+          if (testResultNew.isPresent()) {
+            ApiTestResult apiTestResult =
+                new ApiTestResult(this.questionsService, testResultNew.get(), true);
+
+            return sendResponseTestResult(apiTestResult);
+          } else {
+            return sendResponseError(MESSAGE_WRONG_REQUEST);
+          }
+
+        } else {
+          return sendResponseError(MESSAGE_INVALID_ACCESS);
+        }
+
+      } else {
+        return sendResponseError(MESSAGE_INVALID_ACCESS);
+      }
+    } else {
+      return sendResponseError(MESSAGE_INVALID_ACCESS);
+    }
   }
 
   @RequestMapping(value = "/test/{testCode}", method = RequestMethod.GET)
@@ -143,9 +181,10 @@ public class TestController extends AbstractApiController {
       } else {
         return sendResponseError(MESSAGE_INVALID_ACCESS);
       }
+      
+    } else {
+      return sendResponseError(MESSAGE_INVALID_ACCESS);
     }
-
-    return iqTestDetailsPublic(testCode, userLocale);
   }
 
   @RequestMapping(value = "/test/{testCode}", method = RequestMethod.DELETE)
