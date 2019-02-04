@@ -29,18 +29,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseToken;
 import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.User;
-import com.max.appengine.springboot.megaiq.model.UserToken;
 import com.max.appengine.springboot.megaiq.model.api.ApiRequestForget;
-import com.max.appengine.springboot.megaiq.model.api.ApiRequestLogin;
 import com.max.appengine.springboot.megaiq.model.api.ApiRequestLoginToken;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
 import com.max.appengine.springboot.megaiq.model.api.ApiUser;
 import com.max.appengine.springboot.megaiq.model.api.ApiUserPublic;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
-import com.max.appengine.springboot.megaiq.model.enums.UserTokenType;
+import com.max.appengine.springboot.megaiq.model.exception.MegaIQException;
 import com.max.appengine.springboot.megaiq.service.EmailService;
+import com.max.appengine.springboot.megaiq.service.FirebaseService;
 import com.max.appengine.springboot.megaiq.service.TestResultService;
 import com.max.appengine.springboot.megaiq.service.UserService;
 
@@ -53,7 +54,7 @@ public class UserController extends AbstractApiController {
   public static final String MESSAGE_USER_NOT_FOUND = "User not found or profile is private";
 
   public static final String MESSAGE_VERIFY_EMAIL_SEND =
-      "Email containig verification code was sent";
+      "Email containig verification link was sent";
 
   public static final String MESSAGE_VERIFY_SUCCESS = "Email successfully verified";
 
@@ -70,12 +71,15 @@ public class UserController extends AbstractApiController {
 
   private final EmailService emailService;
 
+  private final FirebaseService firebaseService;
+
   @Autowired
   public UserController(TestResultService testResultService, UserService userService,
-      EmailService emailService) {
+      EmailService emailService, FirebaseService firebaseService) {
     this.userService = userService;
     this.testResultService = testResultService;
     this.emailService = emailService;
+    this.firebaseService = firebaseService;
   }
 
   @RequestMapping(value = "/user", method = RequestMethod.GET)
@@ -84,13 +88,27 @@ public class UserController extends AbstractApiController {
 
     Optional<String> token = getTokenFromHeader(request);
     if (token.isPresent()) {
-      Optional<User> userCurrentResult =
-          userService.getUserByToken(token.get(), UserTokenType.ACCESS);
+      try {
+        FirebaseToken firebaseToken = firebaseService.checkToken(token.get());
+        Optional<User> userCurrentResult =
+            userService.getUserById(Integer.valueOf(firebaseToken.getUid()));
 
-      if (!userCurrentResult.isPresent()) {
-        return sendResponseError(MESSAGE_INVALID_ACCESS);
-      } else {
-        return sendResponseUser(new ApiUser(userCurrentResult.get()));
+        if (userCurrentResult.isPresent()) {
+          User user = userCurrentResult.get();
+
+          // check for changes
+          if (firebaseToken.isEmailVerified() != user.getIsEmailVerified()) {
+            user.setIsEmailVerified(firebaseToken.isEmailVerified());
+            user = userService.saveUser(user);
+          }
+          user.setToken(token.get());
+
+          return sendResponseUser(new ApiUser(user));
+        } else {
+          return sendResponseError(MESSAGE_INVALID_ACCESS);
+        }
+      } catch (FirebaseAuthException error) {
+        return sendResponseError(error.getLocalizedMessage());
       }
     } else {
       return sendResponseError(MESSAGE_INVALID_ACCESS);
@@ -105,29 +123,25 @@ public class UserController extends AbstractApiController {
     user.setIp(getIp(request));
     user.setLocale(userLocale);
     user.setIsEmailVerified(false);
+    user.setIsPublic(true);
 
-    Optional<User> userResult = userService.addUser(user);
+    try {
+      User userResult = userService.addUser(user);
+      userResult.setPassword(user.getPassword());
 
-    if (userResult.isPresent()) {
-      userService.getUserToken(userResult.get(), UserTokenType.VERIFY);
-      emailService.sendEmailRegistrationWithVerify(userResult.get());
+      firebaseService.createUser(userResult);
 
-      return sendResponseUser(new ApiUser(userResult.get()));
-    } else {
-      return sendResponseError(MESSAGE_REGISTRATION_FAILED);
-    }
-  }
+      String url = firebaseService.getEmailVerificationLink(userResult.getEmail());
+      emailService.sendEmailRegistrationWithVerify(userResult, url);
 
-  @RequestMapping(value = "/user/login", method = RequestMethod.POST, consumes = "application/json")
-  public ResponseEntity<ApiResponseBase> requestUserLogin(
-      @RequestBody ApiRequestLogin requestLogin) {
-    Optional<User> userResult =
-        userService.authUserLogin(requestLogin.getLogin(), requestLogin.getPassword());
+      String token = firebaseService.generateToken(userResult.getId());
+      userResult.setToken(token);
 
-    if (userResult.isPresent()) {
-      return sendResponseUser(new ApiUser(userResult.get()));
-    } else {
-      return sendResponseError(MESSAGE_LOGIN_FAILED);
+      return sendResponseUser(new ApiUser(userResult));
+    } catch (MegaIQException error) {
+      return sendResponseError(String.format(MESSAGE_EMAIL_ALREADY_USED, user.getEmail()));
+    } catch (FirebaseAuthException error) {
+      return sendResponseError(error.getLocalizedMessage());
     }
   }
 
@@ -135,8 +149,7 @@ public class UserController extends AbstractApiController {
       consumes = "application/json")
   public ResponseEntity<ApiResponseBase> requestUserLoginWithToken(
       @RequestBody ApiRequestLoginToken requestLoginToken) {
-    Optional<User> userResult =
-        userService.getUserByToken(requestLoginToken.getToken(), UserTokenType.ACCESS);
+    Optional<User> userResult = userService.getUserByToken(requestLoginToken.getToken());
 
     if (userResult.isPresent()) {
       return sendResponseUser(new ApiUser(userResult.get()));
@@ -152,10 +165,10 @@ public class UserController extends AbstractApiController {
 
     Optional<User> userResult = userService.getUserById(userId);
     if (userResult.isPresent()) {
-      if (userResult.get().getIsPublic()) {
-        List<TestResult> listResults = this.testResultService.findByUserId(userId, userLocale);
-        userResult.get().setTestResultList(listResults);
+      List<TestResult> listResults = this.testResultService.findByUserId(userId, userLocale);
+      userResult.get().setTestResultList(listResults);
 
+      if (userResult.get().getIsPublic()) {
         return sendResponseUser(new ApiUserPublic(userResult.get()));
       } else {
         return sendResponseError(MESSAGE_USER_NOT_FOUND);
@@ -176,8 +189,7 @@ public class UserController extends AbstractApiController {
       return sendResponseError(MESSAGE_INVALID_ACCESS);
     }
 
-    Optional<User> userCurrentResult =
-        userService.getUserByToken(token.get(), UserTokenType.ACCESS);
+    Optional<User> userCurrentResult = userService.getUserByToken(token.get());
     if (!userCurrentResult.isPresent()) {
       return sendResponseError(MESSAGE_INVALID_ACCESS);
     }
@@ -208,10 +220,14 @@ public class UserController extends AbstractApiController {
     userCurrent.setIp(getIp(request));
 
     try {
+      firebaseService.saveUser(userCurrent);
+
       User userResult = this.userService.saveUser(userCurrent);
       return sendResponseUser(new ApiUser(userResult));
     } catch (DataIntegrityViolationException exeption) {
       return sendResponseError(String.format(MESSAGE_EMAIL_ALREADY_USED, userCurrent.getEmail()));
+    } catch (FirebaseAuthException exeption) {
+      return sendResponseError(exeption.getMessage());
     }
   }
 
@@ -250,7 +266,13 @@ public class UserController extends AbstractApiController {
       return sendResponseError(MESSAGE_WRONG_REQUEST);
     }
 
-    boolean resultEmail = emailService.sendEmailForget(userResult.get());
+    String url;
+    try {
+      url = firebaseService.getPasswordResetLink(userResult.get().getEmail());
+    } catch (FirebaseAuthException e) {
+      return sendResponseError(INTERNAL_ERROR);
+    }
+    boolean resultEmail = emailService.sendEmailForget(userResult.get(), url);
 
     log.log(Level.INFO,
         "Sending forget email to a userID=" + userResult.get().getId() + ". Result={0}",
@@ -269,8 +291,7 @@ public class UserController extends AbstractApiController {
       return sendResponseError(MESSAGE_INVALID_ACCESS);
     }
 
-    Optional<User> userCurrentResult =
-        userService.getUserByToken(token.get(), UserTokenType.ACCESS);
+    Optional<User> userCurrentResult = userService.getUserByToken(token.get());
     if (!userCurrentResult.isPresent()) {
       return sendResponseError(MESSAGE_INVALID_ACCESS);
     }
@@ -280,11 +301,17 @@ public class UserController extends AbstractApiController {
       return sendResponseBase(MESSAGE_VERIFY_SUCCESS);
     }
 
-    UserToken tokenVerify = userService.getUserToken(userCurrent, UserTokenType.VERIFY);
-    boolean result = emailService.sendEmailVerify(userCurrent);
+    String url;
+    try {
+      url = firebaseService.getEmailVerificationLink(userCurrent.getEmail());
+    } catch (FirebaseAuthException e) {
+      return sendResponseError(INTERNAL_ERROR);
+    }
+    boolean result = emailService.sendEmailVerify(userCurrent, url);
 
-    log.log(Level.INFO, "Sending token VERIFY ID=" + tokenVerify.getId() + " to a userID="
-        + userCurrent.getId() + ". Result={0}", result);
+    log.log(Level.INFO,
+        "Sending email verify URL=" + url + " to a userID=" + userCurrent.getId() + ". Result={0}",
+        result);
 
     if (result) {
       return sendResponseBase(MESSAGE_VERIFY_EMAIL_SEND);
@@ -303,13 +330,12 @@ public class UserController extends AbstractApiController {
       return sendResponseError(MESSAGE_INVALID_ACCESS);
     }
 
-    Optional<User> userCurrentResult =
-        userService.getUserByToken(token.get(), UserTokenType.ACCESS);
+    Optional<User> userCurrentResult = userService.getUserByToken(token.get());
     if (!userCurrentResult.isPresent()) {
       return sendResponseError(MESSAGE_INVALID_ACCESS);
     }
 
-    Optional<User> userVerifyResult = userService.getUserByToken(code, UserTokenType.VERIFY);
+    Optional<User> userVerifyResult = userService.getUserByToken(code);
     if (!userVerifyResult.isPresent()) {
       return sendResponseError(MESSAGE_INVALID_ACCESS);
     }

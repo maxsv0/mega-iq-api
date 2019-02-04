@@ -52,8 +52,7 @@ public class ApiResponseUsersList extends ApiResponseBase {
     super();
   }
 
-  public ApiResponseUsersList(boolean ok, String msg, Date date, List<ApiUserPublic> users,
-      ApiToken token) {
+  public ApiResponseUsersList(boolean ok, String msg, Date date, List<ApiUserPublic> users) {
     super();
     this.users = users;
     this.setOk(ok);

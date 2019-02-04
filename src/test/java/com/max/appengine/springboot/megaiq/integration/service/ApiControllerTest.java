@@ -16,10 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.max.appengine.springboot.megaiq.Application;
 import com.max.appengine.springboot.megaiq.integration.AbstractIntegrationTest;
 import com.max.appengine.springboot.megaiq.model.User;
-import com.max.appengine.springboot.megaiq.model.UserToken;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseUser;
-import com.max.appengine.springboot.megaiq.model.enums.UserTokenType;
-import com.max.appengine.springboot.megaiq.repository.UserTokenReporitory;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
@@ -28,13 +25,10 @@ public class ApiControllerTest extends AbstractIntegrationTest {
   @Autowired
   private MockMvc mvc;
 
-  @Autowired
-  private UserTokenReporitory userTokenReporitory;
-  
   @Test
   public void testNewUser() throws Exception {
     User user = new User();
-    user.setTokenList(new ArrayList<UserToken>());
+    user.setToken("");
     user.setEmail("test@sometestemail.com");
 
     MvcResult resultApi = mvc
@@ -47,9 +41,6 @@ public class ApiControllerTest extends AbstractIntegrationTest {
     ApiResponseUser responseUser =
         objectMapper.readValue(resultApi.getResponse().getContentAsString(), ApiResponseUser.class);
     log.info("MvcResultUser = {}", responseUser);
-    
-    user.generateToken(userTokenReporitory, UserTokenType.ACCESS);
-    log.info("user = {}", user);
     
 //    ApiResponseUser responseUserExpected = new ApiResponseUser(user);
 //    log.info("responseUserExpected = {}", user);

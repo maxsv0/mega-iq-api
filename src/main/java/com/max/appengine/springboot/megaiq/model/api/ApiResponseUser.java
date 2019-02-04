@@ -36,7 +36,7 @@ public class ApiResponseUser extends ApiResponseBase {
     super();
   }
 
-  public ApiResponseUser(boolean ok, String msg, Date date, ApiUser user, ApiToken token) {
+  public ApiResponseUser(boolean ok, String msg, Date date, ApiUser user) {
     super();
     this.user = user;
     this.setOk(ok);

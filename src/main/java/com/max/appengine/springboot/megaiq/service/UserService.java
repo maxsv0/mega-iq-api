@@ -14,27 +14,21 @@
 
 package com.max.appengine.springboot.megaiq.service;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseToken;
 import com.max.appengine.springboot.megaiq.model.User;
-import com.max.appengine.springboot.megaiq.model.UserToken;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
-import com.max.appengine.springboot.megaiq.model.enums.UserTokenType;
+import com.max.appengine.springboot.megaiq.model.exception.MegaIQException;
 import com.max.appengine.springboot.megaiq.repository.UserReporitory;
-import com.max.appengine.springboot.megaiq.repository.UserTokenReporitory;
 
 @Service
 public class UserService {
@@ -44,14 +38,12 @@ public class UserService {
 
   private final UserReporitory userReporitory;
 
-  private final UserTokenReporitory userTokenReporitory;
-
-  private static final Logger log = Logger.getLogger(UserService.class.getName());
-
+  private final FirebaseService firebaseService;
+  
   @Autowired
-  public UserService(UserReporitory userReporitory, UserTokenReporitory userTokenReporitory) {
+  public UserService(UserReporitory userReporitory, FirebaseService firebaseService) {
     this.userReporitory = userReporitory;
-    this.userTokenReporitory = userTokenReporitory;
+    this.firebaseService = firebaseService;
   }
 
   public List<User> getUsersListTopMonth(Locale locale, Optional<Integer> page) {
@@ -67,42 +59,29 @@ public class UserService {
     return loadUsersList(locale, 1, PageRequest.of(0, LIMIT_HOME_PAGE));
   }
 
-  public Optional<User> addUser(User user) {
+  public User addUser(User user) throws MegaIQException {
     User userResult = null;
 
     Optional<User> userData = userReporitory.findByEmail(user.getEmail());
     if (userData.isPresent()) {
-      return Optional.empty();
+      throw new MegaIQException(MegaIQException.LEVEL_USER_ERROR);
     }
 
-    user.setPassword(convertPassowrdToHash(user.getPassword()));
     user.setCreateDate(new Date());
     userResult = userReporitory.save(user);
 
     userResult.setUrl("/user/" + userResult.getId());
-    userReporitory.save(userResult);
-
-    userResult = initUserTokens(userResult);
-
-    return Optional.of(userResult);
+    return userReporitory.save(userResult);
   }
 
   public User saveUser(User user) {
     user.setUpdateDate(new Date());
 
-    /// userTokenReporitory.saveAll(user.getTokenList()); TODO: remove
     return userReporitory.save(user);
   }
 
-  // TODO: rewrite this and remove init token from here ??? or not
   public Optional<User> getUserById(Integer userId) {
-    Optional<User> userResult = userReporitory.findById(userId);
-    if (!userResult.isPresent()) {
-      return userResult;
-    }
-
-    User user = loadUserToken(userResult.get());
-    return Optional.of(user);
+    return userReporitory.findById(userId);
   }
 
   public Optional<User> getUserByEmail(String email) {
@@ -111,102 +90,46 @@ public class UserService {
       return userResult;
     }
 
-    User user = loadUserToken(userResult.get());
-    return Optional.of(user);
-  }
-  
-  public Optional<User> getUserByToken(String token, UserTokenType tokenType) {
-    Optional<UserToken> userToken =
-        userTokenReporitory.findByValueAndType(token, tokenType);
-    log.log(Level.INFO, "Try to auth. Token=" + token + " type=" + tokenType + ", userToken={0}",
-        userToken);
-
-    if (!userToken.isPresent()) {
-      return Optional.empty();
-    }
-
-    return getUserById(userToken.get().getUserId());
+    return Optional.of(userResult.get());
   }
 
-  public Optional<User> authUserLogin(String login, String password) {
-    Optional<User> userResult = userReporitory.findByEmail(login);
-    log.log(Level.INFO, "Search for user login=" + login + ". Result={0}", userResult);
-
-    if (!userResult.isPresent()) {
-      return Optional.empty();
-    }
-
-    String hashString = convertPassowrdToHash(password);
-    log.log(Level.INFO, "Got hash={0}", hashString);
-    User user = userResult.get();
-
-    if (!user.getPassword().equals(hashString)) {
-      return Optional.empty();
-    }
-
-    user = initUserTokens(user);
-    log.log(Level.INFO, "Auth successful for user={0}", user);
-
-    return Optional.of(user);
-  }
-
-  public UserToken getUserToken(User user, UserTokenType type) {
-    Optional<UserToken> tokenCurrent = user.getUserTokenByType(type);
-    if (tokenCurrent.isPresent())
-      return tokenCurrent.get();
-
-    return createUserToken(user, type);
-  }
-
-  private UserToken createUserToken(User user, UserTokenType type) {
-    UserToken tokenNew = new UserToken(user.getId(), type);
-    user.getTokenList().add(tokenNew);
-    return userTokenReporitory.save(tokenNew);
-  }
-
-  private User initUserTokens(User user) {
-    user = loadUserToken(user);
-
-    Optional<UserToken> tokenAccess = user.getUserTokenByType(UserTokenType.ACCESS);
-    if (!tokenAccess.isPresent()) {
-      UserToken tokenAccessNew = new UserToken(user.getId(), UserTokenType.ACCESS);
-      user.getTokenList().add(tokenAccessNew);
-
-      userTokenReporitory.save(tokenAccessNew);
-    }
-    return user;
-  }
-
-  private User loadUserToken(User user) {
-    List<UserToken> tokenList = userTokenReporitory.findByUserId(user.getId());
-
-    if (!tokenList.isEmpty()) {
-      user.setTokenList(tokenList);
-    } else {
-      user.setTokenList(new ArrayList<UserToken>());
-    }
-
-    return user;
-  }
-
-  private String convertPassowrdToHash(String password) {
-    String hashString = null;
-
-    byte[] bytesPassword = password.getBytes(StandardCharsets.UTF_8);
+  public Optional<User> getUserByToken(String token) {
     try {
-      MessageDigest md = MessageDigest.getInstance("MD5");
-      byte[] hashPassword = md.digest(bytesPassword);
-      StringBuilder sb = new StringBuilder(2 * hashPassword.length);
-      for (byte b : hashPassword) {
-        sb.append(String.format("%02x", b & 0xff));
+      FirebaseToken firebaseToken = firebaseService.checkToken(token);
+      
+      Optional<User> userResult = getUserById(Integer.valueOf(firebaseToken.getUid()));
+      if (userResult.isPresent()) {
+        User user = userResult.get();
+        user.setToken(token);
+        
+        return Optional.of(user);
+      } else {
+        return Optional.empty();
       }
-      hashString = sb.toString().toLowerCase();
-
-    } catch (NoSuchAlgorithmException e) {
-      e.printStackTrace();
+    } catch (FirebaseAuthException e) {
+      return Optional.empty();
     }
-    return hashString;
   }
+
+// TODO: remove
+//  private String convertPassowrdToHash(String password) {
+//    String hashString = null;
+//
+//    byte[] bytesPassword = password.getBytes(StandardCharsets.UTF_8);
+//    try {
+//      MessageDigest md = MessageDigest.getInstance("MD5");
+//      byte[] hashPassword = md.digest(bytesPassword);
+//      StringBuilder sb = new StringBuilder(2 * hashPassword.length);
+//      for (byte b : hashPassword) {
+//        sb.append(String.format("%02x", b & 0xff));
+//      }
+//      hashString = sb.toString().toLowerCase();
+//
+//    } catch (NoSuchAlgorithmException e) {
+//      e.printStackTrace();
+//    }
+//    return hashString;
+//  }
 
   private List<User> loadUsersList(Locale locale, Integer period, Pageable pageRequest) {
     LocalDate dateLocal = LocalDate.now().minusDays(period);

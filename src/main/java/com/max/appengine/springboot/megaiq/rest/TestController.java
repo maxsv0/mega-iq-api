@@ -35,7 +35,6 @@ import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
 import com.max.appengine.springboot.megaiq.model.api.ApiTestResult;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
-import com.max.appengine.springboot.megaiq.model.enums.UserTokenType;
 import com.max.appengine.springboot.megaiq.service.QuestionsService;
 import com.max.appengine.springboot.megaiq.service.TestResultService;
 import com.max.appengine.springboot.megaiq.service.UserService;
@@ -72,7 +71,7 @@ public class TestController extends AbstractApiController {
       return sendResponseError(MESSAGE_INVALID_ACCESS);
     }
 
-    Optional<User> user = userService.getUserByToken(token.get(), UserTokenType.ACCESS);
+    Optional<User> user = userService.getUserByToken(token.get());
     if (!user.isPresent()) {
       return sendResponseError(MESSAGE_INVALID_ACCESS);
     }
@@ -92,7 +91,7 @@ public class TestController extends AbstractApiController {
 
     return sendResponseTestResult(apiTestResult);
   }
-  
+
   @RequestMapping(value = "/test/finish", method = RequestMethod.GET)
   public ResponseEntity<ApiResponseBase> submitFinish(HttpServletRequest request,
       @RequestParam UUID testCode, @RequestParam Optional<String> locale) {
@@ -101,7 +100,7 @@ public class TestController extends AbstractApiController {
     Optional<String> token = getTokenFromHeader(request);
 
     if (token.isPresent()) {
-      Optional<User> userResult = userService.getUserByToken(token.get(), UserTokenType.ACCESS);
+      Optional<User> userResult = userService.getUserByToken(token.get());
 
       if (userResult.isPresent()) {
         Optional<TestResult> testResult =
@@ -140,7 +139,7 @@ public class TestController extends AbstractApiController {
     Optional<String> token = getTokenFromHeader(request);
 
     if (token.isPresent()) {
-      Optional<User> userResult = userService.getUserByToken(token.get(), UserTokenType.ACCESS);
+      Optional<User> userResult = userService.getUserByToken(token.get());
 
       if (userResult.isPresent()) {
         return iqTestDetailsPrivate(testCode, userResult.get(), userLocale);
@@ -160,7 +159,7 @@ public class TestController extends AbstractApiController {
     Optional<String> token = getTokenFromHeader(request);
 
     if (token.isPresent()) {
-      Optional<User> userResult = userService.getUserByToken(token.get(), UserTokenType.ACCESS);
+      Optional<User> userResult = userService.getUserByToken(token.get());
 
       if (userResult.isPresent()) {
         Optional<TestResult> testResult =
@@ -181,7 +180,7 @@ public class TestController extends AbstractApiController {
       } else {
         return sendResponseError(MESSAGE_INVALID_ACCESS);
       }
-      
+
     } else {
       return sendResponseError(MESSAGE_INVALID_ACCESS);
     }
@@ -197,8 +196,7 @@ public class TestController extends AbstractApiController {
       return sendResponseError(MESSAGE_INVALID_ACCESS);
     }
 
-    Optional<User> userCurrentResult =
-        userService.getUserByToken(token.get(), UserTokenType.ACCESS);
+    Optional<User> userCurrentResult = userService.getUserByToken(token.get());
     if (!userCurrentResult.isPresent()) {
       return sendResponseError(MESSAGE_INVALID_ACCESS);
     }
@@ -226,7 +224,7 @@ public class TestController extends AbstractApiController {
 
     Locale userLocale = loadLocale(locale);
 
-    Optional<User> user = userService.getUserByToken(token.get(), UserTokenType.ACCESS);
+    Optional<User> user = userService.getUserByToken(token.get());
     if (!user.isPresent()) {
       return sendResponseError(MESSAGE_INVALID_ACCESS);
     }

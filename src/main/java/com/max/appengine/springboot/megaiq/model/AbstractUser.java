@@ -41,7 +41,6 @@ public abstract class AbstractUser {
   private Integer iq;
   private Boolean isPublic;
   private Boolean isEmailVerified;
-  private String password;
   private String ip;
   private Integer geoId;
   private Date createDate;
@@ -123,14 +122,6 @@ public abstract class AbstractUser {
     this.isPublic = isPublic;
   }
 
-  public String getPassword() {
-    return password;
-  }
-
-  public void setPassword(String password) {
-    this.password = password;
-  }
-
   public String getIp() {
     return ip;
   }
@@ -195,7 +186,6 @@ public abstract class AbstractUser {
     result = prime * result + ((locale == null) ? 0 : locale.hashCode());
     result = prime * result + ((location == null) ? 0 : location.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
-    result = prime * result + ((password == null) ? 0 : password.hashCode());
     result = prime * result + ((pic == null) ? 0 : pic.hashCode());
     result = prime * result + ((updateDate == null) ? 0 : updateDate.hashCode());
     result = prime * result + ((url == null) ? 0 : url.hashCode());
@@ -267,11 +257,6 @@ public abstract class AbstractUser {
       if (other.name != null)
         return false;
     } else if (!name.equals(other.name))
-      return false;
-    if (password == null) {
-      if (other.password != null)
-        return false;
-    } else if (!password.equals(other.password))
       return false;
     if (pic == null) {
       if (other.pic != null)
