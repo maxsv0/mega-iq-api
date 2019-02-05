@@ -27,14 +27,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.google.firebase.auth.FirebaseAuthException;
 import com.max.appengine.springboot.megaiq.model.Question;
 import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.api.ApiRequestSubmitAnswer;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
 import com.max.appengine.springboot.megaiq.model.api.ApiTestResult;
+import com.max.appengine.springboot.megaiq.model.api.ApiUser;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
+import com.max.appengine.springboot.megaiq.model.exception.MegaIQException;
 import com.max.appengine.springboot.megaiq.service.QuestionsService;
 import com.max.appengine.springboot.megaiq.service.TestResultService;
 import com.max.appengine.springboot.megaiq.service.UserService;
@@ -224,7 +227,12 @@ public class TestController extends AbstractApiController {
 
     Locale userLocale = loadLocale(locale);
 
-    Optional<User> user = userService.getUserByToken(token.get());
+    Optional<User> user;
+    try {
+      user = userService.getUserByTokenOrRegister(token.get(), getIp(request), userLocale);
+    } catch (FirebaseAuthException | MegaIQException e) {
+      return sendResponseError(e.getLocalizedMessage());
+    }
     if (!user.isPresent()) {
       return sendResponseError(MESSAGE_INVALID_ACCESS);
     }
@@ -235,8 +243,8 @@ public class TestController extends AbstractApiController {
     for (TestResult testResult : listResults) {
       usersPublicList.add(new ApiTestResult(this.questionsService, testResult, true));
     }
-
-    return sendResponseTestResultList(usersPublicList);
+    
+    return sendResponseTestResultList(usersPublicList, new ApiUser(user.get()));
   }
 
   private ResponseEntity<ApiResponseBase> iqTestDetailsPrivate(UUID testCode, User user,

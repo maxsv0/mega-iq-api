@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
+import com.google.firebase.auth.UserRecord;
 import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.api.ApiRequestForget;
@@ -90,8 +91,7 @@ public class UserController extends AbstractApiController {
     if (token.isPresent()) {
       try {
         FirebaseToken firebaseToken = firebaseService.checkToken(token.get());
-        Optional<User> userCurrentResult =
-            userService.getUserById(Integer.valueOf(firebaseToken.getUid()));
+        Optional<User> userCurrentResult = userService.getUserByUid(firebaseToken.getUid());
 
         if (userCurrentResult.isPresent()) {
           User user = userCurrentResult.get();
@@ -126,13 +126,10 @@ public class UserController extends AbstractApiController {
     user.setIsPublic(true);
 
     try {
+      UserRecord userRecord = firebaseService.createUser(user);
+      user.setUid(userRecord.getUid());
+
       User userResult = userService.addUser(user);
-      userResult.setPassword(user.getPassword());
-
-      firebaseService.createUser(userResult);
-
-      String url = firebaseService.getEmailVerificationLink(userResult.getEmail());
-      emailService.sendEmailRegistrationWithVerify(userResult, url);
 
       String token = firebaseService.generateToken(userResult.getId());
       userResult.setToken(token);

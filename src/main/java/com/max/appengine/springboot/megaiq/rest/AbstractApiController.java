@@ -27,6 +27,7 @@ import com.max.appengine.springboot.megaiq.model.api.ApiResponseTestResultList;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseUser;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseUsersList;
 import com.max.appengine.springboot.megaiq.model.api.ApiTestResult;
+import com.max.appengine.springboot.megaiq.model.api.ApiUser;
 import com.max.appengine.springboot.megaiq.model.api.ApiUserPublic;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
@@ -40,8 +41,8 @@ public abstract class AbstractApiController {
   public static final Locale DEFAULT_LOCALE = Locale.EN;
 
   protected ResponseEntity<ApiResponseBase> sendResponseTestResultList(
-      List<ApiTestResult> testResultList) {
-    return sendResponseOk(new ApiResponseTestResultList(testResultList));
+      List<ApiTestResult> testResultList, ApiUser user) {
+    return sendResponseOk(new ApiResponseTestResultList(testResultList, user));
   }
 
   protected ResponseEntity<ApiResponseBase> sendResponseTestResult(ApiTestResult testResult) {

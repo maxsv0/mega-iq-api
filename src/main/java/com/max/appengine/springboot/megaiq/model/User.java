@@ -19,7 +19,6 @@ import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import com.google.firebase.auth.FirebaseToken;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
 @Entity

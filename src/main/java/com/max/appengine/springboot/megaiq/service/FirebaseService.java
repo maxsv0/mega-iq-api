@@ -69,7 +69,7 @@ public class FirebaseService {
   }
   
   public UserRecord saveUser(User user) throws FirebaseAuthException {
-    UpdateRequest request = new UpdateRequest(user.getId().toString());
+    UpdateRequest request = new UpdateRequest(user.getUid());
     request.setEmail(user.getEmail());
     request.setEmailVerified(user.getIsEmailVerified());
     request.setDisplayName(user.getName());
@@ -79,7 +79,6 @@ public class FirebaseService {
 
   public UserRecord createUser(User user) throws FirebaseAuthException {
     CreateRequest request = new CreateRequest();
-    request.setUid(user.getId().toString());
     request.setEmail(user.getEmail());
     request.setEmailVerified(user.getIsEmailVerified());
     request.setDisplayName(user.getName());

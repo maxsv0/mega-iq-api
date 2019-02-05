@@ -45,6 +45,8 @@ public abstract class AbstractUser {
   private Integer geoId;
   private Date createDate;
   private Date updateDate;
+  @Column(length = 128, unique = true)
+  private String uid;
 
   @Enumerated(EnumType.STRING)
   @Column(length = 2)
@@ -169,7 +171,15 @@ public abstract class AbstractUser {
   public void setUpdateDate(Date updatedAt) {
     this.updateDate = updatedAt;
   }
+  
+  public String getUid() {
+    return uid;
+  }
 
+  public void setUid(String uid) {
+    this.uid = uid;
+  }
+  
   @Override
   public int hashCode() {
     final int prime = 31;

@@ -26,6 +26,8 @@ public interface UserReporitory extends JpaRepository<User, Integer> {
 
   Optional<User> findByEmail(String email);
 
+  Optional<User> findByUid(String uid);
+  
   List<User> findByLocaleAndCreateDateAfterAndIsPublicIsTrueAndIqIsNotNullOrderByIqDesc(
       Locale locale, Date createDate, Pageable pageable);
 }

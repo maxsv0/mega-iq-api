@@ -51,7 +51,7 @@ public class UserServiceTest extends AbstractUnitTest {
 
   @Before
   public void doSetup() {
-    this.userService = new UserService(userReporitory, null);
+    this.userService = new UserService(userReporitory, null, null);
 
     testUserPublic = new User("test" + UUID.randomUUID() + "@test.email", "test", "url", "pic",
         "city", 40, 150, true,

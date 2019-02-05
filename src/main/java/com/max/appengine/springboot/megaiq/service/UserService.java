@@ -39,11 +39,14 @@ public class UserService {
   private final UserReporitory userReporitory;
 
   private final FirebaseService firebaseService;
+
+  private final EmailService emailService;
   
   @Autowired
-  public UserService(UserReporitory userReporitory, FirebaseService firebaseService) {
+  public UserService(UserReporitory userReporitory, FirebaseService firebaseService, EmailService emailService) {
     this.userReporitory = userReporitory;
     this.firebaseService = firebaseService;
+    this.emailService = emailService;
   }
 
   public List<User> getUsersListTopMonth(Locale locale, Optional<Integer> page) {
@@ -59,7 +62,7 @@ public class UserService {
     return loadUsersList(locale, 1, PageRequest.of(0, LIMIT_HOME_PAGE));
   }
 
-  public User addUser(User user) throws MegaIQException {
+  public User addUser(User user) throws MegaIQException, FirebaseAuthException {
     User userResult = null;
 
     Optional<User> userData = userReporitory.findByEmail(user.getEmail());
@@ -71,7 +74,11 @@ public class UserService {
     userResult = userReporitory.save(user);
 
     userResult.setUrl("/user/" + userResult.getId());
-    return userReporitory.save(userResult);
+    userResult = userReporitory.save(userResult);
+
+    emailService.sendEmailRegistration(userResult);
+    
+    return userResult;
   }
 
   public User saveUser(User user) {
@@ -83,6 +90,10 @@ public class UserService {
   public Optional<User> getUserById(Integer userId) {
     return userReporitory.findById(userId);
   }
+  
+  public Optional<User> getUserByUid(String uId) {
+    return userReporitory.findByUid(uId);
+  }
 
   public Optional<User> getUserByEmail(String email) {
     Optional<User> userResult = userReporitory.findByEmail(email);
@@ -93,43 +104,79 @@ public class UserService {
     return Optional.of(userResult.get());
   }
 
-  public Optional<User> getUserByToken(String token) {
+  public Optional<User> getUserByTokenOrRegister(String token, String ip, Locale locale)
+      throws MegaIQException, FirebaseAuthException {
+    FirebaseToken firebaseToken = null;
     try {
-      FirebaseToken firebaseToken = firebaseService.checkToken(token);
-      
-      Optional<User> userResult = getUserById(Integer.valueOf(firebaseToken.getUid()));
-      if (userResult.isPresent()) {
-        User user = userResult.get();
-        user.setToken(token);
-        
-        return Optional.of(user);
-      } else {
-        return Optional.empty();
-      }
+      firebaseToken = firebaseService.checkToken(token);
     } catch (FirebaseAuthException e) {
       return Optional.empty();
     }
+
+    Optional<User> userResult = getUserByUid(firebaseToken.getUid());
+
+    User user =  null;
+    if (userResult.isPresent()) {
+      user = userResult.get();
+    } else {
+      user = new User();
+      user.setUid(firebaseToken.getUid());
+      user.setIsEmailVerified(firebaseToken.isEmailVerified());
+      user.setEmail(firebaseToken.getEmail());
+      user.setName(firebaseToken.getName());
+      user.setPic(firebaseToken.getPicture());
+      user.setIsPublic(true);
+      user.setLocale(locale);
+      user.setIp(ip);
+      
+      // save to locale DB
+      user = addUser(user);
+    }
+    
+    user.setToken(token);
+    return Optional.of(user);
   }
 
-// TODO: remove
-//  private String convertPassowrdToHash(String password) {
-//    String hashString = null;
-//
-//    byte[] bytesPassword = password.getBytes(StandardCharsets.UTF_8);
-//    try {
-//      MessageDigest md = MessageDigest.getInstance("MD5");
-//      byte[] hashPassword = md.digest(bytesPassword);
-//      StringBuilder sb = new StringBuilder(2 * hashPassword.length);
-//      for (byte b : hashPassword) {
-//        sb.append(String.format("%02x", b & 0xff));
-//      }
-//      hashString = sb.toString().toLowerCase();
-//
-//    } catch (NoSuchAlgorithmException e) {
-//      e.printStackTrace();
-//    }
-//    return hashString;
-//  }
+  public Optional<User> getUserByToken(String token) {
+    FirebaseToken firebaseToken = null;
+    try {
+      firebaseToken = firebaseService.checkToken(token);
+    } catch (FirebaseAuthException e) {
+      return Optional.empty();
+    }
+
+    Optional<User> userResult = getUserByUid(firebaseToken.getUid());
+
+    if (userResult.isPresent()) {
+      User user = userResult.get();
+      user.setToken(token);
+
+      return Optional.of(user);
+    } else {
+      return Optional.empty();
+    }
+
+  }
+
+  // TODO: remove
+  // private String convertPassowrdToHash(String password) {
+  // String hashString = null;
+  //
+  // byte[] bytesPassword = password.getBytes(StandardCharsets.UTF_8);
+  // try {
+  // MessageDigest md = MessageDigest.getInstance("MD5");
+  // byte[] hashPassword = md.digest(bytesPassword);
+  // StringBuilder sb = new StringBuilder(2 * hashPassword.length);
+  // for (byte b : hashPassword) {
+  // sb.append(String.format("%02x", b & 0xff));
+  // }
+  // hashString = sb.toString().toLowerCase();
+  //
+  // } catch (NoSuchAlgorithmException e) {
+  // e.printStackTrace();
+  // }
+  // return hashString;
+  // }
 
   private List<User> loadUsersList(Locale locale, Integer period, Pageable pageRequest) {
     LocalDate dateLocal = LocalDate.now().minusDays(period);

@@ -20,13 +20,20 @@ import java.util.List;
 public class ApiResponseTestResultList extends ApiResponseBase {
   private List<ApiTestResult> tests;
 
+  private ApiUserPublic user;
+
   public List<ApiTestResult> getTests() {
     return tests;
   }
 
-  public ApiResponseTestResultList(List<ApiTestResult> tests) {
+  public ApiUserPublic getUser() {
+    return user;
+  }
+
+  public ApiResponseTestResultList(List<ApiTestResult> tests, ApiUser user) {
     super();
     this.tests = tests;
+    this.user = user;
 
     this.setOk();
     this.setDate(new Date());
