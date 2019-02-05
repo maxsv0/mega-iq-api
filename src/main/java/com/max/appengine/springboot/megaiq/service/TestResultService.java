@@ -125,8 +125,8 @@ public class TestResultService {
     
     if (testResult.getType().equals(IqTestType.STANDART_IQ)
         || testResult.getType().equals(IqTestType.MEGA_IQ)) {
-      QuestionGroupsResult questionGroupsResult = new QuestionGroupsResult(0, 0, 0, 0);
-      QuestionGroupsResult questionGroupsCorrect = new QuestionGroupsResult(0, 0, 0, 0);
+      QuestionGroupsResult questionGroupsResult = new QuestionGroupsResult(testResult.getId(), 0, 0, 0, 0);
+      QuestionGroupsResult questionGroupsCorrect = new QuestionGroupsResult(testResult.getId(), 0, 0, 0, 0);
       Integer points = 80;
 
       for (QuestionUser question : testResult.getQuestionSet()) {

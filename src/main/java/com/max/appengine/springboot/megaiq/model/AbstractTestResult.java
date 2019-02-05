@@ -16,6 +16,7 @@ package com.max.appengine.springboot.megaiq.model;
 
 import java.util.Date;
 import java.util.UUID;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -51,7 +52,7 @@ public abstract class AbstractTestResult {
   private Date finishDate;
   private Integer points;
 
-  @OneToOne
+  @OneToOne(cascade = {CascadeType.ALL})
   @JoinColumn(name = "groups_graph", referencedColumnName = "id")
   private QuestionGroupsResult groupsGraph;
 

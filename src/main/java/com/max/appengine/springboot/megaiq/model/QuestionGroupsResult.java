@@ -36,8 +36,9 @@ public class QuestionGroupsResult {
     super();
   }
 
-  public QuestionGroupsResult(Integer math, Integer grammar, Integer horizons, Integer logic) {
+  public QuestionGroupsResult(Integer id, Integer math, Integer grammar, Integer horizons, Integer logic) {
     super();
+    this.id = id;
     this.math = math;
     this.grammar = grammar;
     this.horizons = horizons;

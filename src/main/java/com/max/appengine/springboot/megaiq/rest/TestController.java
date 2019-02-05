@@ -38,6 +38,7 @@ import com.max.appengine.springboot.megaiq.model.api.ApiUser;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.model.exception.MegaIQException;
+import com.max.appengine.springboot.megaiq.service.EmailService;
 import com.max.appengine.springboot.megaiq.service.QuestionsService;
 import com.max.appengine.springboot.megaiq.service.TestResultService;
 import com.max.appengine.springboot.megaiq.service.UserService;
@@ -55,12 +56,15 @@ public class TestController extends AbstractApiController {
 
   private final TestResultService testResultService;
 
+  private final EmailService emailService;
+  
   @Autowired
   public TestController(UserService userService, QuestionsService questionsService,
-      TestResultService testResultService) {
+      TestResultService testResultService, EmailService emailService) {
     this.questionsService = questionsService;
     this.userService = userService;
     this.testResultService = testResultService;
+    this.emailService = emailService;
   }
 
   @RequestMapping(value = "/test/start", method = RequestMethod.GET)
@@ -114,6 +118,8 @@ public class TestController extends AbstractApiController {
               this.testResultService.submitFinish(testResult.get());
 
           if (testResultNew.isPresent()) {
+            emailService.sendTestResult(userResult.get(), testResult.get());
+            
             ApiTestResult apiTestResult =
                 new ApiTestResult(this.questionsService, testResultNew.get(), true);
 

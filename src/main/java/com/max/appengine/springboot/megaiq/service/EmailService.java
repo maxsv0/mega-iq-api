@@ -107,7 +107,6 @@ public class EmailService extends AbstractSendgridEmailService {
 
     String content = loadTemplateFromPath("user-finish-test", user.getLocale());
     List<String> fieldsRequired = new ArrayList<String>();
-    fieldsRequired.add("token");
     fieldsRequired.add("name");
     fieldsRequired.add("test_url");
     fieldsRequired.add("test_iq_score");

@@ -81,7 +81,7 @@ public class EmailServiceTest extends AbstractUnitTest {
     UUID code = UUID.randomUUID();
     TestResult testUserResultFinished = new TestResult(1, code, "/iqtest/result/" + code,
         user.getId(), IqTestType.MEGA_IQ, IqTestStatus.FINISHED, new Date(), new Date(), new Date(),
-        150, new QuestionGroupsResult(1, 1, 1, 1), Locale.EN);
+        150, new QuestionGroupsResult(1, 1, 1, 1, 1), Locale.EN);
 
     boolean result = this.emailService.sendTestResult(user, testUserResultFinished);
     assertTrue(result);
