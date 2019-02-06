@@ -15,6 +15,7 @@
 package com.max.appengine.springboot.megaiq.service;
 
 import com.max.appengine.springboot.megaiq.model.QuestionGroupsResult;
+import com.max.appengine.springboot.megaiq.model.enums.IqQuestionGroup;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
 import java.util.Calendar;
 import java.util.Date;
@@ -125,17 +126,55 @@ public class TestResultService {
     
     if (testResult.getType().equals(IqTestType.STANDART_IQ)
         || testResult.getType().equals(IqTestType.MEGA_IQ)) {
-      QuestionGroupsResult questionGroupsResult = new QuestionGroupsResult(testResult.getId(), 0, 0, 0, 0);
-      QuestionGroupsResult questionGroupsCorrect = new QuestionGroupsResult(testResult.getId(), 0, 0, 0, 0);
+      QuestionGroupsResult questionGroupsResult = new QuestionGroupsResult(testResult.getId(), 1, 1, 1, 1);
+      QuestionGroupsResult questionGroupsCorrect = new QuestionGroupsResult(testResult.getId(), 1, 1, 1, 1);
       Integer points = 80;
 
+      Integer pointsTotal = 0, pointsCorrect = 0;
       for (QuestionUser question : testResult.getQuestionSet()) {
-        if (question.getAnswerCorrect().equals(question.getAnswerUser())) {
-          points += question.getPoints();
+        boolean isCorrect = question.getAnswerCorrect().equals(question.getAnswerUser());
+        if (isCorrect) {
+          pointsCorrect += question.getPoints();
         }
-
-        // TODO: code here for questionGroupsResult/questionGroupsCorrect
+        pointsTotal += question.getPoints();
+        
+        for (IqQuestionGroup type : question.getGroups()) {
+          switch (type) {
+            case MATH:
+              if (isCorrect) {
+                questionGroupsCorrect.setMath(questionGroupsResult.getMath() + question.getPoints());
+              }
+              questionGroupsResult.setMath(questionGroupsResult.getMath() + question.getPoints());
+              break;
+            case GRAMMAR:
+              if (isCorrect) {
+                questionGroupsCorrect.setGrammar(questionGroupsResult.getGrammar() + question.getPoints());
+              }
+              questionGroupsResult.setGrammar(questionGroupsResult.getGrammar() + question.getPoints());
+              break;
+            case HORIZONS:
+              if (isCorrect) {
+                questionGroupsCorrect.setHorizons(questionGroupsResult.getHorizons() + question.getPoints());
+              }
+              questionGroupsResult.setHorizons(questionGroupsResult.getHorizons() + question.getPoints());
+              break;
+            case LOGIC:
+              if (isCorrect) {
+                questionGroupsCorrect.setLogic(questionGroupsResult.getLogic() + question.getPoints());
+              }
+              questionGroupsResult.setLogic(questionGroupsResult.getLogic() + question.getPoints());
+              break;
+          }
+        }
+        
       }
+      points = Math.round(pointsCorrect / pointsTotal * 90);
+      
+      questionGroupsResult.setMath(questionGroupsCorrect.getMath() / questionGroupsResult.getMath() * 100);
+      questionGroupsResult.setGrammar(questionGroupsCorrect.getGrammar() / questionGroupsResult.getGrammar() * 100);
+      questionGroupsResult.setHorizons(questionGroupsCorrect.getHorizons() / questionGroupsResult.getHorizons() * 100);
+      questionGroupsResult.setLogic(questionGroupsCorrect.getLogic() / questionGroupsResult.getLogic() * 100);
+      
       testResult.setGroupsGraph(questionGroupsResult);
       testResult.setPoints(points);
     }

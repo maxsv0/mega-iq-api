@@ -48,7 +48,7 @@ public class EmailService extends AbstractSendgridEmailService {
   public boolean sendEmailRegistrationWithVerify(User user, String link) {
     HashMap<String, String> userData = loadUserData(user);
     userData.put("verify_link", link);
-    
+
     String content = loadTemplateFromPath("new-user-registration-verify", user.getLocale());
     List<String> fieldsRequired = new ArrayList<String>();
     fieldsRequired.add("name");
@@ -102,8 +102,8 @@ public class EmailService extends AbstractSendgridEmailService {
 
     userData.put("unsubscribe_block",
         "<tr><td class=\"unsubscribe\">If you no longer wish to receive messages like this one, you can <a href=\""
-            + domainUrl
-            + "/login?token={token}&returnUrl=%2Fsettings\">unsubscribe</a>. </td></tr>");
+            + domainUrl + "/login?token=" + user.getToken()
+            + "&returnUrl=%2Fsettings\">unsubscribe</a>. </td></tr>");
 
     String content = loadTemplateFromPath("user-finish-test", user.getLocale());
     List<String> fieldsRequired = new ArrayList<String>();

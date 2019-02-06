@@ -118,7 +118,11 @@ public class TestController extends AbstractApiController {
               this.testResultService.submitFinish(testResult.get());
 
           if (testResultNew.isPresent()) {
-            emailService.sendTestResult(userResult.get(), testResult.get());
+            
+            if (testResult.get().getType().equals(IqTestType.STANDART_IQ)
+                || testResult.get().getType().equals(IqTestType.MEGA_IQ)) {
+              emailService.sendTestResult(userResult.get(), testResult.get());
+            }
             
             ApiTestResult apiTestResult =
                 new ApiTestResult(this.questionsService, testResultNew.get(), true);
