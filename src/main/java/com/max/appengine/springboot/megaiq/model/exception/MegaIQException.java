@@ -25,13 +25,15 @@ public class MegaIQException extends Exception {
 
   public static final Integer LEVEL_SYSTEM_ERROR = 10;
 
-  public MegaIQException(Integer level, Throwable cause) throws RuntimeException {
-    log.log(Level.SEVERE, "Error level: " + level + ". Exception={0}", cause);
-    throw new RuntimeException(cause);
+  public MegaIQException(Integer level, String msg, Throwable cause) throws RuntimeException {
+    String message = "Error level: " + level + ". " + msg;
+    log.log(Level.SEVERE, message, cause);
+    throw new RuntimeException(message,  cause);
   }
   
-  public MegaIQException(Integer level) throws RuntimeException {
-    log.log(Level.SEVERE, "Error level: " + level + ".");
-    throw new RuntimeException();
+  public MegaIQException(Integer level, String msg) throws RuntimeException {
+    String message = "Error level: " + level + ". " + msg;
+    log.log(Level.SEVERE, message);
+    throw new RuntimeException(message);
   }
 }

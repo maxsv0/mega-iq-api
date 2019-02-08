@@ -28,6 +28,7 @@ import com.max.appengine.springboot.megaiq.model.Answer;
 import com.max.appengine.springboot.megaiq.model.Question;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
+import com.max.appengine.springboot.megaiq.model.exception.MegaIQException;
 import com.max.appengine.springboot.megaiq.repository.AnswerReporitory;
 import com.max.appengine.springboot.megaiq.repository.QuestionReporitory;
 import com.max.appengine.springboot.megaiq.service.QuestionsService;
@@ -49,38 +50,30 @@ public class QuestionsServiceTest extends AbstractUnitTest {
   private QuestionsService questionsService;
 
   @Test(expected = IllegalStateException.class)
-  public void testQuestionsServiceException() {
+  public void testQuestionsServiceException() throws MegaIQException {
     this.questionsService = new QuestionsService(answerReporitory, questionReporitory);
 
     for (Locale locale : Locale.values()) {
       for (IqTestType type : IqTestType.values()) {
-        questionsService.getQuestionsSet(type, locale);
+        questionsService.initQuestionsByTestType(type, locale);
       }
     }
   }
-
+  
+  
+  // TODO: rework test
   @Test
-  public void testQuestionsServiceBasis() {
-    for (Locale locale : Locale.values()) {
-      generateQuestionsAndAnswers(questionReporitory, answerReporitory, GENERATE_QUESTIONS_LIMIT,
-          GENERATE_ANSWERS_LIMIT, locale);
-    }
+  public void testQuestionsServiceBasis() throws MegaIQException {
+//    for (Locale locale : Locale.values()) {
+//      generateQuestionsAndAnswers(questionReporitory, answerReporitory, GENERATE_QUESTIONS_LIMIT,
+//          GENERATE_ANSWERS_LIMIT, locale);
+//    }
 
     this.questionsService = new QuestionsService(answerReporitory, questionReporitory);
 
     for (Locale locale : Locale.values()) {
-      List<Question> questions = questionsService.getQuestions(locale);
-      log.info("locale={}, got questions={}", locale, questions);
-      assertFalse("Questions for locale=" + locale + " is empty", questions.isEmpty());
-
-      for (Question question : questions) {
-        List<Answer> answers = question.getAnswers();
-        log.info("QuestionID={}, got answers={}", question.getId(), answers);
-        assertFalse("Answers for questionID=" + question.getId() + " is empty", answers.isEmpty());
-      }
-
       for (IqTestType type : IqTestType.values()) {
-        List<Question> questionsSet = questionsService.getQuestionsSet(type, locale);
+        List<Question> questionsSet = questionsService.initQuestionsByTestType(type, locale);
         log.info("questionsSet={}", questionsSet);
 
         log.info("locale={}, type={}, questions set size: {}", locale, type, questionsSet.size());
@@ -89,9 +82,9 @@ public class QuestionsServiceTest extends AbstractUnitTest {
       }
 
       List<Question> questionsSet1 =
-          questionsService.getQuestionsSet(IqTestType.PRACTICE_IQ, Locale.EN);
+          questionsService.initQuestionsByTestType(IqTestType.PRACTICE_IQ, Locale.EN);
       List<Question> questionsSet2 =
-          questionsService.getQuestionsSet(IqTestType.PRACTICE_IQ, Locale.EN);
+          questionsService.initQuestionsByTestType(IqTestType.PRACTICE_IQ, Locale.EN);
       assertFalse(questionsSet1.equals(questionsSet2));
     }
   }

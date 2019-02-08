@@ -67,7 +67,7 @@ public class UserService {
 
     Optional<User> userData = userReporitory.findByEmail(user.getEmail());
     if (userData.isPresent()) {
-      throw new MegaIQException(MegaIQException.LEVEL_USER_ERROR);
+      throw new MegaIQException(MegaIQException.LEVEL_USER_ERROR, "User already exists");
     }
 
     user.setCreateDate(new Date());

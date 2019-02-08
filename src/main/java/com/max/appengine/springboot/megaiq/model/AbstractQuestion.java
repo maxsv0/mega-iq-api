@@ -16,6 +16,7 @@ package com.max.appengine.springboot.megaiq.model;
 
 import java.util.Date;
 import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -26,6 +27,7 @@ import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.OneToMany;
 import com.max.appengine.springboot.megaiq.model.enums.IqQuestionGroup;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
@@ -39,7 +41,7 @@ public abstract class AbstractQuestion {
   private String title;
   private String description;
 
-  @ElementCollection(targetClass = IqQuestionGroup.class, fetch = FetchType.LAZY)
+  @ElementCollection(targetClass = IqQuestionGroup.class, fetch = FetchType.EAGER)
   @CollectionTable(name = "question_group", joinColumns = @JoinColumn(name = "question_id"),
       indexes = {@Index(columnList = "question_id"), @Index(columnList = "groups")})
   @Enumerated(EnumType.STRING)

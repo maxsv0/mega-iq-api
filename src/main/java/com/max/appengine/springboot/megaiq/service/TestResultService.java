@@ -38,11 +38,7 @@ import com.max.appengine.springboot.megaiq.repository.UserReporitory;
 
 @Service
 public class TestResultService {
-  public static final Integer RESULT_EXPIRE_MINUTES = 24 * 60;
-
-  public static final Integer RESULT_EXPIRE_MINUTES_STANDART = 60;
-
-  public static final Integer RESULT_EXPIRE_MINUTES_MEGA_IQ = 2 * 60;
+  public static final Integer RESULT_EXPIRE_MINUTES = 2 * 60;
 
   private static final Logger log = LoggerFactory.getLogger(TestResultService.class);
 
@@ -223,8 +219,8 @@ public class TestResultService {
     expireByType(RESULT_EXPIRE_MINUTES, IqTestType.GRAMMAR);
     expireByType(RESULT_EXPIRE_MINUTES, IqTestType.MATH);
     expireByType(RESULT_EXPIRE_MINUTES, IqTestType.PRACTICE_IQ);
-    expireByType(RESULT_EXPIRE_MINUTES_STANDART, IqTestType.STANDART_IQ);
-    expireByType(RESULT_EXPIRE_MINUTES_MEGA_IQ, IqTestType.MEGA_IQ);
+    expireByType(RESULT_EXPIRE_MINUTES, IqTestType.STANDART_IQ);
+    expireByType(RESULT_EXPIRE_MINUTES, IqTestType.MEGA_IQ);
   }
 
   public void deleteTestResult(TestResult testResult) {

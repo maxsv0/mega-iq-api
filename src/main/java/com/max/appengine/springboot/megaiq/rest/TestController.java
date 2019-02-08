@@ -83,7 +83,12 @@ public class TestController extends AbstractApiController {
       return sendResponseError(MESSAGE_INVALID_ACCESS);
     }
 
-    List<Question> questions = this.questionsService.getQuestionsSet(type, userLocale);
+    List<Question> questions = null;
+    try {
+      questions = this.questionsService.initQuestionsByTestType(type, userLocale);
+    } catch (MegaIQException e) {
+      return sendResponseError(MESSAGE_START_TEST_FAIL);
+    }
     if (questions == null || questions.isEmpty()) {
       return sendResponseError(MESSAGE_START_TEST_FAIL);
     }

@@ -23,8 +23,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.max.appengine.springboot.megaiq.model.Answer;
 import com.max.appengine.springboot.megaiq.model.Question;
+import com.max.appengine.springboot.megaiq.model.enums.IqQuestionGroup;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
+import com.max.appengine.springboot.megaiq.model.exception.MegaIQException;
 import com.max.appengine.springboot.megaiq.repository.AnswerReporitory;
 import com.max.appengine.springboot.megaiq.repository.QuestionReporitory;
 
@@ -65,32 +67,116 @@ public class QuestionsService {
     return this.questionsNumber.get(testType);
   }
 
-  public List<Question> getQuestionsSet(IqTestType testType, Locale locale) {
-    List<Question> questionAllList = new ArrayList<Question>();
-    questionAllList = getQuestions(locale);
-    Collections.shuffle(questionAllList);
+  public List<Question> initQuestionsByTestType(IqTestType testType, Locale locale)
+      throws MegaIQException {
+    Integer groupMax = (int) Math.floor(this.questionsNumber.get(testType) / 4);
 
-    List<Question> questionSetList = new ArrayList<Question>();
-    int questionNumber = 1;
-    for (Question question : questionAllList) {
-      questionSetList.add(question);
-      if (questionNumber++ >= this.questionsNumber.get(testType))
+    Integer maxMath = groupMax, maxGrammar = groupMax, maxHorizons = groupMax, maxLogic = groupMax;
+
+    switch (testType) {
+      case PRACTICE_IQ:
         break;
+      case STANDART_IQ:
+        break;
+      case MEGA_IQ:
+        break;
+      case MATH:
+        maxMath = this.questionsNumber.get(testType);
+        maxGrammar = 0;
+        maxHorizons = 0;
+        maxLogic = 0;
+        break;
+      case GRAMMAR:
+        maxMath = 0;
+        maxGrammar = this.questionsNumber.get(testType);
+        maxHorizons = 0;
+        maxLogic = 0;
+        break;
+
     }
 
+    List<Question> questionSetList = getQuestionsByGroups(locale,
+        this.questionsNumber.get(testType), maxMath, maxGrammar, maxHorizons, maxLogic);
+
     if (questionSetList.size() != this.questionsNumber.get(testType)) {
-      throw new IllegalStateException("Questions DB is broken. Set size=" + questionSetList.size()
-          + " for type=" + testType + ", locale=" + locale + ". Total=" + questionAllList.size());
+      throw new MegaIQException(MegaIQException.LEVEL_SYSTEM_ERROR,
+          "Questions DB is broken. Set size=" + questionSetList.size() + ". Need="
+              + this.questionsNumber.get(testType) + " for type=" + testType + ", locale="
+              + locale);
     }
 
     return questionSetList;
   }
 
-  public List<Question> getQuestions(Locale locale) {
+  public Question getQuestionById(Integer questionId, Locale locale) {
+    for (Question question : this.questionsList) {
+      if (question.getId().equals(questionId) && question.getLocale().equals(locale))
+        return question;
+    }
+
+    return null;
+  }
+
+  private List<Question> getQuestionsByGroups(Locale locale, Integer total, Integer math,
+      Integer grammar, Integer horizons, Integer logic) throws MegaIQException {
+    List<Question> questionAllList = getAllQuestionsByLocale(locale);
+    Collections.shuffle(questionAllList);
+
+    HashMap<IqQuestionGroup, Integer> groupsMax = new HashMap<IqQuestionGroup, Integer>();
+    groupsMax.put(IqQuestionGroup.MATH, math);
+    groupsMax.put(IqQuestionGroup.GRAMMAR, grammar);
+    groupsMax.put(IqQuestionGroup.HORIZONS, horizons);
+    groupsMax.put(IqQuestionGroup.LOGIC, logic);
+
+    HashMap<IqQuestionGroup, Integer> groups = new HashMap<IqQuestionGroup, Integer>();
+    groups.put(IqQuestionGroup.MATH, 0);
+    groups.put(IqQuestionGroup.GRAMMAR, 0);
+    groups.put(IqQuestionGroup.HORIZONS, 0);
+    groups.put(IqQuestionGroup.LOGIC, 0);
+
+    List<Question> questionSetList = new ArrayList<Question>();
+    int questionNumber = 1;
+
+    for (Question question : questionAllList) {
+      boolean addQuestion = false;
+
+      List<IqQuestionGroup> questionGroups = question.getGroups();
+      if (questionGroups.isEmpty()) {
+        throw new MegaIQException(MegaIQException.LEVEL_SYSTEM_ERROR,
+            "Questions groups missing for question ID=" + question.getId());
+      }
+      Collections.shuffle(questionGroups);
+
+      IqQuestionGroup type = questionGroups.get(0);
+      if (groups.get(type) < groupsMax.get(type)) {
+        groups.put(type, groups.get(type) + 1);
+        addQuestion = true;
+      }
+
+      // for (IqQuestionGroup type : question.getGroups()) {
+      // if (addQuestion || groups.get(type) < groupsMax.get(type)) {
+      // groups.put(type, groups.get(type) + 1);
+      // addQuestion = true;
+      // }
+      // }
+
+      if (addQuestion) {
+        questionSetList.add(question);
+        questionNumber++;
+      }
+
+      if (questionNumber > total)
+        break;
+    }
+
+    return questionSetList;
+  }
+
+  private List<Question> getAllQuestionsByLocale(Locale locale) throws MegaIQException {
     List<Question> questionList = new ArrayList<Question>();
 
     if (this.questionsList.isEmpty()) {
-      throw new IllegalStateException("Questions DB is empty");
+      throw new MegaIQException(MegaIQException.LEVEL_SYSTEM_ERROR, "Questions DB is empty");
     }
 
     for (Question question : this.questionsList) {
@@ -99,16 +185,6 @@ public class QuestionsService {
     }
 
     return questionList;
-  }
-
-  public Question getQuestionById(Integer questionId, Locale locale) {
-
-    for (Question question : this.questionsList) {
-      if (question.getId().equals(questionId) && question.getLocale().equals(locale))
-        return question;
-    }
-
-    return null;
   }
 
   private ArrayList<Answer> getAnswersByQuestion(Question question) {
