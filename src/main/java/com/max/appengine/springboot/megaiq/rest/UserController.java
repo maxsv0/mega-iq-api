@@ -97,8 +97,12 @@ public class UserController extends AbstractApiController {
           User user = userCurrentResult.get();
 
           // check for changes
-          if (firebaseToken.isEmailVerified() != user.getIsEmailVerified()) {
+          if (firebaseToken.isEmailVerified() != user.getIsEmailVerified()
+              || firebaseToken.getPicture() != user.getPic()) {
+            
             user.setIsEmailVerified(firebaseToken.isEmailVerified());
+            user.setPic(firebaseToken.getPicture());
+            
             user = userService.saveUser(user);
           }
           user.setToken(token.get());

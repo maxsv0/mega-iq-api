@@ -18,7 +18,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @SuppressWarnings("serial")
-public class MegaIQException extends Exception {
+public class MegaIQException extends Throwable {
   private static final Logger log = Logger.getLogger(MegaIQException.class.getName());
 
   public static final Integer LEVEL_USER_ERROR = 1;

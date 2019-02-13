@@ -140,7 +140,7 @@ public class QuestionsService {
     for (Question question : questionAllList) {
       boolean addQuestion = false;
 
-      List<IqQuestionGroup> questionGroups = question.getGroups();
+      List<IqQuestionGroup> questionGroups = new ArrayList<IqQuestionGroup>(question.getGroups());
       if (questionGroups.isEmpty()) {
         throw new MegaIQException(MegaIQException.LEVEL_SYSTEM_ERROR,
             "Questions groups missing for question ID=" + question.getId());

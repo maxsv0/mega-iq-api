@@ -76,7 +76,12 @@ public class UserService {
     userResult.setUrl("/user/" + userResult.getId());
     userResult = userReporitory.save(userResult);
 
-    emailService.sendEmailRegistration(userResult);
+    if (user.getIsEmailVerified()) {
+      emailService.sendEmailRegistration(userResult);
+    } else {
+      String link = firebaseService.getEmailVerificationLink(userResult.getEmail());
+      emailService.sendEmailRegistrationWithVerify(userResult, link);
+    }
     
     return userResult;
   }
