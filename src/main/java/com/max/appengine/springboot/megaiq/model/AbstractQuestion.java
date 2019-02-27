@@ -16,7 +16,6 @@ package com.max.appengine.springboot.megaiq.model;
 
 import java.util.Date;
 import java.util.List;
-import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -27,7 +26,6 @@ import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.OneToMany;
 import com.max.appengine.springboot.megaiq.model.enums.IqQuestionGroup;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
@@ -36,6 +34,7 @@ public abstract class AbstractQuestion {
   @Id
   private Integer id;
   private String pic;
+  private String pic2x;
   private Integer points;
   private Integer answerCorrect;
   private String title;
@@ -68,7 +67,15 @@ public abstract class AbstractQuestion {
   public void setPic(String pic) {
     this.pic = pic;
   }
+  
+  public String getPic2x() {
+    return pic2x;
+  }
 
+  public void setPic2x(String pic2x) {
+    this.pic2x = pic2x;
+  }
+  
   public Integer getPoints() {
     return points;
   }

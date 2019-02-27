@@ -27,6 +27,7 @@ public abstract class AbstractAnswer {
   @Id
   private Integer id;
   private String pic;
+  private String pic2x;
   private Integer questionId;
   private Date createDate;
   private Date updateDate;
@@ -51,6 +52,14 @@ public abstract class AbstractAnswer {
     this.pic = pic;
   }
 
+  public String getPic2x() {
+    return pic2x;
+  }
+
+  public void setPic2x(String pic2x) {
+    this.pic2x = pic2x;
+  }
+  
   public Integer getQuestionId() {
     return questionId;
   }

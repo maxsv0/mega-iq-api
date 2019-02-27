@@ -23,6 +23,7 @@ import com.max.appengine.springboot.megaiq.model.Question;
 
 public class ApiQuestion {
   private String pic;
+  private String pic2x;
   private Integer answerCorrect;
   private Integer answerUser;
   private String title;
@@ -34,6 +35,7 @@ public class ApiQuestion {
     super();
 
     this.setPic(questionData.getPic());
+    this.setPic2x(questionData.getPic2x());
     this.setAnswerCorrect(questionUser.getAnswerCorrect());
     this.setAnswerUser(questionUser.getAnswerUser());
     this.setTitle(questionData.getTitle());
@@ -51,6 +53,14 @@ public class ApiQuestion {
 
   public void setPic(String pic) {
     this.pic = pic;
+  }
+
+  public String getPic2x() {
+    return pic2x;
+  }
+
+  public void setPic2x(String pic2x) {
+    this.pic2x = pic2x;
   }
 
   public Integer getAnswerCorrect() {
