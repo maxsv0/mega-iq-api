@@ -25,6 +25,7 @@ import com.max.appengine.springboot.megaiq.model.api.ApiResponseError;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseTestResult;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseTestResultList;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseUser;
+import com.max.appengine.springboot.megaiq.model.api.ApiResponseUserPublic;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseUsersList;
 import com.max.appengine.springboot.megaiq.model.api.ApiTestResult;
 import com.max.appengine.springboot.megaiq.model.api.ApiUser;
@@ -53,10 +54,14 @@ public abstract class AbstractApiController {
     return sendResponseOk(new ApiResponseUsersList(apiUsers, count));
   }
 
-  protected ResponseEntity<ApiResponseBase> sendResponseUser(ApiUserPublic apiUser) {
-    return sendResponseOk(new ApiResponseUser(apiUser));
+  protected ResponseEntity<ApiResponseBase> sendResponseUserPublic(ApiUserPublic apiUser) {
+    return sendResponseOk(new ApiResponseUserPublic(apiUser));
   }
 
+  protected ResponseEntity<ApiResponseBase> sendResponseUser(ApiUser apiUser) {
+    return sendResponseOk(new ApiResponseUser(apiUser));
+  }
+  
   protected ResponseEntity<ApiResponseBase> sendResponseError(String message) {
     return sendResponseOk(new ApiResponseError(message));
   }

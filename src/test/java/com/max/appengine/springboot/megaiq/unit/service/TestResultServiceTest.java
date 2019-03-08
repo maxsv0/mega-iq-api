@@ -17,7 +17,6 @@ package com.max.appengine.springboot.megaiq.unit.service;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
@@ -59,50 +58,53 @@ public class TestResultServiceTest extends AbstractUnitTest {
 
   private TestResult testUserResultFinished;
 
-  private TestResult testUserResultActive;
-
   @Before
   public void doSetup() {
     this.testResultService =
         new TestResultService(userReporitory, testResultReporitory, questionUserRepository);
 
     testUserPublic = new User("test" + UUID.randomUUID() + "@test.email", "test", "url", "pic",
-        "city", 40, 150, true,
-        "098f6bcd4621d373cade4e832627b4f6", "ip", 0, Locale.EN);
+        "city", 40, 150, true, "098f6bcd4621d373cade4e832627b4f6", "ip", 0, Locale.EN);
     testUserPublic = userReporitory.save(testUserPublic);
 
     UUID code = UUID.randomUUID();
     testUserResultFinished = new TestResult(1, code, "/iqtest/result/" + code,
-        testUserPublic.getId(),
-        IqTestType.MEGA_IQ, IqTestStatus.FINISHED, new Date(), new Date(), new Date(), 150,
-        new QuestionGroupsResult(1, 1, 1, 1, 1), Locale.EN);
+        testUserPublic.getId(), IqTestType.MEGA_IQ, IqTestStatus.FINISHED, new Date(), new Date(),
+        new Date(), 150, new QuestionGroupsResult(1, 1, 1, 1, 1), Locale.EN);
     testResultReporitory.save(testUserResultFinished);
+
+    testUserResultFinished.setUser(testUserPublic);
+    testUserResultFinished.getUser().setPassword(null);
   }
 
   @Test
-  public void testGetTestResultByCode() {
+  public void testGetTestResultById() {
     Optional<TestResult> testResult =
         this.testResultService.getTestResultById(testUserResultFinished.getId());
     assertTrue(testResult.isPresent());
     assertEquals(testUserResultFinished, testResult.get());
+  }
 
-    testResult = this.testResultService.getTestResultByCode(testUserResultFinished.getCode(),
-        testUserResultFinished.getLocale());
+
+  @Test
+  public void testGetTestResultByCode() {
+    Optional<TestResult> testResult = this.testResultService
+        .getTestResultByCode(testUserResultFinished.getCode(), testUserResultFinished.getLocale());
     assertTrue(testResult.isPresent());
     assertEquals(testUserResultFinished, testResult.get());
   }
 
   @Test
   public void testGetTestResultByCodeWrongLocale() {
-    Optional<TestResult> testResult = this.testResultService
-        .getTestResultByCode(testUserResultFinished.getCode(), Locale.DE);
+    Optional<TestResult> testResult =
+        this.testResultService.getTestResultByCode(testUserResultFinished.getCode(), Locale.DE);
     assertFalse(testResult.isPresent());
   }
 
   @Test
   public void testGetTestResultByCodeWrongCode() {
-    Optional<TestResult> testResult = this.testResultService
-        .getTestResultByCode(UUID.randomUUID(), testUserResultFinished.getLocale());
+    Optional<TestResult> testResult = this.testResultService.getTestResultByCode(UUID.randomUUID(),
+        testUserResultFinished.getLocale());
     assertFalse(testResult.isPresent());
   }
 }

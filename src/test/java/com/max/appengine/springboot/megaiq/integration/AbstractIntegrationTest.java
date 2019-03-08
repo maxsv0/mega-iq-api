@@ -14,6 +14,9 @@
 
 package com.max.appengine.springboot.megaiq.integration;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import java.util.UUID;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -22,6 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.max.appengine.springboot.megaiq.model.User;
+import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
 public abstract class AbstractIntegrationTest {
 
@@ -32,12 +37,12 @@ public abstract class AbstractIntegrationTest {
 
   @Before
   public void printTestStart() {
-    log.debug("IT {}.{}() started.", name.getClass(), name.getMethodName());
+    log.info("IT Started: {}.{}", name.getClass(), name.getMethodName());
   }
 
   @After
   public void printTestEnd() {
-    log.debug("IT {}.{}() Ends.", name.getClass(), name.getMethodName());
+    log.info("IT Ends: {}.{}", name.getClass(), name.getMethodName());
   }
   
   public static String asJsonString(final Object obj) {
@@ -48,5 +53,22 @@ public abstract class AbstractIntegrationTest {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
+  }
+  
+  protected User generateUser() {
+    User user = new User("java-build-test+" + Math.random()+ "@mega-iq.com", "TEST", "/user/1",
+        "https://lh3.googleusercontent.com/INTuvwHpiXTigV8UQWi5MpSaRt-0mimAQL_eyfGMOynRK_USId0_Z45KFIrKI3tp21J_q6panwRUfrDOBAqHbA",
+        "city", 40, 150, true, UUID.randomUUID().toString(), "ip", 0, Locale.EN);
+    
+    user.setToken(UUID.randomUUID().toString());
+    user.setIsEmailVerified(true);
+
+    assertNull(user.getUid());
+    assertNotNull(user.getName());
+    assertNotNull(user.getEmail());
+    assertNotNull(user.getPic());
+    assertNotNull(user.getIsEmailVerified());
+
+    return user;
   }
 }

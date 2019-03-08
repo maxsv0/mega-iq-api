@@ -170,7 +170,7 @@ public class UserController extends AbstractApiController {
       userResult.get().setTestResultList(listResults);
 
       if (userResult.get().getIsPublic()) {
-        return sendResponseUser(new ApiUserPublic(userResult.get()));
+        return sendResponseUserPublic(new ApiUserPublic(userResult.get()));
       } else {
         return sendResponseError(MESSAGE_USER_NOT_FOUND);
       }

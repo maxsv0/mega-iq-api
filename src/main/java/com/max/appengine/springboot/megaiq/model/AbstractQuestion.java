@@ -140,4 +140,12 @@ public abstract class AbstractQuestion {
     this.locale = locale;
   }
 
+  @Override
+  public String toString() {
+    return "AbstractQuestion [id=" + id + ", pic=" + pic + ", pic2x=" + pic2x + ", points=" + points
+        + ", answerCorrect=" + answerCorrect + ", title=" + title + ", description=" + description
+        + ", groups=" + groups + ", createDate=" + createDate + ", updateDate=" + updateDate
+        + ", locale=" + locale + "]";
+  }
+
 }

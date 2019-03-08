@@ -16,14 +16,14 @@ package com.max.appengine.springboot.megaiq.model.api;
 
 import java.util.Date;
 
-public class ApiResponseUser extends ApiResponseBase {
-  private ApiUser user;
+public class ApiResponseUserPublic extends ApiResponseBase {
+  private ApiUserPublic user;
 
-  public ApiUser getUser() {
+  public ApiUserPublic getUser() {
     return user;
   }
 
-  public ApiResponseUser(ApiUser apiUser) {
+  public ApiResponseUserPublic(ApiUserPublic apiUser) {
     super();
     this.user = apiUser;
 
@@ -32,11 +32,11 @@ public class ApiResponseUser extends ApiResponseBase {
     this.setMsg(null);
   }
 
-  public ApiResponseUser() {
+  public ApiResponseUserPublic() {
     super();
   }
 
-  public ApiResponseUser(boolean ok, String msg, Date date, ApiUser user) {
+  public ApiResponseUserPublic(boolean ok, String msg, Date date, ApiUser user) {
     super();
     this.user = user;
     this.setOk(ok);
@@ -65,7 +65,7 @@ public class ApiResponseUser extends ApiResponseBase {
       return false;
     if (getClass() != obj.getClass())
       return false;
-    ApiResponseUser other = (ApiResponseUser) obj;
+    ApiResponseUserPublic other = (ApiResponseUserPublic) obj;
     if (user == null) {
       if (other.user != null)
         return false;

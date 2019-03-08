@@ -20,7 +20,6 @@ import java.util.UUID;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import com.max.appengine.springboot.megaiq.Application;
@@ -32,20 +31,30 @@ import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.service.EmailService;
 import com.max.appengine.springboot.megaiq.unit.AbstractUnitTest;
+import mockit.Mock;
+import mockit.MockUp;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
 public class EmailServiceTest extends AbstractUnitTest {
   private User user;
-  
-  @Autowired
+
   private EmailService emailService;
 
   @Before
   public void doSetup() {
-    user = generateUserWithToken();
+    user = generateUser();
+
+    new MockUp<EmailService>() {
+      @Mock
+      protected boolean sendEmail(String to, String subject, String content) {
+        return true;
+      }
+    };
+
+    emailService = new EmailService();
   }
-  
+
   @Test
   public void testEmailNewUserRegistration() {
     boolean result = this.emailService.sendEmailRegistration(user);
@@ -63,19 +72,19 @@ public class EmailServiceTest extends AbstractUnitTest {
     boolean result = this.emailService.sendEmailVerify(user, "http://mega-iq.com");
     assertTrue(result);
   }
-  
+
   @Test
   public void testEmailForget() {
     boolean result = this.emailService.sendEmailForget(user, "http://mega-iq.com");
     assertTrue(result);
   }
-  
+
   @Test
   public void testEmailDirectLogin() {
     boolean result = this.emailService.sendEmailDirectLogin(user);
     assertTrue(result);
   }
-  
+
   @Test
   public void testSendTestResult() {
     UUID code = UUID.randomUUID();
@@ -85,14 +94,5 @@ public class EmailServiceTest extends AbstractUnitTest {
 
     boolean result = this.emailService.sendTestResult(user, testUserResultFinished);
     assertTrue(result);
-  }
-
-  private User generateUserWithToken() {
-    User user = new User("max.svistunov@gmail.com", "Max", "/user/1", "pic",
-        "city", 40, 150, true, UUID.randomUUID().toString(), "ip", 0, Locale.EN);
-    user.setId(1);
-    user.setToken(UUID.randomUUID().toString());
-
-    return user;
   }
 }

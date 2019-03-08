@@ -83,4 +83,59 @@ public class QuestionGroupsResult {
   public void setLogic(Integer logic) {
     this.logic = logic;
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((grammar == null) ? 0 : grammar.hashCode());
+    result = prime * result + ((horizons == null) ? 0 : horizons.hashCode());
+    result = prime * result + ((id == null) ? 0 : id.hashCode());
+    result = prime * result + ((logic == null) ? 0 : logic.hashCode());
+    result = prime * result + ((math == null) ? 0 : math.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    QuestionGroupsResult other = (QuestionGroupsResult) obj;
+    if (grammar == null) {
+      if (other.grammar != null)
+        return false;
+    } else if (!grammar.equals(other.grammar))
+      return false;
+    if (horizons == null) {
+      if (other.horizons != null)
+        return false;
+    } else if (!horizons.equals(other.horizons))
+      return false;
+    if (id == null) {
+      if (other.id != null)
+        return false;
+    } else if (!id.equals(other.id))
+      return false;
+    if (logic == null) {
+      if (other.logic != null)
+        return false;
+    } else if (!logic.equals(other.logic))
+      return false;
+    if (math == null) {
+      if (other.math != null)
+        return false;
+    } else if (!math.equals(other.math))
+      return false;
+    return true;
+  }
+
+  @Override
+  public String toString() {
+    return "QuestionGroupsResult [id=" + id + ", math=" + math + ", grammar=" + grammar
+        + ", horizons=" + horizons + ", logic=" + logic + "]";
+  }
 }

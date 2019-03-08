@@ -16,7 +16,6 @@ package com.max.appengine.springboot.megaiq.unit.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import com.max.appengine.springboot.megaiq.Application;
-import com.max.appengine.springboot.megaiq.model.Answer;
 import com.max.appengine.springboot.megaiq.model.Question;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
@@ -38,7 +36,7 @@ import com.max.appengine.springboot.megaiq.unit.AbstractUnitTest;
 @SpringBootTest(classes = Application.class)
 public class QuestionsServiceTest extends AbstractUnitTest {
 
-  private static final int GENERATE_QUESTIONS_LIMIT = 30;
+  private static final int GENERATE_QUESTIONS_LIMIT = 80;
   private static final int GENERATE_ANSWERS_LIMIT = 2;
 
   @Autowired
@@ -49,7 +47,7 @@ public class QuestionsServiceTest extends AbstractUnitTest {
 
   private QuestionsService questionsService;
 
-  @Test(expected = IllegalStateException.class)
+  @Test(expected = RuntimeException.class)
   public void testQuestionsServiceException() throws MegaIQException {
     this.questionsService = new QuestionsService(answerReporitory, questionReporitory);
 
@@ -59,15 +57,13 @@ public class QuestionsServiceTest extends AbstractUnitTest {
       }
     }
   }
-  
-  
-  // TODO: rework test
+
   @Test
   public void testQuestionsServiceBasis() throws MegaIQException {
-//    for (Locale locale : Locale.values()) {
-//      generateQuestionsAndAnswers(questionReporitory, answerReporitory, GENERATE_QUESTIONS_LIMIT,
-//          GENERATE_ANSWERS_LIMIT, locale);
-//    }
+    for (Locale locale : Locale.values()) {
+      generateQuestionsAndAnswers(questionReporitory, answerReporitory, GENERATE_QUESTIONS_LIMIT,
+          GENERATE_ANSWERS_LIMIT, locale);
+    }
 
     this.questionsService = new QuestionsService(answerReporitory, questionReporitory);
 
@@ -76,17 +72,26 @@ public class QuestionsServiceTest extends AbstractUnitTest {
         List<Question> questionsSet = questionsService.initQuestionsByTestType(type, locale);
         log.info("questionsSet={}", questionsSet);
 
-        log.info("locale={}, type={}, questions set size: {}", locale, type, questionsSet.size());
+        log.info("TEST: locale={}, type={}, questions set size: {}", locale, type,
+            questionsSet.size());
         assertEquals("Locale=" + locale + ", type=" + type + ". Questions number is incorrect",
             questionsService.getQuestionsLimitByType(type), questionsSet.size());
       }
-
-      List<Question> questionsSet1 =
-          questionsService.initQuestionsByTestType(IqTestType.PRACTICE_IQ, Locale.EN);
-      List<Question> questionsSet2 =
-          questionsService.initQuestionsByTestType(IqTestType.PRACTICE_IQ, Locale.EN);
-      assertFalse(questionsSet1.equals(questionsSet2));
     }
+  }
+
+  @Test
+  public void testQuestionsServiceTwoTestsAreNotEqual() throws MegaIQException {
+    generateQuestionsAndAnswers(questionReporitory, answerReporitory, 20, GENERATE_ANSWERS_LIMIT,
+        Locale.EN);
+
+    this.questionsService = new QuestionsService(answerReporitory, questionReporitory);
+
+    List<Question> questionsSet1 =
+        questionsService.initQuestionsByTestType(IqTestType.PRACTICE_IQ, Locale.EN);
+    List<Question> questionsSet2 =
+        questionsService.initQuestionsByTestType(IqTestType.PRACTICE_IQ, Locale.EN);
+    assertFalse(questionsSet1.equals(questionsSet2));
   }
 
 }

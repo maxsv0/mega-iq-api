@@ -30,23 +30,27 @@ import com.max.appengine.springboot.megaiq.model.User;
 
 @Service
 public class FirebaseService {
-  public String firebaseLogin = "megaiq637";
-
+  
+  private static final InputStream serviceAccountJson =
+      FirebaseService.class.getClassLoader().getResourceAsStream("firebase.json");
+  
+  private static final FirebaseOptions firebaseOptions = new FirebaseOptions.Builder()
+      .setCredentials(getCertCredential(serviceAccountJson))
+      .setDatabaseUrl("https://megaiq637.firebaseio.com/").build();
+  
+  private final FirebaseApp firebaseApp;
   private FirebaseAuth auth;
 
   public FirebaseService() throws IOException {
-    // FileInputStream serviceAccount = new FileInputStream("firebase.json");
-    InputStream serviceAccount =
-        FirebaseService.class.getClassLoader().getResourceAsStream("firebase.json");
-
-    FirebaseOptions options =
-        new FirebaseOptions.Builder().setCredentials(GoogleCredentials.fromStream(serviceAccount))
-            .setDatabaseUrl("https://" + firebaseLogin + ".firebaseio.com/").build();
-
-    FirebaseApp.initializeApp(options);
-    auth = FirebaseAuth.getInstance();
+    if(FirebaseApp.getApps().isEmpty()) {
+      firebaseApp = FirebaseApp.initializeApp(firebaseOptions);
+    } else {
+      firebaseApp = FirebaseApp.getInstance();
+    }
+    
+    auth = FirebaseAuth.getInstance(firebaseApp);
   }
-
+  
   public String getPasswordResetLink(String email) throws FirebaseAuthException {
     return auth.generatePasswordResetLink(email);
   }
@@ -87,4 +91,19 @@ public class FirebaseService {
     return auth.createUser(request);
   }
 
+  public void deleteUser(User user) throws FirebaseAuthException {
+    auth.deleteUser(user.getUid());
+  }
+
+  public UserRecord getUserRecord(User user) throws FirebaseAuthException {
+    return auth.getUserByEmail(user.getEmail());
+  }
+  
+  public static GoogleCredentials getCertCredential(InputStream stream) {
+    try {
+      return GoogleCredentials.fromStream(stream);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
 }

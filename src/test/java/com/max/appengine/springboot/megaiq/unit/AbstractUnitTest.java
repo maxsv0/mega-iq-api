@@ -14,10 +14,13 @@
 
 package com.max.appengine.springboot.megaiq.unit;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -28,6 +31,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.max.appengine.springboot.megaiq.model.Answer;
 import com.max.appengine.springboot.megaiq.model.Question;
+import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.enums.IqQuestionGroup;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.repository.AnswerReporitory;
@@ -42,12 +46,12 @@ public abstract class AbstractUnitTest {
 
   @Before
   public void printTestStart() {
-    log.debug("UT {}.{}() started.", name.getClass(), name.getMethodName());
+    log.info("UT Started: {}.{}", name.getClass(), name.getMethodName());
   }
 
   @After
   public void printTestEnd() {
-    log.debug("UT {}.{}() Ends.", name.getClass(), name.getMethodName());
+    log.info("UT Ends: {}.{}", name.getClass(), name.getMethodName());
   }
 
   public static String asJsonString(final Object obj) {
@@ -70,13 +74,13 @@ public abstract class AbstractUnitTest {
     int answerId = 1;
     int questionId = 1;
     if (locale.equals(Locale.DE)) {
-      answerId = 10000;
-      questionId = 100;
-    } else if (locale.equals(Locale.RU)) {
-      answerId = 50000;
+      answerId = 1000;
       questionId = 1000;
+    } else if (locale.equals(Locale.RU)) {
+      answerId = 2000;
+      questionId = 2000;
     }
-    
+
     List<IqQuestionGroup> groups = Arrays.asList(IqQuestionGroup.values());
     ArrayList<Question> questions = new ArrayList<Question>();
     ArrayList<Answer> answers = new ArrayList<Answer>();
@@ -111,4 +115,20 @@ public abstract class AbstractUnitTest {
     answerReporitory.saveAll(answers);
   }
 
+  protected User generateUser() {
+    User user = new User("java-build-test+" + Math.random() + "@mega-iq.com", "TEST", "/user/1",
+        "https://lh3.googleusercontent.com/INTuvwHpiXTigV8UQWi5MpSaRt-0mimAQL_eyfGMOynRK_USId0_Z45KFIrKI3tp21J_q6panwRUfrDOBAqHbA",
+        "city", 40, 150, true, UUID.randomUUID().toString(), "ip", 0, Locale.EN);
+
+    user.setToken(UUID.randomUUID().toString());
+    user.setIsEmailVerified(true);
+
+    assertNull(user.getUid());
+    assertNotNull(user.getName());
+    assertNotNull(user.getEmail());
+    assertNotNull(user.getPic());
+    assertNotNull(user.getIsEmailVerified());
+
+    return user;
+  }
 }
