@@ -71,7 +71,7 @@ public class TestResultServiceTest extends AbstractUnitTest {
     testUserResultFinished = new TestResult(1, code, "/iqtest/result/" + code,
         testUserPublic.getId(), IqTestType.MEGA_IQ, IqTestStatus.FINISHED, new Date(), new Date(),
         new Date(), 150, new QuestionGroupsResult(1, 1, 1, 1, 1), Locale.EN);
-    testResultReporitory.save(testUserResultFinished);
+    testUserResultFinished = testResultReporitory.save(testUserResultFinished);
 
     testUserResultFinished.setUser(testUserPublic);
     testUserResultFinished.getUser().setPassword(null);
