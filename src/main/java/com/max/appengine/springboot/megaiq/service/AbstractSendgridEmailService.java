@@ -14,6 +14,7 @@
 
 package com.max.appengine.springboot.megaiq.service;
 
+import com.google.common.annotations.GwtCompatible;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -100,8 +101,21 @@ abstract class AbstractSendgridEmailService {
   }
 
   protected String loadTemplateFromPath(String name, Locale locale) {
+    if (name == null) {
+      throw new RuntimeException("template name is empty. Locale: " + locale);
+    }
+    
+    if (locale == null) {
+      throw new RuntimeException("template locale is empty. Template name: " + name);
+    }
+
     String path = "email/" + locale.toString() + "/" + name + ".html";
-    InputStream inputStream = EmailService.class.getClassLoader().getResourceAsStream(path);
+    InputStream inputStream =
+        AbstractSendgridEmailService.class.getClassLoader().getResourceAsStream(path);
+
+    if (inputStream == null) {
+      throw new RuntimeException("Can't read from input stream. Path: " + path);
+    }
 
     return new BufferedReader(new InputStreamReader(inputStream)).lines()
         .collect(Collectors.joining("\n"));
