@@ -20,6 +20,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.User;
+import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 
 @Service
 public class EmailService extends AbstractSendgridEmailService {
@@ -95,10 +96,31 @@ public class EmailService extends AbstractSendgridEmailService {
     return loadTemplateAndSend(user.getLocale(), userData, EMAIL_SUBJECT_DIRECT_LOGIN, content);
   }
 
-  public boolean sendTestResult(User user, TestResult testResult) {
+  public boolean sendIqTestResult(User user, TestResult testResult) {
     HashMap<String, String> userData = loadUserData(user);
     userData.put("test_url", domainUrl + testResult.getUrl());
     userData.put("test_iq_score", testResult.getPoints().toString());
+
+    userData.put("unsubscribe_block",
+        "<tr><td class=\"unsubscribe\">If you no longer wish to receive messages like this one, you can <a href=\""
+            + domainUrl + "/login?token=" + user.getToken()
+            + "&returnUrl=%2Fsettings\">unsubscribe</a>. </td></tr>");
+
+    String content = loadTemplateFromPath("user-finish-iq-test", user.getLocale());
+    List<String> fieldsRequired = new ArrayList<String>();
+    fieldsRequired.add("name");
+    fieldsRequired.add("test_url");
+    fieldsRequired.add("test_iq_score");
+    content = insertFields(content, fieldsRequired, userData);
+
+    return loadTemplateAndSend(user.getLocale(), userData, EMAIL_SUBJECT_TEST_RESULT, content);
+  }
+
+  public boolean sendTestResult(User user, TestResult testResult) {
+    HashMap<String, String> userData = loadUserData(user);
+    userData.put("test_url", domainUrl + testResult.getUrl());
+    userData.put("test_score",
+        testResult.getPoints() + " / " + testResult.getQuestionSet().size());
 
     userData.put("unsubscribe_block",
         "<tr><td class=\"unsubscribe\">If you no longer wish to receive messages like this one, you can <a href=\""
@@ -114,4 +136,5 @@ public class EmailService extends AbstractSendgridEmailService {
 
     return loadTemplateAndSend(user.getLocale(), userData, EMAIL_SUBJECT_TEST_RESULT, content);
   }
+
 }
