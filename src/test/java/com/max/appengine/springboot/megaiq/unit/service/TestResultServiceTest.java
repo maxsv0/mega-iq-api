@@ -17,7 +17,9 @@ package com.max.appengine.springboot.megaiq.unit.service;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.Before;
@@ -27,9 +29,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import com.max.appengine.springboot.megaiq.Application;
+import com.max.appengine.springboot.megaiq.model.Question;
 import com.max.appengine.springboot.megaiq.model.QuestionGroupsResult;
 import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.User;
+import com.max.appengine.springboot.megaiq.model.enums.IqQuestionGroup;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
@@ -85,13 +89,25 @@ public class TestResultServiceTest extends AbstractUnitTest {
     assertEquals(testUserResultFinished, testResult.get());
   }
 
-
   @Test
   public void testGetTestResultByCode() {
-    Optional<TestResult> testResult = this.testResultService
-        .getTestResultByCode(testUserResultFinished.getCode(), testUserResultFinished.getLocale());
+    List<TestResult> testResult =
+        this.testResultService.findByUserId(testUserPublic.getId(), testUserPublic.getLocale());
+    assertEquals(1, testResult.size());
+  }
+
+  @Test
+  public void testGetTestResultByUserId() {
+    Optional<TestResult> testResult =
+        this.testResultService.getTestResultById(testUserResultFinished.getId());
     assertTrue(testResult.isPresent());
     assertEquals(testUserResultFinished, testResult.get());
+  }
+
+  @Test
+  public void testGetTestResultCount() {
+    long count = this.testResultService.getResultCount();
+    assertEquals(1, count);
   }
 
   @Test
@@ -107,4 +123,41 @@ public class TestResultServiceTest extends AbstractUnitTest {
         testUserResultFinished.getLocale());
     assertFalse(testResult.isPresent());
   }
+
+  @Test
+  public void testGetTestResultByWrongId() {
+    Optional<TestResult> testResult = this.testResultService.getTestResultById(-1);
+    assertFalse(testResult.isPresent());
+  }
+
+  @Test
+  public void testStartTestPracticeAndCompleteAndDelete() {
+    List<Question> questionSetList = new ArrayList<Question>();
+
+    Question question = new Question(-1, "pic", 5, 1, "title", "description",
+        new ArrayList<IqQuestionGroup>(), new Date(), new Date(), testUserPublic.getLocale());
+    questionSetList.add(question);
+
+    Optional<TestResult> testResult = this.testResultService.startUserTest(testUserPublic,
+        IqTestType.PRACTICE_IQ, questionSetList, testUserPublic.getLocale());
+    assertTrue(testResult.isPresent());
+    assertEquals(IqTestType.PRACTICE_IQ, testResult.get().getType());
+    assertEquals(IqTestStatus.ACTIVE, testResult.get().getStatus());
+
+    // submit correct answer
+    TestResult submitTestResult =
+        this.testResultService.submitUserAnswer(testResult.get(), 1, question.getAnswerCorrect());
+    assertEquals(IqTestStatus.ACTIVE, submitTestResult.getStatus());
+
+    // submit finish
+    Optional<TestResult> finishTestResult = this.testResultService.submitFinish(submitTestResult);
+    assertTrue(finishTestResult.isPresent());
+    assertEquals(IqTestType.PRACTICE_IQ, finishTestResult.get().getType());
+    assertEquals(IqTestStatus.FINISHED, finishTestResult.get().getStatus());
+    assertEquals(Integer.valueOf(1), finishTestResult.get().getPoints());
+
+    // delete result
+    this.testResultService.deleteTestResult(testResult.get());
+  }
+
 }
