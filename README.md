@@ -31,7 +31,7 @@ To use vist: http://localhost:8080/
 
 ### Deploying
 
-`mvn appengine:deploy`
+`mvn -Dapp.deploy.projectId=megaiq637 -Dapp.deploy.version=$(date "+%Y%m%d-%H%M") clean package com.google.cloud.tools:appengine-maven-plugin:deploy`
 
 To use vist:  https://YOUR-PROJECT-ID.appspot.com
 
