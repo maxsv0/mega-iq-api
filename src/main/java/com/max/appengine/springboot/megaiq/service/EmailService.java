@@ -131,7 +131,7 @@ public class EmailService extends AbstractSendgridEmailService {
     List<String> fieldsRequired = new ArrayList<String>();
     fieldsRequired.add("name");
     fieldsRequired.add("test_url");
-    fieldsRequired.add("test_iq_score");
+    fieldsRequired.add("test_score");
     content = insertFields(content, fieldsRequired, userData);
 
     return loadTemplateAndSend(user.getLocale(), userData, EMAIL_SUBJECT_TEST_RESULT, content);

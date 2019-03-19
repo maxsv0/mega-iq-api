@@ -15,7 +15,9 @@
 package com.max.appengine.springboot.megaiq.unit.service;
 
 import static org.junit.Assert.assertTrue;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,6 +26,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import com.max.appengine.springboot.megaiq.Application;
 import com.max.appengine.springboot.megaiq.model.QuestionGroupsResult;
+import com.max.appengine.springboot.megaiq.model.QuestionUser;
 import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
@@ -92,6 +95,8 @@ public class EmailServiceTest extends AbstractUnitTest {
         user.getId(), IqTestType.MEGA_IQ, IqTestStatus.FINISHED, new Date(), new Date(), new Date(),
         150, new QuestionGroupsResult(1, 1, 1, 1, 1), Locale.EN);
 
+    testUserResultFinished.setQuestionSet(new ArrayList<QuestionUser>());
+    
     boolean result = this.emailService.sendTestResult(user, testUserResultFinished);
     assertTrue(result);
   }
