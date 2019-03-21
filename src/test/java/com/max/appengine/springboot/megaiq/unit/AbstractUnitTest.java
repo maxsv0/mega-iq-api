@@ -30,12 +30,20 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.max.appengine.springboot.megaiq.model.Answer;
+import com.max.appengine.springboot.megaiq.model.Configuration;
 import com.max.appengine.springboot.megaiq.model.Question;
+import com.max.appengine.springboot.megaiq.model.QuestionGroupsResult;
+import com.max.appengine.springboot.megaiq.model.QuestionUser;
+import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.enums.IqQuestionGroup;
+import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
+import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.repository.AnswerReporitory;
+import com.max.appengine.springboot.megaiq.repository.ConfigurationReporitory;
 import com.max.appengine.springboot.megaiq.repository.QuestionReporitory;
+import com.max.appengine.springboot.megaiq.service.ConfigurationService;
 
 public abstract class AbstractUnitTest {
 
@@ -115,10 +123,30 @@ public abstract class AbstractUnitTest {
     answerReporitory.saveAll(answers);
   }
 
+  protected TestResult generateTestResult(User user) {
+    return generateTestResult(user.getId(), user.getLocale());
+  }
+
+  protected TestResult generateTestResult(Integer userId, Locale locale) {
+    UUID code = UUID.randomUUID();
+
+    TestResult testUserResult = new TestResult(1, code, "/iqtest/result/" + code, userId,
+        IqTestType.MEGA_IQ, IqTestStatus.FINISHED, new Date(), new Date(), new Date(), 150,
+        new QuestionGroupsResult(1, 1, 1, 1, 1), locale);
+
+    testUserResult.setQuestionSet(new ArrayList<QuestionUser>());
+
+    return testUserResult;
+  }
+
   protected User generateUser() {
+    return generateUser(ConfigurationService.DEFAULT_LOCALE);
+  }
+
+  protected User generateUser(Locale locale) {
     User user = new User("java-build-test+" + Math.random() + "@mega-iq.com", "TEST", "/user/1",
         "https://lh3.googleusercontent.com/INTuvwHpiXTigV8UQWi5MpSaRt-0mimAQL_eyfGMOynRK_USId0_Z45KFIrKI3tp21J_q6panwRUfrDOBAqHbA",
-        "city", 40, 150, true, UUID.randomUUID().toString(), "ip", 0, Locale.EN);
+        "city", 40, 150, true, UUID.randomUUID().toString(), "ip", 0, locale);
 
     user.setToken(UUID.randomUUID().toString());
     user.setIsEmailVerified(true);
@@ -130,5 +158,30 @@ public abstract class AbstractUnitTest {
     assertNotNull(user.getIsEmailVerified());
 
     return user;
+  }
+
+  protected void generateConfig(ConfigurationReporitory configurationReporitory) {
+    generateConfigValue(configurationReporitory, "domain", "www.mega-iq.com");
+    for (IqTestType type : IqTestType.values()) {
+      generateConfigValue(configurationReporitory, "title_" + type.toString().toLowerCase(),
+          type.toString().toLowerCase());
+    }
+    
+    generateConfigValue(configurationReporitory, "email_subject_new_user", "email_subject_new_user");
+    generateConfigValue(configurationReporitory, "email_subject_email_verify", "email_subject_email_verify");
+    generateConfigValue(configurationReporitory, "email_subject_test_result", "{test_type_title} email_subject_test_result");
+    generateConfigValue(configurationReporitory, "email_subject_forget", "email_subject_forget");
+    generateConfigValue(configurationReporitory, "email_subject_direct_login", "email_subject_direct_login");
+  }
+  
+  protected void generateConfigValue(ConfigurationReporitory configurationReporitory, String name,
+      String value) {
+    for (Locale locale : Locale.values()) {
+      Configuration config = new Configuration();
+      config.setLocale(locale);
+      config.setName(name);
+      config.setValue(value + "_" + locale);
+      configurationReporitory.save(config);
+    }
   }
 }

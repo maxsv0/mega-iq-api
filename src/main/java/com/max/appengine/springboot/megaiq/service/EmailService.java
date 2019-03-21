@@ -17,23 +17,19 @@ package com.max.appengine.springboot.megaiq.service;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.User;
-import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 
 @Service
 public class EmailService extends AbstractSendgridEmailService {
-  public static final String EMAIL_SUBJECT_NEW_USER = "Welcome to Mega-IQ";
+  private final ConfigurationService configurationService;
 
-  public static final String EMAIL_SUBJECT_EMAIL_VERIFY =
-      "Your Mega-IQ account: Email address verification";
-
-  public static final String EMAIL_SUBJECT_TEST_RESULT = "Test finished";
-
-  public static final String EMAIL_SUBJECT_FORGET = "Reset your password for Mega-IQ";
-
-  public static final String EMAIL_SUBJECT_DIRECT_LOGIN = "Log in to Mega-IQ with one click";
+  @Autowired
+  public EmailService(ConfigurationService configurationService) {
+    this.configurationService = configurationService;
+  }
 
   public boolean sendEmailRegistration(User user) {
     HashMap<String, String> userData = loadUserData(user);
@@ -43,7 +39,10 @@ public class EmailService extends AbstractSendgridEmailService {
     fieldsRequired.add("name");
     content = insertFields(content, fieldsRequired, userData);
 
-    return loadTemplateAndSend(user.getLocale(), userData, EMAIL_SUBJECT_NEW_USER, content);
+    String subject = this.configurationService
+        .getConfigValueByNameAndLocale("email_subject_new_user", user.getLocale());
+
+    return loadTemplateAndSend(user.getLocale(), userData, subject, content);
   }
 
   public boolean sendEmailRegistrationWithVerify(User user, String link) {
@@ -56,7 +55,10 @@ public class EmailService extends AbstractSendgridEmailService {
     fieldsRequired.add("verify_link");
     content = insertFields(content, fieldsRequired, userData);
 
-    return loadTemplateAndSend(user.getLocale(), userData, EMAIL_SUBJECT_NEW_USER, content);
+    String subject = this.configurationService
+        .getConfigValueByNameAndLocale("email_subject_new_user", user.getLocale());
+
+    return loadTemplateAndSend(user.getLocale(), userData, subject, content);
   }
 
   public boolean sendEmailVerify(User user, String link) {
@@ -69,7 +71,10 @@ public class EmailService extends AbstractSendgridEmailService {
     fieldsRequired.add("verify_link");
     content = insertFields(content, fieldsRequired, userData);
 
-    return loadTemplateAndSend(user.getLocale(), userData, EMAIL_SUBJECT_EMAIL_VERIFY, content);
+    String subject = this.configurationService
+        .getConfigValueByNameAndLocale("email_subject_email_verify", user.getLocale());
+
+    return loadTemplateAndSend(user.getLocale(), userData, subject, content);
   }
 
   public boolean sendEmailForget(User user, String link) {
@@ -82,7 +87,10 @@ public class EmailService extends AbstractSendgridEmailService {
     fieldsRequired.add("forget_link");
     content = insertFields(content, fieldsRequired, userData);
 
-    return loadTemplateAndSend(user.getLocale(), userData, EMAIL_SUBJECT_FORGET, content);
+    String subject = this.configurationService.getConfigValueByNameAndLocale("email_subject_forget",
+        user.getLocale());
+
+    return loadTemplateAndSend(user.getLocale(), userData, subject, content);
   }
 
   public boolean sendEmailDirectLogin(User user) {
@@ -93,11 +101,16 @@ public class EmailService extends AbstractSendgridEmailService {
     fieldsRequired.add("name");
     content = insertFields(content, fieldsRequired, userData);
 
-    return loadTemplateAndSend(user.getLocale(), userData, EMAIL_SUBJECT_DIRECT_LOGIN, content);
+    String subject = this.configurationService
+        .getConfigValueByNameAndLocale("email_subject_direct_login", user.getLocale());
+
+    return loadTemplateAndSend(user.getLocale(), userData, subject, content);
   }
 
   public boolean sendIqTestResult(User user, TestResult testResult) {
     HashMap<String, String> userData = loadUserData(user);
+    String domainUrl = this.configurationService.getDomainByLocale(testResult.getLocale());
+
     userData.put("test_url", domainUrl + testResult.getUrl());
     userData.put("test_iq_score", testResult.getPoints().toString());
 
@@ -106,6 +119,8 @@ public class EmailService extends AbstractSendgridEmailService {
             + domainUrl + "/login?token=" + user.getToken()
             + "&returnUrl=%2Fsettings\">unsubscribe</a>. </td></tr>");
 
+    userData.put("test_type_title", this.configurationService.getTestResultTitle(testResult));
+
     String content = loadTemplateFromPath("user-finish-iq-test", user.getLocale());
     List<String> fieldsRequired = new ArrayList<String>();
     fieldsRequired.add("name");
@@ -113,19 +128,29 @@ public class EmailService extends AbstractSendgridEmailService {
     fieldsRequired.add("test_iq_score");
     content = insertFields(content, fieldsRequired, userData);
 
-    return loadTemplateAndSend(user.getLocale(), userData, EMAIL_SUBJECT_TEST_RESULT, content);
+    List<String> fieldsRequiredSubject = new ArrayList<String>();
+    fieldsRequiredSubject.add("test_type_title");
+
+    String subject = this.configurationService
+        .getConfigValueByNameAndLocale("email_subject_test_result", testResult.getLocale());
+    subject = insertFields(subject, fieldsRequiredSubject, userData);
+
+    return loadTemplateAndSend(user.getLocale(), userData, subject, content);
   }
 
   public boolean sendTestResult(User user, TestResult testResult) {
     HashMap<String, String> userData = loadUserData(user);
+    String domainUrl = this.configurationService.getDomainByLocale(testResult.getLocale());
+
     userData.put("test_url", domainUrl + testResult.getUrl());
-    userData.put("test_score",
-        testResult.getPoints() + " / " + testResult.getQuestionSet().size());
+    userData.put("test_score", testResult.getPoints() + " / " + testResult.getQuestionSet().size());
 
     userData.put("unsubscribe_block",
         "<tr><td class=\"unsubscribe\">If you no longer wish to receive messages like this one, you can <a href=\""
             + domainUrl + "/login?token=" + user.getToken()
             + "&returnUrl=%2Fsettings\">unsubscribe</a>. </td></tr>");
+
+    userData.put("test_type_title", this.configurationService.getTestResultTitle(testResult));
 
     String content = loadTemplateFromPath("user-finish-test", user.getLocale());
     List<String> fieldsRequired = new ArrayList<String>();
@@ -134,7 +159,14 @@ public class EmailService extends AbstractSendgridEmailService {
     fieldsRequired.add("test_score");
     content = insertFields(content, fieldsRequired, userData);
 
-    return loadTemplateAndSend(user.getLocale(), userData, EMAIL_SUBJECT_TEST_RESULT, content);
+    List<String> fieldsRequiredSubject = new ArrayList<String>();
+    fieldsRequiredSubject.add("test_type_title");
+
+    String subject = this.configurationService
+        .getConfigValueByNameAndLocale("email_subject_test_result", testResult.getLocale());
+    subject = insertFields(subject, fieldsRequiredSubject, userData);
+
+    return loadTemplateAndSend(testResult.getLocale(), userData, subject, content);
   }
 
 }

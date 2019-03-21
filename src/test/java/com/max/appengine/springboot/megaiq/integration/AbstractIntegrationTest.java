@@ -25,8 +25,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.max.appengine.springboot.megaiq.model.Configuration;
 import com.max.appengine.springboot.megaiq.model.User;
+import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
+import com.max.appengine.springboot.megaiq.repository.ConfigurationReporitory;
 
 public abstract class AbstractIntegrationTest {
 
@@ -44,7 +47,7 @@ public abstract class AbstractIntegrationTest {
   public void printTestEnd() {
     log.info("IT Ends: {}.{}", name.getClass(), name.getMethodName());
   }
-  
+
   public static String asJsonString(final Object obj) {
     try {
       ObjectMapper objectMapper = new ObjectMapper();
@@ -54,12 +57,12 @@ public abstract class AbstractIntegrationTest {
       throw new RuntimeException(e);
     }
   }
-  
+
   protected User generateUser() {
-    User user = new User("java-build-test+" + Math.random()+ "@mega-iq.com", "TEST", "/user/1",
+    User user = new User("java-build-test+" + Math.random() + "@mega-iq.com", "TEST", "/user/1",
         "https://lh3.googleusercontent.com/INTuvwHpiXTigV8UQWi5MpSaRt-0mimAQL_eyfGMOynRK_USId0_Z45KFIrKI3tp21J_q6panwRUfrDOBAqHbA",
         "city", 40, 150, true, UUID.randomUUID().toString(), "ip", 0, Locale.EN);
-    
+
     user.setToken(UUID.randomUUID().toString());
     user.setIsEmailVerified(true);
 
@@ -71,4 +74,5 @@ public abstract class AbstractIntegrationTest {
 
     return user;
   }
+
 }

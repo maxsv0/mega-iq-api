@@ -31,6 +31,7 @@ import com.max.appengine.springboot.megaiq.model.api.ApiTestResult;
 import com.max.appengine.springboot.megaiq.model.api.ApiUser;
 import com.max.appengine.springboot.megaiq.model.api.ApiUserPublic;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
+import com.max.appengine.springboot.megaiq.service.ConfigurationService;
 
 public abstract class AbstractApiController {
   public static final String MESSAGE_INVALID_ACCESS = "Access denied, Please log in and try again";
@@ -39,8 +40,6 @@ public abstract class AbstractApiController {
 
   public static final String INTERNAL_ERROR = "Service error. Please try again later";
   
-  public static final Locale DEFAULT_LOCALE = Locale.EN;
-
   protected ResponseEntity<ApiResponseBase> sendResponseTestResultList(
       List<ApiTestResult> testResultList, ApiUser user) {
     return sendResponseOk(new ApiResponseTestResultList(testResultList, user));
@@ -94,7 +93,7 @@ public abstract class AbstractApiController {
   }
 
   protected Locale loadLocale(Optional<String> locale) {
-    Locale userLocale = DEFAULT_LOCALE;
+    Locale userLocale = ConfigurationService.DEFAULT_LOCALE;
     if (!locale.isPresent()) {
       return userLocale;
     }
@@ -102,7 +101,7 @@ public abstract class AbstractApiController {
     try {
       userLocale = Locale.valueOf(locale.get());
     } catch (IllegalArgumentException e) {
-      userLocale = DEFAULT_LOCALE;
+      userLocale = ConfigurationService.DEFAULT_LOCALE;
     }
 
     return userLocale;

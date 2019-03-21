@@ -14,7 +14,6 @@
 
 package com.max.appengine.springboot.megaiq.service;
 
-import com.google.common.annotations.GwtCompatible;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,13 +34,7 @@ import com.sendgrid.SendGrid;
 
 abstract class AbstractSendgridEmailService {
 
-  public static final String EMAIL_FROM = "mail@mega-iq.com";
-
-  public static final String EMAIL_FROM_NAME = "Mega-IQ";
-
   public String sendgridApiKey = "";
-
-  public String domainUrl = "http://new.mega-iq.com";
 
   protected boolean loadTemplateAndSend(Locale locale, HashMap<String, String> userData,
       String subject, String content) {
@@ -86,12 +79,13 @@ abstract class AbstractSendgridEmailService {
       String keyToReplace = "{" + key + "}";
 
       if (!data.containsKey(key)) {
-        throw new RuntimeException("Email parsing failed. Data set missing key '" + key + "'");
+        throw new RuntimeException(
+            "Email parsing failed. Data set missing key '" + key + "'. Data=" + data.toString());
       }
 
       if (!contentNew.contains(keyToReplace)) {
         throw new RuntimeException(
-            "Email parsing failed. Content missing key '" + keyToReplace + "'");
+            "Email parsing failed. Content missing key '" + keyToReplace + "'. Content=" + content);
       }
 
       contentNew = contentNew.replace(keyToReplace, data.get(key));
@@ -104,7 +98,7 @@ abstract class AbstractSendgridEmailService {
     if (name == null) {
       throw new RuntimeException("template name is empty. Locale: " + locale);
     }
-    
+
     if (locale == null) {
       throw new RuntimeException("template locale is empty. Template name: " + name);
     }
@@ -122,16 +116,17 @@ abstract class AbstractSendgridEmailService {
   }
 
   private boolean sendEmail(String to, String subject, String content) {
-    if (sendgridApiKey == null || sendgridApiKey.isEmpty())
+    if (this.sendgridApiKey == null || this.sendgridApiKey.isEmpty())
       throw new RuntimeException("Email Service API key not set");
 
-    Email fromEmail = new Email(EMAIL_FROM, EMAIL_FROM_NAME);
+    Email fromEmail =
+        new Email(ConfigurationService.EMAIL_FROM, ConfigurationService.EMAIL_FROM_NAME);
     Email toEmail = new Email(to);
 
     Content contentObj = new Content("text/html", content);
     Mail mail = new Mail(fromEmail, subject, toEmail, contentObj);
 
-    SendGrid sg = new SendGrid(sendgridApiKey);
+    SendGrid sg = new SendGrid(this.sendgridApiKey);
     Request request = new Request();
     try {
       request.setMethod(Method.POST);
