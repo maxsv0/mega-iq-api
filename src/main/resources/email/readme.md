@@ -1,37 +1,37 @@
 ### Mail template [EN/_template.html](EN/_template.html)
 
-Variables used by template:
+Variables used by all template:
 * {email_title}
 * {email_preheader}
 * {email_content}
 * {link_unsubscribe}
 
-
+Variables used by each template:
 ### [new-user-registration.html](EN/new-user-registration.html) 
-Variables:
 * {name}
 
-
 ### [new-user-registration-verify.html](EN/new-user-registration-verify.html) 
-Variables:
 * {name}
 * {token_verify}
 
 
 ### [user-email-verify.html](EN/user-email-verify.html)
-Variables:
 * {name}
 * {token_verify}
 
 
 ### [password-forget.html](EN/password-forget.html)
-Variables:
 * {name}
 * {token_access}
 
 
 ### [user-finish-test.html](EN/user-finish-test.html)
-Variables:
 * {name}
 * {test_url}
+* {test_score}
 
+
+### [user-finish-test.html](EN/user-finish-iq-test.html)
+* {name}
+* {test_url}
+* {test_iq_score}
