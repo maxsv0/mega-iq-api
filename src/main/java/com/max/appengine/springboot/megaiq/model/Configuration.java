@@ -22,6 +22,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
 @Entity
@@ -37,18 +38,14 @@ public class Configuration {
 
   private String name;
 
+  @Enumerated(EnumType.STRING)
+  @Column(length = 20)
+  private IqTestType type;
+
   private String value;
 
   public Configuration() {
     super();
-  }
-
-  public Configuration(Integer id, Locale locale, String name, String value) {
-    super();
-    this.id = id;
-    this.locale = locale;
-    this.name = name;
-    this.value = value;
   }
 
   public Integer getId() {
@@ -73,6 +70,14 @@ public class Configuration {
 
   public void setName(String name) {
     this.name = name;
+  }
+
+  public IqTestType getType() {
+    return type;
+  }
+
+  public void setType(IqTestType type) {
+    this.type = type;
   }
 
   public String getValue() {

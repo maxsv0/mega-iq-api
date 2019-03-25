@@ -64,6 +64,12 @@ public class UserController extends AbstractApiController {
   public static final String MESSAGE_EMAIL_FORGET_WAS_SENT =
       "An email containing reset instructions was sent";
 
+  public static final String MESSAGE_INVALID_ACCESS = "Access denied, Please log in and try again";
+
+  public static final String MESSAGE_WRONG_REQUEST = "Wrong request";
+
+  public static final String INTERNAL_ERROR = "Service error. Please try again later";
+
   private static final Logger log = Logger.getLogger(UserController.class.getName());
 
   private final UserService userService;
@@ -99,10 +105,10 @@ public class UserController extends AbstractApiController {
           // check for changes
           if (firebaseToken.isEmailVerified() != user.getIsEmailVerified()
               || firebaseToken.getPicture() != user.getPic()) {
-            
+
             user.setIsEmailVerified(firebaseToken.isEmailVerified());
             user.setPic(firebaseToken.getPicture());
-            
+
             user = userService.saveUser(user);
           }
           user.setToken(token.get());

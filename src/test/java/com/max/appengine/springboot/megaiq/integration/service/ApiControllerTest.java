@@ -7,9 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
-import org.springframework.test.context.jdbc.SqlGroup;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -20,7 +17,6 @@ import com.max.appengine.springboot.megaiq.Application;
 import com.max.appengine.springboot.megaiq.integration.AbstractIntegrationTest;
 import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseUser;
-import com.max.appengine.springboot.megaiq.service.ConfigurationService;
 import com.max.appengine.springboot.megaiq.service.EmailService;
 import com.max.appengine.springboot.megaiq.service.FirebaseService;
 import mockit.Mock;
@@ -29,9 +25,6 @@ import mockit.MockUp;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
 @AutoConfigureMockMvc
-@SqlGroup({
-  @Sql(executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:beforeTestRun.sql"),
-  @Sql(executionPhase = ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:afterTestRun.sql") })
 public class ApiControllerTest extends AbstractIntegrationTest {
   @Autowired
   private MockMvc mvc;
@@ -39,17 +32,12 @@ public class ApiControllerTest extends AbstractIntegrationTest {
   @Autowired
   private FirebaseService firebaseService;
 
-  @Autowired
-  private ConfigurationService configurationService;
-  
   private User user;
-  
+
   @Before
   public void setup() {
-    user = generateUser(); 
+    user = generateUser();
 
-    this.configurationService.reloadConfiguration();
-    
     new MockUp<EmailService>() {
       @Mock
       protected boolean sendEmail(String to, String subject, String content) {
@@ -57,7 +45,7 @@ public class ApiControllerTest extends AbstractIntegrationTest {
       }
     };
   }
-  
+
   @Test
   public void testNewUser() throws Exception {
     MvcResult resultApi = mvc
@@ -70,10 +58,10 @@ public class ApiControllerTest extends AbstractIntegrationTest {
     ApiResponseUser responseUser =
         objectMapper.readValue(resultApi.getResponse().getContentAsString(), ApiResponseUser.class);
     log.info("MvcResultUser = {}", responseUser);
-    
+
     UserRecord userRecord = firebaseService.getUserRecord(user);
     user.setUid(userRecord.getUid());
-    
+
     firebaseService.deleteUser(user);
   }
 }

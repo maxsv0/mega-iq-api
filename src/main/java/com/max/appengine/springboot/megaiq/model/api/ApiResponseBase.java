@@ -94,4 +94,8 @@ public class ApiResponseBase {
     return true;
   }
 
+  @Override
+  public String toString() {
+    return "ApiResponseBase [ok=" + ok + ", msg=" + msg + ", date=" + date + "]";
+  }
 }

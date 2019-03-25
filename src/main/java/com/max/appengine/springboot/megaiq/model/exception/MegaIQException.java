@@ -21,17 +21,13 @@ import java.util.logging.Logger;
 public class MegaIQException extends Throwable {
   private static final Logger log = Logger.getLogger(MegaIQException.class.getName());
 
-  public static final Integer LEVEL_USER_ERROR = 1;
-
-  public static final Integer LEVEL_SYSTEM_ERROR = 10;
-
-  public MegaIQException(Integer level, String msg, Throwable cause) throws RuntimeException {
+  public MegaIQException(Level level, String msg, Throwable cause) throws RuntimeException {
     String message = "Error level: " + level + ". " + msg;
     log.log(Level.SEVERE, message, cause);
     throw new RuntimeException(message,  cause);
   }
   
-  public MegaIQException(Integer level, String msg) throws RuntimeException {
+  public MegaIQException(Level level, String msg) throws RuntimeException {
     String message = "Error level: " + level + ". " + msg;
     log.log(Level.SEVERE, message);
     throw new RuntimeException(message);

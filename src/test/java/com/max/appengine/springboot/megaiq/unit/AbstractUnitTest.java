@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.max.appengine.springboot.megaiq.model.Answer;
-import com.max.appengine.springboot.megaiq.model.Configuration;
 import com.max.appengine.springboot.megaiq.model.Question;
 import com.max.appengine.springboot.megaiq.model.QuestionGroupsResult;
 import com.max.appengine.springboot.megaiq.model.QuestionUser;
@@ -41,7 +40,6 @@ import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.repository.AnswerReporitory;
-import com.max.appengine.springboot.megaiq.repository.ConfigurationReporitory;
 import com.max.appengine.springboot.megaiq.repository.QuestionReporitory;
 import com.max.appengine.springboot.megaiq.service.ConfigurationService;
 
@@ -160,28 +158,39 @@ public abstract class AbstractUnitTest {
     return user;
   }
 
-  protected void generateConfig(ConfigurationReporitory configurationReporitory) {
-    generateConfigValue(configurationReporitory, "domain", "www.mega-iq.com");
-    for (IqTestType type : IqTestType.values()) {
-      generateConfigValue(configurationReporitory, "title_" + type.toString().toLowerCase(),
-          type.toString().toLowerCase());
-    }
-    
-    generateConfigValue(configurationReporitory, "email_subject_new_user", "email_subject_new_user");
-    generateConfigValue(configurationReporitory, "email_subject_email_verify", "email_subject_email_verify");
-    generateConfigValue(configurationReporitory, "email_subject_test_result", "{test_type_title} email_subject_test_result");
-    generateConfigValue(configurationReporitory, "email_subject_forget", "email_subject_forget");
-    generateConfigValue(configurationReporitory, "email_subject_direct_login", "email_subject_direct_login");
-  }
-  
-  protected void generateConfigValue(ConfigurationReporitory configurationReporitory, String name,
-      String value) {
-    for (Locale locale : Locale.values()) {
-      Configuration config = new Configuration();
-      config.setLocale(locale);
-      config.setName(name);
-      config.setValue(value + "_" + locale);
-      configurationReporitory.save(config);
-    }
-  }
+  // TODO: remove unused code
+//  protected void generateConfig(ConfigurationReporitory configurationReporitory) {
+//    generateConfigValue(configurationReporitory, "domain", "www.mega-iq.com", null);
+//
+//    for (IqTestType type : IqTestType.values()) {
+//      generateConfigValue(configurationReporitory, "title", type.toString().toLowerCase(), type);
+//    }
+//
+//    generateConfigValue(configurationReporitory, "email_subject_new_user", "email_subject_new_user",
+//        null);
+//    generateConfigValue(configurationReporitory, "email_subject_email_verify",
+//        "email_subject_email_verify", null);
+//    generateConfigValue(configurationReporitory, "email_subject_test_result",
+//        "{test_type_title} email_subject_test_result", null);
+//    generateConfigValue(configurationReporitory, "email_subject_forget", "email_subject_forget",
+//        null);
+//    generateConfigValue(configurationReporitory, "email_subject_direct_login",
+//        "email_subject_direct_login", null);
+//  }
+//
+//  protected void generateConfigValue(ConfigurationReporitory configurationReporitory, String name,
+//      String value, IqTestType type) {
+//    for (Locale locale : Locale.values()) {
+//      Configuration config = new Configuration();
+//      config.setLocale(locale);
+//      config.setType(type);
+//      config.setName(name);
+//      config.setValue(value + "_" + locale);
+//      configurationReporitory.save(config);
+//    }
+//  }
+//  
+//  protected void cleanConfig(ConfigurationReporitory configurationReporitory) {
+//    configurationReporitory.deleteAll();
+//  }
 }

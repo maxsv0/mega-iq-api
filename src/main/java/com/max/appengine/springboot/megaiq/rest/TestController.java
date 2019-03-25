@@ -27,6 +27,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.max.appengine.springboot.megaiq.model.Question;
 import com.max.appengine.springboot.megaiq.model.TestResult;
@@ -38,6 +40,7 @@ import com.max.appengine.springboot.megaiq.model.api.ApiUser;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.model.exception.MegaIQException;
+import com.max.appengine.springboot.megaiq.service.ConfigurationService;
 import com.max.appengine.springboot.megaiq.service.EmailService;
 import com.max.appengine.springboot.megaiq.service.QuestionsService;
 import com.max.appengine.springboot.megaiq.service.TestResultService;
@@ -45,10 +48,15 @@ import com.max.appengine.springboot.megaiq.service.UserService;
 
 @RestController
 public class TestController extends AbstractApiController {
-  public static final String MESSAGE_START_TEST_FAIL =
-      "An error occurred while starting a test. Please try again later";
+  public static final String MESSAGE_START_TEST_FAIL = "message_start_test_fail";
 
   public static final String MESSAGE_DELETE_SUCCESS = "Test result successfully deleted";
+
+  public static final String MESSAGE_INVALID_ACCESS = "Access denied, Please log in and try again";
+
+  public static final String MESSAGE_WRONG_REQUEST = "Wrong request";
+
+  public static final String INTERNAL_ERROR = "Service error. Please try again later";
 
   private final QuestionsService questionsService;
 
@@ -57,14 +65,25 @@ public class TestController extends AbstractApiController {
   private final TestResultService testResultService;
 
   private final EmailService emailService;
-  
+
+  private final ConfigurationService configurationService;
+
+  Table<String, Locale, String> messageText = HashBasedTable.create();
+
   @Autowired
   public TestController(UserService userService, QuestionsService questionsService,
-      TestResultService testResultService, EmailService emailService) {
+      TestResultService testResultService, EmailService emailService,
+      ConfigurationService configurationService) {
     this.questionsService = questionsService;
     this.userService = userService;
     this.testResultService = testResultService;
     this.emailService = emailService;
+    this.configurationService = configurationService;
+
+    for (Locale locale : Locale.values()) {
+      this.messageText.put(MESSAGE_START_TEST_FAIL, locale,
+          this.configurationService.getConfigGlobal(MESSAGE_START_TEST_FAIL, locale));
+    }
   }
 
   @RequestMapping(value = "/test/start", method = RequestMethod.GET)
@@ -87,16 +106,16 @@ public class TestController extends AbstractApiController {
     try {
       questions = this.questionsService.initQuestionsByTestType(type, userLocale);
     } catch (MegaIQException e) {
-      return sendResponseError(MESSAGE_START_TEST_FAIL);
+      return sendResponseError(getMessageByNameAndLocale(MESSAGE_START_TEST_FAIL, userLocale));
     }
     if (questions == null || questions.isEmpty()) {
-      return sendResponseError(MESSAGE_START_TEST_FAIL);
+      return sendResponseError(getMessageByNameAndLocale(MESSAGE_START_TEST_FAIL, userLocale));
     }
 
     Optional<TestResult> testResult =
         testResultService.startUserTest(user.get(), type, questions, userLocale);
     if (!testResult.isPresent()) {
-      return sendResponseError(MESSAGE_START_TEST_FAIL);
+      return sendResponseError(getMessageByNameAndLocale(MESSAGE_START_TEST_FAIL, userLocale));
     }
 
     ApiTestResult apiTestResult = new ApiTestResult(this.questionsService, testResult.get(), true);
@@ -123,14 +142,14 @@ public class TestController extends AbstractApiController {
               this.testResultService.submitFinish(testResult.get());
 
           if (testResultNew.isPresent()) {
-            
+
             if (testResult.get().getType().equals(IqTestType.STANDART_IQ)
                 || testResult.get().getType().equals(IqTestType.MEGA_IQ)) {
               emailService.sendIqTestResult(userResult.get(), testResult.get());
             } else {
               emailService.sendTestResult(userResult.get(), testResult.get());
             }
-            
+
             ApiTestResult apiTestResult =
                 new ApiTestResult(this.questionsService, testResultNew.get(), true);
 
@@ -260,7 +279,7 @@ public class TestController extends AbstractApiController {
     for (TestResult testResult : listResults) {
       usersPublicList.add(new ApiTestResult(this.questionsService, testResult, true));
     }
-    
+
     return sendResponseTestResultList(usersPublicList, new ApiUser(user.get()));
   }
 
@@ -310,5 +329,9 @@ public class TestController extends AbstractApiController {
       TestResult testData = testResultService.loadQuestions(result.get());
       return Optional.of(testData);
     }
+  }
+
+  private String getMessageByNameAndLocale(String name, Locale locale) {
+    return this.messageText.get(name, locale);
   }
 }

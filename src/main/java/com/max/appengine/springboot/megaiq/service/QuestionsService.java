@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.max.appengine.springboot.megaiq.model.Answer;
@@ -33,10 +34,13 @@ import com.max.appengine.springboot.megaiq.repository.QuestionReporitory;
 @Service
 public class QuestionsService {
   private final Map<IqTestType, Integer> questionsNumber;
+  
   private List<Question> questionsList;
+  
   private List<Answer> answersList;
 
   private final AnswerReporitory answerReporitory;
+  
   private final QuestionReporitory questionReporitory;
 
   @Autowired
@@ -99,7 +103,7 @@ public class QuestionsService {
         this.questionsNumber.get(testType), maxMath, maxGrammar, maxHorizons, maxLogic);
 
     if (questionSetList.size() != this.questionsNumber.get(testType)) {
-      throw new MegaIQException(MegaIQException.LEVEL_SYSTEM_ERROR,
+      throw new MegaIQException(Level.SEVERE,
           "Questions DB is broken. Set size=" + questionSetList.size() + ". Need="
               + this.questionsNumber.get(testType) + " for type=" + testType + ", locale="
               + locale);
@@ -142,7 +146,7 @@ public class QuestionsService {
 
       List<IqQuestionGroup> questionGroups = new ArrayList<IqQuestionGroup>(question.getGroups());
       if (questionGroups.isEmpty()) {
-        throw new MegaIQException(MegaIQException.LEVEL_SYSTEM_ERROR,
+        throw new MegaIQException(Level.SEVERE,
             "Questions groups missing for question ID=" + question.getId());
       }
       Collections.shuffle(questionGroups);
@@ -176,7 +180,7 @@ public class QuestionsService {
     List<Question> questionList = new ArrayList<Question>();
 
     if (this.questionsList.isEmpty()) {
-      throw new MegaIQException(MegaIQException.LEVEL_SYSTEM_ERROR, "Questions DB is empty");
+      throw new MegaIQException(Level.SEVERE, "Questions DB is empty");
     }
 
     for (Question question : this.questionsList) {

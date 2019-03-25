@@ -25,8 +25,6 @@ import com.max.appengine.springboot.megaiq.Application;
 import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
-import com.max.appengine.springboot.megaiq.repository.ConfigurationReporitory;
-import com.max.appengine.springboot.megaiq.service.ConfigurationService;
 import com.max.appengine.springboot.megaiq.service.EmailService;
 import com.max.appengine.springboot.megaiq.unit.AbstractUnitTest;
 import mockit.Mock;
@@ -35,12 +33,8 @@ import mockit.MockUp;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
 public class EmailServiceTest extends AbstractUnitTest {
-  private EmailService emailService;
-
-  private ConfigurationService configurationService;
-
   @Autowired
-  private ConfigurationReporitory configurationReporitory;
+  private EmailService emailService;
 
   @Before
   public void doSetup() {
@@ -51,11 +45,6 @@ public class EmailServiceTest extends AbstractUnitTest {
         return true;
       }
     };
-
-    generateConfig(this.configurationReporitory);
-
-    this.configurationService = new ConfigurationService(this.configurationReporitory);
-    this.emailService = new EmailService(this.configurationService);
   }
 
   @Test

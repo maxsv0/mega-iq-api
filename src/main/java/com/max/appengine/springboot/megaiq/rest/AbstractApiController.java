@@ -34,12 +34,6 @@ import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.service.ConfigurationService;
 
 public abstract class AbstractApiController {
-  public static final String MESSAGE_INVALID_ACCESS = "Access denied, Please log in and try again";
-
-  public static final String MESSAGE_WRONG_REQUEST = "Wrong request";
-
-  public static final String INTERNAL_ERROR = "Service error. Please try again later";
-  
   protected ResponseEntity<ApiResponseBase> sendResponseTestResultList(
       List<ApiTestResult> testResultList, ApiUser user) {
     return sendResponseOk(new ApiResponseTestResultList(testResultList, user));

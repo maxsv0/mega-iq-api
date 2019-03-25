@@ -19,6 +19,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -67,7 +68,7 @@ public class UserService {
 
     Optional<User> userData = userReporitory.findByEmail(user.getEmail());
     if (userData.isPresent()) {
-      throw new MegaIQException(MegaIQException.LEVEL_USER_ERROR, "User already exists");
+      throw new MegaIQException(Level.SEVERE, "User already exists");
     }
 
     user.setCreateDate(new Date());

@@ -24,6 +24,16 @@ import com.max.appengine.springboot.megaiq.model.User;
 
 @Service
 public class EmailService extends AbstractSendgridEmailService {
+  public static final String EMAIL_SUBJECT_NEW_USER = "email_subject_new_user";
+
+  public static final String EMAIL_SUBJECT_EMAIL_VERIFY = "email_subject_email_verify";
+
+  public static final String EMAIL_SUBJECT_FORGET = "email_subject_forget";
+
+  public static final String EMAIL_SUBJECT_DIRECT_LOGIN = "email_subject_direct_login";
+
+  public static final String EMAIL_SUBJECT_TEST_RESULT = "email_subject_test_result";
+
   private final ConfigurationService configurationService;
 
   @Autowired
@@ -39,8 +49,8 @@ public class EmailService extends AbstractSendgridEmailService {
     fieldsRequired.add("name");
     content = insertFields(content, fieldsRequired, userData);
 
-    String subject = this.configurationService
-        .getConfigValueByNameAndLocale("email_subject_new_user", user.getLocale());
+    String subject =
+        this.configurationService.getConfigGlobal(EMAIL_SUBJECT_NEW_USER, user.getLocale());
 
     return loadTemplateAndSend(user.getLocale(), userData, subject, content);
   }
@@ -55,8 +65,8 @@ public class EmailService extends AbstractSendgridEmailService {
     fieldsRequired.add("verify_link");
     content = insertFields(content, fieldsRequired, userData);
 
-    String subject = this.configurationService
-        .getConfigValueByNameAndLocale("email_subject_new_user", user.getLocale());
+    String subject =
+        this.configurationService.getConfigGlobal(EMAIL_SUBJECT_NEW_USER, user.getLocale());
 
     return loadTemplateAndSend(user.getLocale(), userData, subject, content);
   }
@@ -71,8 +81,8 @@ public class EmailService extends AbstractSendgridEmailService {
     fieldsRequired.add("verify_link");
     content = insertFields(content, fieldsRequired, userData);
 
-    String subject = this.configurationService
-        .getConfigValueByNameAndLocale("email_subject_email_verify", user.getLocale());
+    String subject =
+        this.configurationService.getConfigGlobal(EMAIL_SUBJECT_EMAIL_VERIFY, user.getLocale());
 
     return loadTemplateAndSend(user.getLocale(), userData, subject, content);
   }
@@ -87,8 +97,8 @@ public class EmailService extends AbstractSendgridEmailService {
     fieldsRequired.add("forget_link");
     content = insertFields(content, fieldsRequired, userData);
 
-    String subject = this.configurationService.getConfigValueByNameAndLocale("email_subject_forget",
-        user.getLocale());
+    String subject =
+        this.configurationService.getConfigGlobal(EMAIL_SUBJECT_FORGET, user.getLocale());
 
     return loadTemplateAndSend(user.getLocale(), userData, subject, content);
   }
@@ -101,8 +111,8 @@ public class EmailService extends AbstractSendgridEmailService {
     fieldsRequired.add("name");
     content = insertFields(content, fieldsRequired, userData);
 
-    String subject = this.configurationService
-        .getConfigValueByNameAndLocale("email_subject_direct_login", user.getLocale());
+    String subject =
+        this.configurationService.getConfigGlobal(EMAIL_SUBJECT_DIRECT_LOGIN, user.getLocale());
 
     return loadTemplateAndSend(user.getLocale(), userData, subject, content);
   }
@@ -131,8 +141,8 @@ public class EmailService extends AbstractSendgridEmailService {
     List<String> fieldsRequiredSubject = new ArrayList<String>();
     fieldsRequiredSubject.add("test_type_title");
 
-    String subject = this.configurationService
-        .getConfigValueByNameAndLocale("email_subject_test_result", testResult.getLocale());
+    String subject = this.configurationService.getConfigGlobal(EMAIL_SUBJECT_TEST_RESULT,
+        testResult.getLocale());
     subject = insertFields(subject, fieldsRequiredSubject, userData);
 
     return loadTemplateAndSend(user.getLocale(), userData, subject, content);
@@ -162,8 +172,8 @@ public class EmailService extends AbstractSendgridEmailService {
     List<String> fieldsRequiredSubject = new ArrayList<String>();
     fieldsRequiredSubject.add("test_type_title");
 
-    String subject = this.configurationService
-        .getConfigValueByNameAndLocale("email_subject_test_result", testResult.getLocale());
+    String subject = this.configurationService.getConfigGlobal(EMAIL_SUBJECT_TEST_RESULT,
+        testResult.getLocale());
     subject = insertFields(subject, fieldsRequiredSubject, userData);
 
     return loadTemplateAndSend(testResult.getLocale(), userData, subject, content);

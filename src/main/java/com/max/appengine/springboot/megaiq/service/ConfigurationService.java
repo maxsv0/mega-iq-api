@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.max.appengine.springboot.megaiq.model.Configuration;
 import com.max.appengine.springboot.megaiq.model.TestResult;
+import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.repository.ConfigurationReporitory;
 
@@ -32,13 +33,8 @@ public class ConfigurationService {
 
   private final ConfigurationReporitory configurationReporitory;
 
-  private List<Configuration> config;
-  
-  // TODO: find a better way and return final to config
-  public void reloadConfiguration() {
-    this.config = this.configurationReporitory.findAll();
-  }
-  
+  private final List<Configuration> config;
+
   public List<Configuration> getConfig() {
     return config;
   }
@@ -51,24 +47,41 @@ public class ConfigurationService {
   }
 
   public String getDomainByLocale(Locale locale) {
-    return getConfigValueByNameAndLocale("domain", locale);
+    return getConfigGlobal("domain", locale);
   }
 
   public String getTestResultTitle(TestResult testResult) {
-    return getConfigValueByNameAndLocale("title_" + testResult.getType().toString().toLowerCase(),
-        testResult.getLocale());
+    return getConfigValueByNameAndTypeAndLocale("title", testResult.getLocale(),
+        testResult.getType());
   }
 
-  public String getConfigValueByName(String name) {
-    return getConfigValueByNameAndLocale(name, ConfigurationService.DEFAULT_LOCALE);
-  }
-
-  public String getConfigValueByNameAndLocale(String name, Locale locale) {
+  public String getConfigValueByNameAndType(String name, IqTestType type) {
     for (Configuration configuration : this.getConfig()) {
-      if (configuration.getLocale().equals(locale) && configuration.getName().equals(name))
+      if (configuration.getName().equals(name) && configuration.getType() == null)
+        return configuration.getValue();
+    }
+
+    throw new RuntimeException("Config value not found for name=" + name + ", Type=" + type);
+  }
+
+  public String getConfigGlobal(String name, Locale locale) {
+    for (Configuration configuration : this.getConfig()) {
+      if (configuration.getName().equals(name) && configuration.getLocale().equals(locale))
         return configuration.getValue();
     }
 
     throw new RuntimeException("Config value not found for name=" + name + ", Locale=" + locale);
+  }
+
+  public String getConfigValueByNameAndTypeAndLocale(String name, Locale locale, IqTestType type) {
+    for (Configuration configuration : this.getConfig()) {
+      if (configuration.getName().equals(name)
+          && (configuration.getLocale() == null || configuration.getLocale().equals(locale))
+          && (configuration.getType() == null || configuration.getType().equals(type)))
+        return configuration.getValue();
+    }
+
+    throw new RuntimeException(
+        "Config value not found for name=" + name + ", Locale=" + locale + ", Type=" + type);
   }
 }
