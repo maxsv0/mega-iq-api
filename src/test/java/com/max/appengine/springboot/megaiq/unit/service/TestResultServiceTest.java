@@ -40,6 +40,7 @@ import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.repository.QuestionUserRepository;
 import com.max.appengine.springboot.megaiq.repository.TestResultReporitory;
 import com.max.appengine.springboot.megaiq.repository.UserReporitory;
+import com.max.appengine.springboot.megaiq.service.ConfigurationService;
 import com.max.appengine.springboot.megaiq.service.TestResultService;
 import com.max.appengine.springboot.megaiq.unit.AbstractUnitTest;
 
@@ -56,16 +57,20 @@ public class TestResultServiceTest extends AbstractUnitTest {
   @Autowired
   private QuestionUserRepository questionUserRepository;
 
+  @Autowired
+  private ConfigurationService configurationService;
+
   private TestResultService testResultService;
 
   private User testUserPublic;
 
   private TestResult testUserResultFinished;
 
+
   @Before
   public void doSetup() {
-    this.testResultService =
-        new TestResultService(userReporitory, testResultReporitory, questionUserRepository);
+    this.testResultService = new TestResultService(userReporitory, testResultReporitory,
+        questionUserRepository, configurationService);
 
     testUserPublic = new User("test" + UUID.randomUUID() + "@test.email", "test", "url", "pic",
         "city", 40, 150, true, "098f6bcd4621d373cade4e832627b4f6", "ip", 0, Locale.EN);
@@ -144,6 +149,11 @@ public class TestResultServiceTest extends AbstractUnitTest {
     assertEquals(IqTestType.PRACTICE_IQ, testResult.get().getType());
     assertEquals(IqTestStatus.ACTIVE, testResult.get().getStatus());
 
+    // try to submit finish => no success
+    Optional<TestResult> finishTestResultFail =
+        this.testResultService.submitFinish(testResult.get());
+    assertFalse(finishTestResultFail.isPresent());
+
     // submit correct answer
     TestResult submitTestResult =
         this.testResultService.submitUserAnswer(testResult.get(), 1, question.getAnswerCorrect());
@@ -159,5 +169,4 @@ public class TestResultServiceTest extends AbstractUnitTest {
     // delete result
     this.testResultService.deleteTestResult(testResult.get());
   }
-
 }

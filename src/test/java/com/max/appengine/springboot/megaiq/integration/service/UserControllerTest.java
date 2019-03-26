@@ -1,5 +1,9 @@
 package com.max.appengine.springboot.megaiq.integration.service;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,6 +20,7 @@ import com.google.firebase.auth.UserRecord;
 import com.max.appengine.springboot.megaiq.Application;
 import com.max.appengine.springboot.megaiq.integration.AbstractIntegrationTest;
 import com.max.appengine.springboot.megaiq.model.User;
+import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseUser;
 import com.max.appengine.springboot.megaiq.service.EmailService;
 import com.max.appengine.springboot.megaiq.service.FirebaseService;
@@ -25,7 +30,7 @@ import mockit.MockUp;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
 @AutoConfigureMockMvc
-public class ApiControllerTest extends AbstractIntegrationTest {
+public class UserControllerTest extends AbstractIntegrationTest {
   @Autowired
   private MockMvc mvc;
 
@@ -47,7 +52,7 @@ public class ApiControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testNewUser() throws Exception {
+  public void testNewUserCreateAndDelete() throws Exception {
     MvcResult resultApi = mvc
         .perform(MockMvcRequestBuilders.post("/user/new").content(asJsonString(user))
             .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
@@ -58,10 +63,46 @@ public class ApiControllerTest extends AbstractIntegrationTest {
     ApiResponseUser responseUser =
         objectMapper.readValue(resultApi.getResponse().getContentAsString(), ApiResponseUser.class);
     log.info("MvcResultUser = {}", responseUser);
-
+    
+    assertTrue(responseUser.isOk());
+    assertNull(responseUser.getMsg());
+    assertNotNull(responseUser.getLocale());
+    assertNotNull(responseUser.getDate());
+    assertNotNull(responseUser.getUser().getToken());
+    
     UserRecord userRecord = firebaseService.getUserRecord(user);
     user.setUid(userRecord.getUid());
 
     firebaseService.deleteUser(user);
+  }
+  
+  @Test
+  public void testCreateUserTwice() throws Exception {
+    MvcResult resultApi = mvc
+        .perform(MockMvcRequestBuilders.post("/user/new").content(asJsonString(user))
+            .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+        .andReturn();
+
+    log.info("MvcResult is = {}", resultApi.getResponse().getContentAsString());
+
+    UserRecord userRecord = firebaseService.getUserRecord(user);
+    user.setUid(userRecord.getUid());
+    
+    MvcResult resultApiFail = mvc
+        .perform(MockMvcRequestBuilders.post("/user/new").content(asJsonString(user))
+            .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+        .andReturn();
+    log.info("MvcResult fail is = {}", resultApiFail.getResponse().getContentAsString());
+    ObjectMapper objectMapper = new ObjectMapper();
+    ApiResponseBase responseBase =
+        objectMapper.readValue(resultApiFail.getResponse().getContentAsString(), ApiResponseBase.class);
+    log.info("responseBase = {}", responseBase);
+    
+    firebaseService.deleteUser(user);
+    
+    assertFalse(responseBase.isOk());
+    assertNotNull(responseBase.getMsg());
+    assertNotNull(responseBase.getLocale());
+    assertNotNull(responseBase.getDate());
   }
 }

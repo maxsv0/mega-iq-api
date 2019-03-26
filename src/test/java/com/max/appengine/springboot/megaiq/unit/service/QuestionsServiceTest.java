@@ -29,6 +29,7 @@ import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.model.exception.MegaIQException;
 import com.max.appengine.springboot.megaiq.repository.AnswerReporitory;
 import com.max.appengine.springboot.megaiq.repository.QuestionReporitory;
+import com.max.appengine.springboot.megaiq.service.ConfigurationService;
 import com.max.appengine.springboot.megaiq.service.QuestionsService;
 import com.max.appengine.springboot.megaiq.unit.AbstractUnitTest;
 
@@ -45,11 +46,15 @@ public class QuestionsServiceTest extends AbstractUnitTest {
   @Autowired
   private QuestionReporitory questionReporitory;
 
+  @Autowired
+  private ConfigurationService configurationService;
+
   private QuestionsService questionsService;
 
   @Test(expected = RuntimeException.class)
   public void testQuestionsServiceException() throws MegaIQException {
-    this.questionsService = new QuestionsService(answerReporitory, questionReporitory);
+    this.questionsService =
+        new QuestionsService(answerReporitory, questionReporitory, configurationService);
 
     for (Locale locale : Locale.values()) {
       for (IqTestType type : IqTestType.values()) {
@@ -65,7 +70,8 @@ public class QuestionsServiceTest extends AbstractUnitTest {
           GENERATE_ANSWERS_LIMIT, locale);
     }
 
-    this.questionsService = new QuestionsService(answerReporitory, questionReporitory);
+    this.questionsService =
+        new QuestionsService(answerReporitory, questionReporitory, configurationService);
 
     for (Locale locale : Locale.values()) {
       for (IqTestType type : IqTestType.values()) {
@@ -85,7 +91,8 @@ public class QuestionsServiceTest extends AbstractUnitTest {
     generateQuestionsAndAnswers(questionReporitory, answerReporitory, 20, GENERATE_ANSWERS_LIMIT,
         Locale.EN);
 
-    this.questionsService = new QuestionsService(answerReporitory, questionReporitory);
+    this.questionsService =
+        new QuestionsService(answerReporitory, questionReporitory, configurationService);
 
     List<Question> questionsSet1 =
         questionsService.initQuestionsByTestType(IqTestType.PRACTICE_IQ, Locale.EN);
