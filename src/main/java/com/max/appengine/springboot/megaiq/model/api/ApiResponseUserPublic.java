@@ -15,6 +15,7 @@
 package com.max.appengine.springboot.megaiq.model.api;
 
 import java.util.Date;
+import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
 public class ApiResponseUserPublic extends ApiResponseBase {
   private ApiUserPublic user;
@@ -23,13 +24,14 @@ public class ApiResponseUserPublic extends ApiResponseBase {
     return user;
   }
 
-  public ApiResponseUserPublic(ApiUserPublic apiUser) {
+  public ApiResponseUserPublic(ApiUserPublic apiUser, Locale locale) {
     super();
     this.user = apiUser;
 
     this.setOk();
     this.setDate(new Date());
     this.setMsg(null);
+    this.setLocale(locale);
   }
 
   public ApiResponseUserPublic() {

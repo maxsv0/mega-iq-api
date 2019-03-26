@@ -23,6 +23,10 @@ public class ApiResponseTestResult extends ApiResponseBase {
     return test;
   }
 
+  public ApiResponseTestResult() {
+    super();
+  }
+
   public ApiResponseTestResult(ApiTestResult testResult) {
     super();
     this.test = testResult;

@@ -16,6 +16,7 @@ package com.max.appengine.springboot.megaiq.model.api;
 
 import java.util.Date;
 import java.util.List;
+import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
 public class ApiResponseUsersList extends ApiResponseBase {
   private List<ApiUserPublic> users;
@@ -38,7 +39,7 @@ public class ApiResponseUsersList extends ApiResponseBase {
     this.count = count;
   }
 
-  public ApiResponseUsersList(List<ApiUserPublic> apiUsers, long count) {
+  public ApiResponseUsersList(List<ApiUserPublic> apiUsers, long count, Locale locale) {
     super();
     this.users = apiUsers;
     this.count = count;
@@ -46,6 +47,7 @@ public class ApiResponseUsersList extends ApiResponseBase {
     this.setOk();
     this.setDate(new Date());
     this.setMsg(null);
+    this.setLocale(locale);
   }
 
   public ApiResponseUsersList() {

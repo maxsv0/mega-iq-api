@@ -88,4 +88,9 @@ public class ApiUser extends ApiUserPublic {
     this.isEmailVerified = isEmailVerified;
   }
 
+  @Override
+  public String toString() {
+    return "ApiUser [email=" + email + ", password=" + password + ", token=" + token + ", isPublic="
+        + isPublic + ", isEmailVerified=" + isEmailVerified + "]";
+  }
 }

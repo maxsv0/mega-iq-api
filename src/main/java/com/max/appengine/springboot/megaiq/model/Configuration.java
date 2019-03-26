@@ -88,4 +88,10 @@ public class Configuration {
     this.value = value;
   }
 
+
+  @Override
+  public String toString() {
+    return "Configuration [id=" + id + ", locale=" + locale + ", name=" + name + ", type=" + type
+        + ", value=" + value + "]";
+  }
 }

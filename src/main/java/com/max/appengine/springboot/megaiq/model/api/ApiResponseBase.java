@@ -15,21 +15,24 @@
 package com.max.appengine.springboot.megaiq.model.api;
 
 import java.util.Date;
+import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
 public class ApiResponseBase {
   private boolean ok;
   private String msg;
   private Date date;
+  private Locale locale;
 
   public ApiResponseBase() {
     super();
   }
 
-  public ApiResponseBase(String msg) {
+  public ApiResponseBase(String msg, Locale locale) {
     super();
     this.date = new Date();
     this.ok = true;
     this.msg = msg;
+    this.locale = locale;
   }
 
   public boolean isOk() {
@@ -59,12 +62,21 @@ public class ApiResponseBase {
   public void setDate(Date date) {
     this.date = date;
   }
+  
+  public Locale getLocale() {
+    return locale;
+  }
+
+  public void setLocale(Locale locale) {
+    this.locale = locale;
+  }
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((date == null) ? 0 : date.hashCode());
+    result = prime * result + ((locale == null) ? 0 : locale.hashCode());
     result = prime * result + ((msg == null) ? 0 : msg.hashCode());
     result = prime * result + (ok ? 1231 : 1237);
     return result;
@@ -84,6 +96,8 @@ public class ApiResponseBase {
         return false;
     } else if (!date.equals(other.date))
       return false;
+    if (locale != other.locale)
+      return false;
     if (msg == null) {
       if (other.msg != null)
         return false;
@@ -96,6 +110,8 @@ public class ApiResponseBase {
 
   @Override
   public String toString() {
-    return "ApiResponseBase [ok=" + ok + ", msg=" + msg + ", date=" + date + "]";
+    return "ApiResponseBase [ok=" + ok + ", msg=" + msg + ", date=" + date + ", locale=" + locale
+        + "]";
   }
+
 }
