@@ -14,6 +14,7 @@
 
 package com.max.appengine.springboot.megaiq.rest;
 
+import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
+import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.service.StorageService;
 
 @RestController
@@ -32,26 +34,33 @@ public class StorageController extends AbstractApiController {
   }
 
   @RequestMapping(value = "/storage/create", method = RequestMethod.GET)
-  public ResponseEntity<ApiResponseBase> createUploadUrl(HttpServletRequest request) {
+  public ResponseEntity<ApiResponseBase> createUploadUrl(HttpServletRequest request,
+      @RequestParam Optional<String> locale) {
+    Locale userLocale = loadLocale(locale);
+    
     String uploadUrl = storageService.createUploadUrl();
 
-    return sendResponseBase(uploadUrl.substring(22));
+    return sendResponseBaseRaw(uploadUrl.substring(22), userLocale);
   }
 
   @RequestMapping(value = "/storage/serve", method = RequestMethod.GET)
   public ResponseEntity<ApiResponseBase> serveFile(HttpServletRequest request,
-      @RequestParam String key) {
+      @RequestParam String key, @RequestParam Optional<String> locale) {
+    Locale userLocale = loadLocale(locale);
+    
     String servedUrl = storageService.serveFile(key);
 
-    return sendResponseBase(servedUrl);
+    return sendResponseBaseRaw(servedUrl, userLocale);
   }
 
   @RequestMapping(value = "/storage/serve2", method = RequestMethod.GET)
   public ResponseEntity<ApiResponseBase> serveFileByPath(HttpServletRequest request,
-      @RequestParam String path) {
+      @RequestParam String path, @RequestParam Optional<String> locale) {
+    Locale userLocale = loadLocale(locale);
+    
     String servedUrl = storageService.serveFileByPath(path);
 
-    return sendResponseBase(servedUrl);
+    return sendResponseBaseRaw(servedUrl, userLocale);
   }
 
 }

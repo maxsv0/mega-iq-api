@@ -20,6 +20,8 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import com.google.common.collect.Table;
+import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseError;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseTestResult;
@@ -43,24 +45,37 @@ public abstract class AbstractApiController {
     return sendResponseOk(new ApiResponseTestResult(testResult));
   }
 
-  protected ResponseEntity<ApiResponseBase> sendResponseUsersList(List<ApiUserPublic> apiUsers, long count) {
-    return sendResponseOk(new ApiResponseUsersList(apiUsers, count));
+  protected ResponseEntity<ApiResponseBase> sendResponseUsersList(List<ApiUserPublic> apiUsers,
+      long count, Locale locale) {
+    return sendResponseOk(new ApiResponseUsersList(apiUsers, count, locale));
   }
 
-  protected ResponseEntity<ApiResponseBase> sendResponseUserPublic(ApiUserPublic apiUser) {
-    return sendResponseOk(new ApiResponseUserPublic(apiUser));
+  protected ResponseEntity<ApiResponseBase> sendResponseUserPublic(User user, Locale locale) {
+    return sendResponseOk(new ApiResponseUserPublic(new ApiUserPublic(user), locale));
   }
 
-  protected ResponseEntity<ApiResponseBase> sendResponseUser(ApiUser apiUser) {
-    return sendResponseOk(new ApiResponseUser(apiUser));
-  }
-  
-  protected ResponseEntity<ApiResponseBase> sendResponseError(String message) {
-    return sendResponseOk(new ApiResponseError(message));
+  protected ResponseEntity<ApiResponseBase> sendResponseUser(User user, Locale locale) {
+    return sendResponseOk(new ApiResponseUser(new ApiUser(user), locale));
   }
 
-  protected ResponseEntity<ApiResponseBase> sendResponseBase(String message) {
-    return sendResponseOk(new ApiResponseBase(message));
+  protected ResponseEntity<ApiResponseBase> sendResponseErrorRaw(String message, Locale locale) {
+    return sendResponseOk(new ApiResponseError(message, locale));
+  };
+
+  protected ResponseEntity<ApiResponseBase> sendResponseError(String messageName,
+      Table<String, Locale, String> configCache, Locale locale) {
+
+    return sendResponseErrorRaw(getCacheValue(configCache, messageName, locale), locale);
+  }
+
+  protected ResponseEntity<ApiResponseBase> sendResponseBaseRaw(String message, Locale locale) {
+    return sendResponseOk(new ApiResponseBase(message, locale));
+  }
+
+  protected ResponseEntity<ApiResponseBase> sendResponseBase(String messageName,
+      Table<String, Locale, String> configCache, Locale locale) {
+
+    return sendResponseBaseRaw(getCacheValue(configCache, messageName, locale), locale);
   }
 
   protected ResponseEntity<ApiResponseBase> sendResponseOk(ApiResponseBase response) {
@@ -99,5 +114,23 @@ public abstract class AbstractApiController {
     }
 
     return userLocale;
+  }
+
+  protected void cacheValuesForAllLocales(ConfigurationService configurationService,
+      Table<String, Locale, String> cache, String name) {
+    for (Locale locale : Locale.values()) {
+      cache.put(name, locale, configurationService.getConfigGlobal(name, locale));
+    }
+  }
+
+  protected String getCacheValue(Table<String, Locale, String> cache, String name, Locale locale) {
+    String value = cache.get(name, locale);
+
+    if (value == null) {
+      throw new RuntimeException(
+          "Config value is empty. Name: " + name + ", locale=" + locale + ", Cache=" + cache);
+    }
+
+    return value;
   }
 }

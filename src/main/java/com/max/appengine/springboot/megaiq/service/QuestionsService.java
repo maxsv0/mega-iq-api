@@ -34,18 +34,18 @@ import com.max.appengine.springboot.megaiq.repository.QuestionReporitory;
 @Service
 public class QuestionsService {
   private final Map<IqTestType, Integer> questionsNumber;
-  
+
   private List<Question> questionsList;
-  
+
   private List<Answer> answersList;
 
   private final AnswerReporitory answerReporitory;
-  
+
   private final QuestionReporitory questionReporitory;
 
   @Autowired
-  public QuestionsService(AnswerReporitory answerReporitory,
-      QuestionReporitory questionReporitory) {
+  public QuestionsService(AnswerReporitory answerReporitory, QuestionReporitory questionReporitory,
+      ConfigurationService configurationService) {
     this.answerReporitory = answerReporitory;
     this.questionReporitory = questionReporitory;
 
@@ -60,11 +60,9 @@ public class QuestionsService {
     }
 
     this.questionsNumber = new HashMap<IqTestType, Integer>();
-    this.questionsNumber.put(IqTestType.PRACTICE_IQ, 4);
-    this.questionsNumber.put(IqTestType.STANDART_IQ, 16);
-    this.questionsNumber.put(IqTestType.MEGA_IQ, 36);
-    this.questionsNumber.put(IqTestType.MATH, 12);
-    this.questionsNumber.put(IqTestType.GRAMMAR, 12);
+    for (IqTestType type : IqTestType.values()) {
+      this.questionsNumber.put(type, configurationService.getTestQuestionsLimit(type));
+    }
   }
 
   public int getQuestionsLimitByType(IqTestType testType) {

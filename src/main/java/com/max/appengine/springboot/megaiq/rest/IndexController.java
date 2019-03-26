@@ -14,22 +14,30 @@
 
 package com.max.appengine.springboot.megaiq.rest;
 
+import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.google.appengine.api.utils.SystemProperty;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
+import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
 @RestController
 public class IndexController extends AbstractApiController {
   public static final String VERSION_NAME = "Mega-IQ API v.1";
 
   @RequestMapping(value = "/", method = RequestMethod.GET)
-  public ResponseEntity<ApiResponseBase> index(HttpServletRequest request) {
+  public ResponseEntity<ApiResponseBase> index(HttpServletRequest request,
+      @RequestParam Optional<String> locale) {
+    Locale userLocale = loadLocale(locale);
+
     String version = SystemProperty.version.get();
     String applicationVersion = SystemProperty.applicationVersion.get();
-    return sendResponseBase(VERSION_NAME + " Build " + applicationVersion + " " + version);
+
+    return sendResponseBaseRaw(VERSION_NAME + " Build " + applicationVersion + " " + version,
+        userLocale);
   }
 }

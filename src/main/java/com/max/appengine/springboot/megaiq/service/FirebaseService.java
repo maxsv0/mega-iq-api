@@ -59,8 +59,10 @@ public class FirebaseService {
     return auth.generateEmailVerificationLink(email);
   }
 
-  public String generateToken(Integer userId) throws FirebaseAuthException {
-    return auth.createCustomToken(userId.toString());
+  public String generateToken(Integer userId) throws FirebaseAuthException, IOException {
+    String token = auth.createCustomToken(userId.toString());
+    //FirebaseCustomAuthToken parsedToken = FirebaseCustomAuthToken.parse(new GsonFactory(), token);
+    return token;
   }
 
   public FirebaseToken checkToken(String token) throws FirebaseAuthException {

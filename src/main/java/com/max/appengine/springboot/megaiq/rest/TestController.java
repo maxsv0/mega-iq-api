@@ -50,13 +50,11 @@ import com.max.appengine.springboot.megaiq.service.UserService;
 public class TestController extends AbstractApiController {
   public static final String MESSAGE_START_TEST_FAIL = "message_start_test_fail";
 
-  public static final String MESSAGE_DELETE_SUCCESS = "Test result successfully deleted";
+  public static final String MESSAGE_DELETE_SUCCESS = "message_delete_success";
 
-  public static final String MESSAGE_INVALID_ACCESS = "Access denied, Please log in and try again";
+  public static final String MESSAGE_INVALID_ACCESS = "message_invalid_access";
 
-  public static final String MESSAGE_WRONG_REQUEST = "Wrong request";
-
-  public static final String INTERNAL_ERROR = "Service error. Please try again later";
+  public static final String MESSAGE_WRONG_REQUEST = "message_wrong_request";
 
   private final QuestionsService questionsService;
 
@@ -66,9 +64,7 @@ public class TestController extends AbstractApiController {
 
   private final EmailService emailService;
 
-  private final ConfigurationService configurationService;
-
-  Table<String, Locale, String> messageText = HashBasedTable.create();
+  private final Table<String, Locale, String> configCache = HashBasedTable.create();
 
   @Autowired
   public TestController(UserService userService, QuestionsService questionsService,
@@ -78,12 +74,11 @@ public class TestController extends AbstractApiController {
     this.userService = userService;
     this.testResultService = testResultService;
     this.emailService = emailService;
-    this.configurationService = configurationService;
 
-    for (Locale locale : Locale.values()) {
-      this.messageText.put(MESSAGE_START_TEST_FAIL, locale,
-          this.configurationService.getConfigGlobal(MESSAGE_START_TEST_FAIL, locale));
-    }
+    cacheValuesForAllLocales(configurationService, configCache, MESSAGE_START_TEST_FAIL);
+    cacheValuesForAllLocales(configurationService, configCache, MESSAGE_DELETE_SUCCESS);
+    cacheValuesForAllLocales(configurationService, configCache, MESSAGE_INVALID_ACCESS);
+    cacheValuesForAllLocales(configurationService, configCache, MESSAGE_WRONG_REQUEST);
   }
 
   @RequestMapping(value = "/test/start", method = RequestMethod.GET)
@@ -94,28 +89,28 @@ public class TestController extends AbstractApiController {
     Optional<String> token = getTokenFromHeader(request);
 
     if (!token.isPresent()) {
-      return sendResponseError(MESSAGE_INVALID_ACCESS);
+      return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
     }
 
     Optional<User> user = userService.getUserByToken(token.get());
     if (!user.isPresent()) {
-      return sendResponseError(MESSAGE_INVALID_ACCESS);
+      return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
     }
 
     List<Question> questions = null;
     try {
       questions = this.questionsService.initQuestionsByTestType(type, userLocale);
     } catch (MegaIQException e) {
-      return sendResponseError(getMessageByNameAndLocale(MESSAGE_START_TEST_FAIL, userLocale));
+      return sendResponseError(MESSAGE_START_TEST_FAIL, configCache, userLocale);
     }
     if (questions == null || questions.isEmpty()) {
-      return sendResponseError(getMessageByNameAndLocale(MESSAGE_START_TEST_FAIL, userLocale));
+      return sendResponseError(MESSAGE_START_TEST_FAIL, configCache, userLocale);
     }
 
     Optional<TestResult> testResult =
         testResultService.startUserTest(user.get(), type, questions, userLocale);
     if (!testResult.isPresent()) {
-      return sendResponseError(getMessageByNameAndLocale(MESSAGE_START_TEST_FAIL, userLocale));
+      return sendResponseError(MESSAGE_START_TEST_FAIL, configCache, userLocale);
     }
 
     ApiTestResult apiTestResult = new ApiTestResult(this.questionsService, testResult.get(), true);
@@ -155,18 +150,18 @@ public class TestController extends AbstractApiController {
 
             return sendResponseTestResult(apiTestResult);
           } else {
-            return sendResponseError(MESSAGE_WRONG_REQUEST);
+            return sendResponseError(MESSAGE_WRONG_REQUEST, configCache, userLocale);
           }
 
         } else {
-          return sendResponseError(MESSAGE_INVALID_ACCESS);
+          return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
         }
 
       } else {
-        return sendResponseError(MESSAGE_INVALID_ACCESS);
+        return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
       }
     } else {
-      return sendResponseError(MESSAGE_INVALID_ACCESS);
+      return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
     }
   }
 
@@ -213,15 +208,15 @@ public class TestController extends AbstractApiController {
 
           return sendResponseTestResult(apiTestResult);
         } else {
-          return sendResponseError(MESSAGE_INVALID_ACCESS);
+          return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
         }
 
       } else {
-        return sendResponseError(MESSAGE_INVALID_ACCESS);
+        return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
       }
 
     } else {
-      return sendResponseError(MESSAGE_INVALID_ACCESS);
+      return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
     }
   }
 
@@ -232,45 +227,45 @@ public class TestController extends AbstractApiController {
 
     Optional<String> token = getTokenFromHeader(request);
     if (!token.isPresent()) {
-      return sendResponseError(MESSAGE_INVALID_ACCESS);
+      return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
     }
 
     Optional<User> userCurrentResult = userService.getUserByToken(token.get());
     if (!userCurrentResult.isPresent()) {
-      return sendResponseError(MESSAGE_INVALID_ACCESS);
+      return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
     }
 
     Optional<TestResult> testResult =
         loadIqTestDetailsPrivate(testCode, userCurrentResult.get(), userLocale);
 
     if (!testResult.isPresent()) {
-      return sendResponseBase(MESSAGE_DELETE_SUCCESS);
+      return sendResponseBase(MESSAGE_DELETE_SUCCESS, configCache, userLocale);
     }
 
     this.testResultService.deleteTestResult(testResult.get());
 
-    return sendResponseBase(MESSAGE_DELETE_SUCCESS);
+    return sendResponseBase(MESSAGE_DELETE_SUCCESS, configCache, userLocale);
   }
 
   @RequestMapping(value = "/list-my", method = RequestMethod.GET)
   public ResponseEntity<ApiResponseBase> requestListUserResults(HttpServletRequest request,
       @RequestParam Optional<String> locale) {
 
+    Locale userLocale = loadLocale(locale);
+
     Optional<String> token = getTokenFromHeader(request);
     if (!token.isPresent()) {
-      return sendResponseError(MESSAGE_INVALID_ACCESS);
+      return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
     }
-
-    Locale userLocale = loadLocale(locale);
 
     Optional<User> user;
     try {
       user = userService.getUserByTokenOrRegister(token.get(), getIp(request), userLocale);
     } catch (FirebaseAuthException | MegaIQException e) {
-      return sendResponseError(e.getLocalizedMessage());
+      return sendResponseErrorRaw(e.getLocalizedMessage(), userLocale);
     }
     if (!user.isPresent()) {
-      return sendResponseError(MESSAGE_INVALID_ACCESS);
+      return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
     }
 
     List<TestResult> listResults = loadResultsByUserId(user.get().getId(), userLocale);
@@ -294,7 +289,7 @@ public class TestController extends AbstractApiController {
 
       return sendResponseTestResult(apiTestResult);
     } else {
-      return sendResponseError(MESSAGE_WRONG_REQUEST);
+      return sendResponseError(MESSAGE_WRONG_REQUEST, configCache, locale);
     }
   }
 
@@ -307,7 +302,7 @@ public class TestController extends AbstractApiController {
 
       return sendResponseTestResult(apiTestResult);
     } else {
-      return sendResponseError(MESSAGE_WRONG_REQUEST);
+      return sendResponseError(MESSAGE_WRONG_REQUEST, configCache, locale);
     }
   }
 
@@ -329,9 +324,5 @@ public class TestController extends AbstractApiController {
       TestResult testData = testResultService.loadQuestions(result.get());
       return Optional.of(testData);
     }
-  }
-
-  private String getMessageByNameAndLocale(String name, Locale locale) {
-    return this.messageText.get(name, locale);
   }
 }

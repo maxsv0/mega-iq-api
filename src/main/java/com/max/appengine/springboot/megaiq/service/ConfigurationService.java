@@ -46,6 +46,14 @@ public class ConfigurationService {
     this.config = this.configurationReporitory.findAll();
   }
 
+  public Integer getTestExpire(IqTestType type) {
+    return Integer.valueOf(getConfigValueByNameAndType("test_expire", type));
+  }
+
+  public Integer getTestQuestionsLimit(IqTestType type) {
+    return Integer.valueOf(getConfigValueByNameAndType("test_questions", type));
+  }
+
   public String getDomainByLocale(Locale locale) {
     return getConfigGlobal("domain", locale);
   }
@@ -57,11 +65,12 @@ public class ConfigurationService {
 
   public String getConfigValueByNameAndType(String name, IqTestType type) {
     for (Configuration configuration : this.getConfig()) {
-      if (configuration.getName().equals(name) && configuration.getType() == null)
+      if (configuration.getName().equals(name) && configuration.getType().equals(type))
         return configuration.getValue();
     }
 
-    throw new RuntimeException("Config value not found for name=" + name + ", Type=" + type);
+    throw new RuntimeException("Config value not found for name=" + name + ", Type=" + type
+        + ". Config = " + this.getConfig());
   }
 
   public String getConfigGlobal(String name, Locale locale) {
@@ -70,18 +79,18 @@ public class ConfigurationService {
         return configuration.getValue();
     }
 
-    throw new RuntimeException("Config value not found for name=" + name + ", Locale=" + locale);
+    throw new RuntimeException("Config value not found for name=" + name + ", Locale=" + locale
+        + ". Config = " + this.getConfig());
   }
 
   public String getConfigValueByNameAndTypeAndLocale(String name, Locale locale, IqTestType type) {
     for (Configuration configuration : this.getConfig()) {
-      if (configuration.getName().equals(name)
-          && (configuration.getLocale() == null || configuration.getLocale().equals(locale))
-          && (configuration.getType() == null || configuration.getType().equals(type)))
+      if (configuration.getName().equals(name) && configuration.getLocale().equals(locale)
+          && configuration.getType().equals(type))
         return configuration.getValue();
     }
 
-    throw new RuntimeException(
-        "Config value not found for name=" + name + ", Locale=" + locale + ", Type=" + type);
+    throw new RuntimeException("Config value not found for name=" + name + ", Locale=" + locale
+        + ", Type=" + type + ". Config = " + this.getConfig());
   }
 }

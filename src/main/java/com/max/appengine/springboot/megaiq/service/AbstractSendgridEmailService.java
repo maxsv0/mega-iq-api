@@ -32,12 +32,22 @@ import com.sendgrid.Request;
 import com.sendgrid.Response;
 import com.sendgrid.SendGrid;
 
-abstract class AbstractSendgridEmailService {
+abstract class AbstractSendgridEmailService extends AbstractService {
 
   public String sendgridApiKey = "";
 
   protected boolean loadTemplateAndSend(Locale locale, HashMap<String, String> userData,
       String subject, String content) {
+    if (subject == null) {
+      throw new RuntimeException(
+          "template subject empty. Locale: " + locale + ", Content=" + content);
+    }
+
+    if (locale == null) {
+      throw new RuntimeException(
+          "template locale is empty. Template subject: " + subject + ", Content=" + content);
+    }
+
     String template = loadTemplateFromPath("_template", locale);
 
     List<String> fieldsRequiredGlobal = new ArrayList<String>();

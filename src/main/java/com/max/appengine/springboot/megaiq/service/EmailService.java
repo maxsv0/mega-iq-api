@@ -19,8 +19,11 @@ import java.util.HashMap;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.User;
+import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
 @Service
 public class EmailService extends AbstractSendgridEmailService {
@@ -34,11 +37,17 @@ public class EmailService extends AbstractSendgridEmailService {
 
   public static final String EMAIL_SUBJECT_TEST_RESULT = "email_subject_test_result";
 
-  private final ConfigurationService configurationService;
+  private final Table<String, Locale, String> configCache = HashBasedTable.create();
 
   @Autowired
   public EmailService(ConfigurationService configurationService) {
-    this.configurationService = configurationService;
+    cacheValuesForAllLocales(configurationService, configCache, EMAIL_SUBJECT_NEW_USER);
+    cacheValuesForAllLocales(configurationService, configCache, EMAIL_SUBJECT_EMAIL_VERIFY);
+    cacheValuesForAllLocales(configurationService, configCache, EMAIL_SUBJECT_FORGET);
+    cacheValuesForAllLocales(configurationService, configCache, EMAIL_SUBJECT_DIRECT_LOGIN);
+    cacheValuesForAllLocales(configurationService, configCache, EMAIL_SUBJECT_TEST_RESULT);
+    cacheTitlesForAllTestType(configurationService, configCache);
+    cacheDomainForAllLocale(configurationService, configCache);
   }
 
   public boolean sendEmailRegistration(User user) {
@@ -49,10 +58,8 @@ public class EmailService extends AbstractSendgridEmailService {
     fieldsRequired.add("name");
     content = insertFields(content, fieldsRequired, userData);
 
-    String subject =
-        this.configurationService.getConfigGlobal(EMAIL_SUBJECT_NEW_USER, user.getLocale());
-
-    return loadTemplateAndSend(user.getLocale(), userData, subject, content);
+    return loadTemplateAndSend(user.getLocale(), userData,
+        getCacheValue(configCache, EMAIL_SUBJECT_NEW_USER, user.getLocale()), content);
   }
 
   public boolean sendEmailRegistrationWithVerify(User user, String link) {
@@ -65,10 +72,8 @@ public class EmailService extends AbstractSendgridEmailService {
     fieldsRequired.add("verify_link");
     content = insertFields(content, fieldsRequired, userData);
 
-    String subject =
-        this.configurationService.getConfigGlobal(EMAIL_SUBJECT_NEW_USER, user.getLocale());
-
-    return loadTemplateAndSend(user.getLocale(), userData, subject, content);
+    return loadTemplateAndSend(user.getLocale(), userData,
+        getCacheValue(configCache, EMAIL_SUBJECT_NEW_USER, user.getLocale()), content);
   }
 
   public boolean sendEmailVerify(User user, String link) {
@@ -81,10 +86,8 @@ public class EmailService extends AbstractSendgridEmailService {
     fieldsRequired.add("verify_link");
     content = insertFields(content, fieldsRequired, userData);
 
-    String subject =
-        this.configurationService.getConfigGlobal(EMAIL_SUBJECT_EMAIL_VERIFY, user.getLocale());
-
-    return loadTemplateAndSend(user.getLocale(), userData, subject, content);
+    return loadTemplateAndSend(user.getLocale(), userData,
+        getCacheValue(configCache, EMAIL_SUBJECT_EMAIL_VERIFY, user.getLocale()), content);
   }
 
   public boolean sendEmailForget(User user, String link) {
@@ -97,10 +100,8 @@ public class EmailService extends AbstractSendgridEmailService {
     fieldsRequired.add("forget_link");
     content = insertFields(content, fieldsRequired, userData);
 
-    String subject =
-        this.configurationService.getConfigGlobal(EMAIL_SUBJECT_FORGET, user.getLocale());
-
-    return loadTemplateAndSend(user.getLocale(), userData, subject, content);
+    return loadTemplateAndSend(user.getLocale(), userData,
+        getCacheValue(configCache, EMAIL_SUBJECT_FORGET, user.getLocale()), content);
   }
 
   public boolean sendEmailDirectLogin(User user) {
@@ -111,15 +112,13 @@ public class EmailService extends AbstractSendgridEmailService {
     fieldsRequired.add("name");
     content = insertFields(content, fieldsRequired, userData);
 
-    String subject =
-        this.configurationService.getConfigGlobal(EMAIL_SUBJECT_DIRECT_LOGIN, user.getLocale());
-
-    return loadTemplateAndSend(user.getLocale(), userData, subject, content);
+    return loadTemplateAndSend(user.getLocale(), userData,
+        getCacheValue(configCache, EMAIL_SUBJECT_DIRECT_LOGIN, user.getLocale()), content);
   }
 
   public boolean sendIqTestResult(User user, TestResult testResult) {
     HashMap<String, String> userData = loadUserData(user);
-    String domainUrl = this.configurationService.getDomainByLocale(testResult.getLocale());
+    String domainUrl = getCachedDomain(configCache, testResult.getLocale());
 
     userData.put("test_url", domainUrl + testResult.getUrl());
     userData.put("test_iq_score", testResult.getPoints().toString());
@@ -129,7 +128,7 @@ public class EmailService extends AbstractSendgridEmailService {
             + domainUrl + "/login?token=" + user.getToken()
             + "&returnUrl=%2Fsettings\">unsubscribe</a>. </td></tr>");
 
-    userData.put("test_type_title", this.configurationService.getTestResultTitle(testResult));
+    userData.put("test_type_title", getCachedTitleByTest(configCache, testResult));
 
     String content = loadTemplateFromPath("user-finish-iq-test", user.getLocale());
     List<String> fieldsRequired = new ArrayList<String>();
@@ -141,8 +140,7 @@ public class EmailService extends AbstractSendgridEmailService {
     List<String> fieldsRequiredSubject = new ArrayList<String>();
     fieldsRequiredSubject.add("test_type_title");
 
-    String subject = this.configurationService.getConfigGlobal(EMAIL_SUBJECT_TEST_RESULT,
-        testResult.getLocale());
+    String subject = getCacheValue(configCache, EMAIL_SUBJECT_TEST_RESULT, user.getLocale());
     subject = insertFields(subject, fieldsRequiredSubject, userData);
 
     return loadTemplateAndSend(user.getLocale(), userData, subject, content);
@@ -150,7 +148,7 @@ public class EmailService extends AbstractSendgridEmailService {
 
   public boolean sendTestResult(User user, TestResult testResult) {
     HashMap<String, String> userData = loadUserData(user);
-    String domainUrl = this.configurationService.getDomainByLocale(testResult.getLocale());
+    String domainUrl = getCachedDomain(configCache, testResult.getLocale());
 
     userData.put("test_url", domainUrl + testResult.getUrl());
     userData.put("test_score", testResult.getPoints() + " / " + testResult.getQuestionSet().size());
@@ -160,7 +158,7 @@ public class EmailService extends AbstractSendgridEmailService {
             + domainUrl + "/login?token=" + user.getToken()
             + "&returnUrl=%2Fsettings\">unsubscribe</a>. </td></tr>");
 
-    userData.put("test_type_title", this.configurationService.getTestResultTitle(testResult));
+    userData.put("test_type_title", getCachedTitleByTest(configCache, testResult));
 
     String content = loadTemplateFromPath("user-finish-test", user.getLocale());
     List<String> fieldsRequired = new ArrayList<String>();
@@ -172,8 +170,7 @@ public class EmailService extends AbstractSendgridEmailService {
     List<String> fieldsRequiredSubject = new ArrayList<String>();
     fieldsRequiredSubject.add("test_type_title");
 
-    String subject = this.configurationService.getConfigGlobal(EMAIL_SUBJECT_TEST_RESULT,
-        testResult.getLocale());
+    String subject = getCacheValue(configCache, EMAIL_SUBJECT_TEST_RESULT, user.getLocale());
     subject = insertFields(subject, fieldsRequiredSubject, userData);
 
     return loadTemplateAndSend(testResult.getLocale(), userData, subject, content);

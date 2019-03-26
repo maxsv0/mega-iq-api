@@ -26,6 +26,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 import com.max.appengine.springboot.megaiq.model.Question;
 import com.max.appengine.springboot.megaiq.model.QuestionUser;
 import com.max.appengine.springboot.megaiq.model.TestResult;
@@ -38,7 +40,7 @@ import com.max.appengine.springboot.megaiq.repository.UserReporitory;
 
 @Service
 public class TestResultService {
-  public static final Integer RESULT_EXPIRE_MINUTES = 2 * 60;
+  public static final String CONFIG_RESULT_EXPIRE = "test_expire";
 
   private static final Logger log = LoggerFactory.getLogger(TestResultService.class);
 
@@ -48,12 +50,18 @@ public class TestResultService {
 
   private final QuestionUserRepository questionUserRepository;
 
+  private final Table<String, IqTestType, Integer> configCache = HashBasedTable.create();
+
   @Autowired
   public TestResultService(UserReporitory userReporitory, TestResultReporitory testResultReporitory,
-      QuestionUserRepository questionUserRepository) {
+      QuestionUserRepository questionUserRepository, ConfigurationService configurationService) {
     this.userReporitory = userReporitory;
     this.testResultReporitory = testResultReporitory;
     this.questionUserRepository = questionUserRepository;
+
+    for (IqTestType type : IqTestType.values()) {
+      configCache.put(CONFIG_RESULT_EXPIRE, type, configurationService.getTestExpire(type));
+    }
   }
 
   public long getResultCount() {
@@ -236,11 +244,9 @@ public class TestResultService {
   }
 
   public void expireTestResults() {
-    expireByType(RESULT_EXPIRE_MINUTES, IqTestType.GRAMMAR);
-    expireByType(RESULT_EXPIRE_MINUTES, IqTestType.MATH);
-    expireByType(RESULT_EXPIRE_MINUTES, IqTestType.PRACTICE_IQ);
-    expireByType(RESULT_EXPIRE_MINUTES, IqTestType.STANDART_IQ);
-    expireByType(RESULT_EXPIRE_MINUTES, IqTestType.MEGA_IQ);
+    for (IqTestType type : IqTestType.values()) {
+      expireByType(configCache.get(CONFIG_RESULT_EXPIRE, type), type);
+    }
   }
 
   public void deleteTestResult(TestResult testResult) {

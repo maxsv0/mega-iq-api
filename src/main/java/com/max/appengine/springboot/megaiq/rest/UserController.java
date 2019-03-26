@@ -14,6 +14,7 @@
 
 package com.max.appengine.springboot.megaiq.rest;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -29,6 +30,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
@@ -37,10 +40,10 @@ import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.api.ApiRequestForget;
 import com.max.appengine.springboot.megaiq.model.api.ApiRequestLoginToken;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
-import com.max.appengine.springboot.megaiq.model.api.ApiUser;
 import com.max.appengine.springboot.megaiq.model.api.ApiUserPublic;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.model.exception.MegaIQException;
+import com.max.appengine.springboot.megaiq.service.ConfigurationService;
 import com.max.appengine.springboot.megaiq.service.EmailService;
 import com.max.appengine.springboot.megaiq.service.FirebaseService;
 import com.max.appengine.springboot.megaiq.service.TestResultService;
@@ -48,27 +51,25 @@ import com.max.appengine.springboot.megaiq.service.UserService;
 
 @RestController
 public class UserController extends AbstractApiController {
-  public static final String MESSAGE_REGISTRATION_FAILED = "Registration failed. Please try again";
+  public static final String MESSAGE_REGISTRATION_FAILED = "message_registration_failed";
 
-  public static final String MESSAGE_LOGIN_FAILED = "Wrong login or password";
+  public static final String MESSAGE_LOGIN_FAILED = "message_login_failed";
 
-  public static final String MESSAGE_USER_NOT_FOUND = "User not found or profile is private";
+  public static final String MESSAGE_USER_NOT_FOUND = "message_user_not_found";
 
-  public static final String MESSAGE_VERIFY_EMAIL_SEND =
-      "Email containig verification link was sent";
+  public static final String MESSAGE_VERIFY_EMAIL_SEND = "message_verify_email_send";
 
-  public static final String MESSAGE_VERIFY_SUCCESS = "Email successfully verified";
+  public static final String MESSAGE_VERIFY_SUCCESS = "message_verify_success";
 
-  public static final String MESSAGE_EMAIL_ALREADY_USED = "Email '%s' already exists";
+  public static final String MESSAGE_EMAIL_ALREADY_USED = "message_email_already_used";
 
-  public static final String MESSAGE_EMAIL_FORGET_WAS_SENT =
-      "An email containing reset instructions was sent";
+  public static final String MESSAGE_EMAIL_FORGET_WAS_SENT = "message_email_forget_was_sent";
 
-  public static final String MESSAGE_INVALID_ACCESS = "Access denied, Please log in and try again";
+  public static final String MESSAGE_INVALID_ACCESS = "message_invalid_access";
 
-  public static final String MESSAGE_WRONG_REQUEST = "Wrong request";
+  public static final String MESSAGE_WRONG_REQUEST = "message_wrong_request";
 
-  public static final String INTERNAL_ERROR = "Service error. Please try again later";
+  public static final String MESSAGE_INTERNAL_ERROR = "message_internal_error";
 
   private static final Logger log = Logger.getLogger(UserController.class.getName());
 
@@ -80,19 +81,34 @@ public class UserController extends AbstractApiController {
 
   private final FirebaseService firebaseService;
 
+  private final Table<String, Locale, String> configCache = HashBasedTable.create();
+
   @Autowired
   public UserController(TestResultService testResultService, UserService userService,
-      EmailService emailService, FirebaseService firebaseService) {
+      EmailService emailService, FirebaseService firebaseService,
+      ConfigurationService configurationService) {
     this.userService = userService;
     this.testResultService = testResultService;
     this.emailService = emailService;
     this.firebaseService = firebaseService;
+
+    cacheValuesForAllLocales(configurationService, configCache, MESSAGE_REGISTRATION_FAILED);
+    cacheValuesForAllLocales(configurationService, configCache, MESSAGE_LOGIN_FAILED);
+    cacheValuesForAllLocales(configurationService, configCache, MESSAGE_USER_NOT_FOUND);
+    cacheValuesForAllLocales(configurationService, configCache, MESSAGE_VERIFY_EMAIL_SEND);
+    cacheValuesForAllLocales(configurationService, configCache, MESSAGE_VERIFY_SUCCESS);
+    cacheValuesForAllLocales(configurationService, configCache, MESSAGE_EMAIL_ALREADY_USED);
+    cacheValuesForAllLocales(configurationService, configCache, MESSAGE_EMAIL_FORGET_WAS_SENT);
+    cacheValuesForAllLocales(configurationService, configCache, MESSAGE_INVALID_ACCESS);
+    cacheValuesForAllLocales(configurationService, configCache, MESSAGE_WRONG_REQUEST);
+    cacheValuesForAllLocales(configurationService, configCache, MESSAGE_INTERNAL_ERROR);
   }
 
   @RequestMapping(value = "/user", method = RequestMethod.GET)
   public ResponseEntity<ApiResponseBase> requestNewUser(HttpServletRequest request,
       @RequestParam Optional<String> locale) {
 
+    Locale userLocale = loadLocale(locale);
     Optional<String> token = getTokenFromHeader(request);
     if (token.isPresent()) {
       try {
@@ -113,15 +129,15 @@ public class UserController extends AbstractApiController {
           }
           user.setToken(token.get());
 
-          return sendResponseUser(new ApiUser(user));
+          return sendResponseUser(user, userLocale);
         } else {
-          return sendResponseError(MESSAGE_INVALID_ACCESS);
+          return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
         }
       } catch (FirebaseAuthException error) {
-        return sendResponseError(error.getLocalizedMessage());
+        return sendResponseErrorRaw(error.getLocalizedMessage(), userLocale);
       }
     } else {
-      return sendResponseError(MESSAGE_INVALID_ACCESS);
+      return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
     }
   }
 
@@ -144,24 +160,30 @@ public class UserController extends AbstractApiController {
       String token = firebaseService.generateToken(userResult.getId());
       userResult.setToken(token);
 
-      return sendResponseUser(new ApiUser(userResult));
+      return sendResponseUser(userResult, userLocale);
     } catch (MegaIQException error) {
-      return sendResponseError(String.format(MESSAGE_EMAIL_ALREADY_USED, user.getEmail()));
+      String message = getCacheValue(configCache, MESSAGE_EMAIL_ALREADY_USED, userLocale);
+      message = String.format(message, user.getEmail());
+
+      return sendResponseErrorRaw(message, userLocale);
     } catch (FirebaseAuthException error) {
-      return sendResponseError(error.getLocalizedMessage());
+      return sendResponseErrorRaw(error.getLocalizedMessage(), userLocale);
+    } catch (IOException error) {
+      return sendResponseErrorRaw(error.getLocalizedMessage(), userLocale);
     }
   }
 
   @RequestMapping(value = "/user/loginToken", method = RequestMethod.POST,
       consumes = "application/json")
   public ResponseEntity<ApiResponseBase> requestUserLoginWithToken(
-      @RequestBody ApiRequestLoginToken requestLoginToken) {
+      @RequestBody ApiRequestLoginToken requestLoginToken, @RequestParam Optional<String> locale) {
+    Locale userLocale = loadLocale(locale);
     Optional<User> userResult = userService.getUserByToken(requestLoginToken.getToken());
 
     if (userResult.isPresent()) {
-      return sendResponseUser(new ApiUser(userResult.get()));
+      return sendResponseUser(userResult.get(), userLocale);
     } else {
-      return sendResponseError(MESSAGE_LOGIN_FAILED);
+      return sendResponseError(MESSAGE_LOGIN_FAILED, configCache, userLocale);
     }
   }
 
@@ -176,12 +198,12 @@ public class UserController extends AbstractApiController {
       userResult.get().setTestResultList(listResults);
 
       if (userResult.get().getIsPublic()) {
-        return sendResponseUserPublic(new ApiUserPublic(userResult.get()));
+        return sendResponseUserPublic(userResult.get(), userLocale);
       } else {
-        return sendResponseError(MESSAGE_USER_NOT_FOUND);
+        return sendResponseError(MESSAGE_USER_NOT_FOUND, configCache, userLocale);
       }
     } else {
-      return sendResponseError(MESSAGE_USER_NOT_FOUND);
+      return sendResponseError(MESSAGE_USER_NOT_FOUND, configCache, userLocale);
     }
   }
 
@@ -193,22 +215,22 @@ public class UserController extends AbstractApiController {
     Optional<String> token = getTokenFromHeader(request);
 
     if (!token.isPresent()) {
-      return sendResponseError(MESSAGE_INVALID_ACCESS);
+      return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
     }
 
     Optional<User> userCurrentResult = userService.getUserByToken(token.get());
     if (!userCurrentResult.isPresent()) {
-      return sendResponseError(MESSAGE_INVALID_ACCESS);
+      return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
     }
 
     User userCurrent = userCurrentResult.get();
     if (!userCurrent.getId().equals(userId)) {
-      return sendResponseError(MESSAGE_INVALID_ACCESS);
+      return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
     }
 
     // validate user input
     if (!userCurrent.getId().equals(user.getId())) {
-      return sendResponseError(MESSAGE_WRONG_REQUEST);
+      return sendResponseError(MESSAGE_WRONG_REQUEST, configCache, userLocale);
     }
 
     // email change
@@ -230,11 +252,14 @@ public class UserController extends AbstractApiController {
       firebaseService.saveUser(userCurrent);
 
       User userResult = this.userService.saveUser(userCurrent);
-      return sendResponseUser(new ApiUser(userResult));
+      return sendResponseUser(userResult, userLocale);
     } catch (DataIntegrityViolationException exeption) {
-      return sendResponseError(String.format(MESSAGE_EMAIL_ALREADY_USED, userCurrent.getEmail()));
+      String message = getCacheValue(configCache, MESSAGE_EMAIL_ALREADY_USED, userLocale);
+      message = String.format(message, userCurrent.getEmail());
+
+      return sendResponseErrorRaw(message, userLocale);
     } catch (FirebaseAuthException exeption) {
-      return sendResponseError(exeption.getMessage());
+      return sendResponseErrorRaw(exeption.getMessage(), userLocale);
     }
   }
 
@@ -247,7 +272,8 @@ public class UserController extends AbstractApiController {
     for (User user : usersList) {
       usersPublicList.add(new ApiUserPublic(user));
     }
-    return sendResponseUsersList(usersPublicList, this.testResultService.getResultCount());
+    return sendResponseUsersList(usersPublicList, this.testResultService.getResultCount(),
+        userLocale);
   }
 
   @RequestMapping(value = "/user/list", method = RequestMethod.GET)
@@ -260,7 +286,8 @@ public class UserController extends AbstractApiController {
     for (User user : usersList) {
       usersPublicList.add(new ApiUserPublic(user));
     }
-    return sendResponseUsersList(usersPublicList, this.testResultService.getResultCount());
+    return sendResponseUsersList(usersPublicList, this.testResultService.getResultCount(),
+        userLocale);
   }
 
   @RequestMapping(value = "/user/forget", method = RequestMethod.POST)
@@ -270,14 +297,14 @@ public class UserController extends AbstractApiController {
 
     Optional<User> userResult = userService.getUserByEmail(request.getEmail());
     if (!userResult.isPresent()) {
-      return sendResponseError(MESSAGE_WRONG_REQUEST);
+      return sendResponseError(MESSAGE_WRONG_REQUEST, configCache, userLocale);
     }
 
     String url;
     try {
       url = firebaseService.getPasswordResetLink(userResult.get().getEmail());
     } catch (FirebaseAuthException e) {
-      return sendResponseError(INTERNAL_ERROR);
+      return sendResponseError(MESSAGE_INTERNAL_ERROR, configCache, userLocale);
     }
     boolean resultEmail = emailService.sendEmailForget(userResult.get(), url);
 
@@ -285,7 +312,7 @@ public class UserController extends AbstractApiController {
         "Sending forget email to a userID=" + userResult.get().getId() + ". Result={0}",
         resultEmail);
 
-    return sendResponseBase(MESSAGE_EMAIL_FORGET_WAS_SENT);
+    return sendResponseBase(MESSAGE_EMAIL_FORGET_WAS_SENT, configCache, userLocale);
   }
 
   @RequestMapping(value = "/user/verify", method = RequestMethod.GET)
@@ -295,24 +322,24 @@ public class UserController extends AbstractApiController {
 
     Optional<String> token = getTokenFromHeader(request);
     if (!token.isPresent()) {
-      return sendResponseError(MESSAGE_INVALID_ACCESS);
+      return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
     }
 
     Optional<User> userCurrentResult = userService.getUserByToken(token.get());
     if (!userCurrentResult.isPresent()) {
-      return sendResponseError(MESSAGE_INVALID_ACCESS);
+      return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
     }
 
     User userCurrent = userCurrentResult.get();
     if (userCurrent.getIsEmailVerified()) {
-      return sendResponseBase(MESSAGE_VERIFY_SUCCESS);
+      return sendResponseBase(MESSAGE_VERIFY_SUCCESS, configCache, userLocale);
     }
 
     String url;
     try {
       url = firebaseService.getEmailVerificationLink(userCurrent.getEmail());
     } catch (FirebaseAuthException e) {
-      return sendResponseError(INTERNAL_ERROR);
+      return sendResponseError(MESSAGE_INTERNAL_ERROR, configCache, userLocale);
     }
     boolean result = emailService.sendEmailVerify(userCurrent, url);
 
@@ -321,9 +348,9 @@ public class UserController extends AbstractApiController {
         result);
 
     if (result) {
-      return sendResponseBase(MESSAGE_VERIFY_EMAIL_SEND);
+      return sendResponseBase(MESSAGE_VERIFY_EMAIL_SEND, configCache, userLocale);
     } else {
-      return sendResponseError(INTERNAL_ERROR);
+      return sendResponseError(MESSAGE_INTERNAL_ERROR, configCache, userLocale);
     }
   }
 
@@ -334,30 +361,30 @@ public class UserController extends AbstractApiController {
 
     Optional<String> token = getTokenFromHeader(request);
     if (!token.isPresent()) {
-      return sendResponseError(MESSAGE_INVALID_ACCESS);
+      return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
     }
 
     Optional<User> userCurrentResult = userService.getUserByToken(token.get());
     if (!userCurrentResult.isPresent()) {
-      return sendResponseError(MESSAGE_INVALID_ACCESS);
+      return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
     }
 
     Optional<User> userVerifyResult = userService.getUserByToken(code);
     if (!userVerifyResult.isPresent()) {
-      return sendResponseError(MESSAGE_INVALID_ACCESS);
+      return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
     }
 
     User userVerify = userVerifyResult.get();
 
     User userCurrent = userCurrentResult.get();
     if (!userCurrent.getId().equals(userVerify.getId())) {
-      return sendResponseError(MESSAGE_INVALID_ACCESS);
+      return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
     }
 
     userVerify.setIsEmailVerified(true);
     this.userService.saveUser(userVerify);
 
-    return sendResponseBase(MESSAGE_VERIFY_SUCCESS);
+    return sendResponseBase(MESSAGE_VERIFY_SUCCESS, configCache, userLocale);
   }
 
 }
