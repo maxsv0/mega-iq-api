@@ -48,62 +48,75 @@ public class EmailServiceTest extends AbstractUnitTest {
   }
 
   @Test
-  public void checkAllEmails() {
+  public void testEmailNewUserRegistration() {
     for (Locale locale : Locale.values()) {
       User user = generateUser(locale);
 
-      boolean result = testEmailNewUserRegistration(user);
-      assertTrue(result);
-
-      result = testEmailRegistrationWithVerify(user);
-      assertTrue(result);
-
-      result = testEmailVerify(user);
-      assertTrue(result);
-
-      result = testEmailForget(user);
-      assertTrue(result);
-
-      result = testEmailDirectLogin(user);
-      assertTrue(result);
-
-      result = testSendIqTestResult(user);
-      assertTrue(result);
-
-      result = testSendTestResult(user);
+      boolean result = this.emailService.sendEmailRegistration(user);
       assertTrue(result);
     }
   }
 
-  public boolean testEmailNewUserRegistration(User user) {
-    return this.emailService.sendEmailRegistration(user);
+  @Test
+  public void testEmailRegistrationWithVerify() {
+    for (Locale locale : Locale.values()) {
+      User user = generateUser(locale);
+
+      boolean result =
+          this.emailService.sendEmailRegistrationWithVerify(user, "http://mega-iq.com");
+      assertTrue(result);
+    }
   }
 
-  public boolean testEmailRegistrationWithVerify(User user) {
-    return this.emailService.sendEmailRegistrationWithVerify(user, "http://mega-iq.com");
+  @Test
+  public void testEmailVerify() {
+    for (Locale locale : Locale.values()) {
+      User user = generateUser(locale);
+
+      boolean result = this.emailService.sendEmailVerify(user, "http://mega-iq.com");
+      assertTrue(result);
+    }
   }
 
-  public boolean testEmailVerify(User user) {
-    return this.emailService.sendEmailVerify(user, "http://mega-iq.com");
+  @Test
+  public void testEmailForget() {
+    for (Locale locale : Locale.values()) {
+      User user = generateUser(locale);
+
+      boolean result = this.emailService.sendEmailForget(user, "http://mega-iq.com");
+      assertTrue(result);
+    }
   }
 
-  public boolean testEmailForget(User user) {
-    return this.emailService.sendEmailForget(user, "http://mega-iq.com");
+  @Test
+  public void testEmailDirectLogin() {
+    for (Locale locale : Locale.values()) {
+      User user = generateUser(locale);
+
+      boolean result = this.emailService.sendEmailDirectLogin(user);
+      assertTrue(result);
+    }
   }
 
-  public boolean testEmailDirectLogin(User user) {
-    return this.emailService.sendEmailDirectLogin(user);
+  @Test
+  public void testSendIqTestResult() {
+    for (Locale locale : Locale.values()) {
+      User user = generateUser(locale);
+      TestResult testUserResultFinished = generateTestResult(user);
+
+      boolean result = this.emailService.sendIqTestResult(user, testUserResultFinished);
+      assertTrue(result);
+    }
   }
 
-  public boolean testSendIqTestResult(User user) {
-    TestResult testUserResultFinished = generateTestResult(user);
+  @Test
+  public void testSendTestResult() {
+    for (Locale locale : Locale.values()) {
+      User user = generateUser(locale);
+      TestResult testUserResultFinished = generateTestResult(user);
 
-    return this.emailService.sendIqTestResult(user, testUserResultFinished);
-  }
-
-  public boolean testSendTestResult(User user) {
-    TestResult testUserResultFinished = generateTestResult(user);
-
-    return this.emailService.sendTestResult(user, testUserResultFinished);
+      boolean result = this.emailService.sendTestResult(user, testUserResultFinished);
+      assertTrue(result);
+    }
   }
 }

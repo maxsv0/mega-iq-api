@@ -24,7 +24,7 @@ abstract class AbstractService {
   protected String getCachedTitleByTest(Table<String, Locale, String> cache,
       TestResult testResult) {
 
-    return this.getCacheValue(cache, "title_" + testResult.getType().toString(),
+    return this.getCacheValue(cache, "test_title_" + testResult.getType().toString().toLowerCase(),
         testResult.getLocale());
   }
 
@@ -43,15 +43,25 @@ abstract class AbstractService {
     return value;
   }
 
-  protected void cacheTitlesForAllTestType(ConfigurationService configurationService,
+  protected void cacheInfoForAllTestType(ConfigurationService configurationService,
       Table<String, Locale, String> cache) {
 
     for (IqTestType type : IqTestType.values()) {
-      for (Locale locale : Locale.values()) {
-        String value =
-            configurationService.getConfigValueByNameAndTypeAndLocale("title", locale, type);
 
-        cache.put("title_" + type.toString(), locale, value);
+      String prefix = type.toString().toLowerCase();
+      for (Locale locale : Locale.values()) {
+        cache.put("test_title_" + prefix, locale,
+            configurationService.getConfigValueByNameAndTypeAndLocale("test_title", locale, type));
+        cache.put("test_url_" + prefix, locale,
+            configurationService.getConfigValueByNameAndTypeAndLocale("test_url", locale, type));
+        cache.put("test_title_promo_" + prefix, locale, configurationService
+            .getConfigValueByNameAndTypeAndLocale("test_title_promo", locale, type));
+        cache.put("test_pic_" + prefix, locale,
+            configurationService.getConfigValueByNameAndTypeAndLocale("test_pic", locale, type));
+        cache.put("test_questions_" + prefix, locale, configurationService
+            .getConfigValueByNameAndTypeAndLocale("test_questions", locale, type));
+        cache.put("test_time_" + prefix, locale,
+            configurationService.getConfigValueByNameAndTypeAndLocale("test_time", locale, type));
       }
     }
   }

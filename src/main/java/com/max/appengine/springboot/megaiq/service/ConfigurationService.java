@@ -59,7 +59,7 @@ public class ConfigurationService {
   }
 
   public String getTestResultTitle(TestResult testResult) {
-    return getConfigValueByNameAndTypeAndLocale("title", testResult.getLocale(),
+    return getConfigValueByNameAndTypeAndLocale("test_title", testResult.getLocale(),
         testResult.getType());
   }
 
@@ -85,8 +85,9 @@ public class ConfigurationService {
 
   public String getConfigValueByNameAndTypeAndLocale(String name, Locale locale, IqTestType type) {
     for (Configuration configuration : this.getConfig()) {
-      if (configuration.getName().equals(name) && configuration.getLocale().equals(locale)
-          && configuration.getType().equals(type))
+      if (configuration.getName().equals(name)
+          && (configuration.getLocale() == null || configuration.getLocale().equals(locale))
+          && (configuration.getType() == null || configuration.getType().equals(type)))
         return configuration.getValue();
     }
 
