@@ -157,9 +157,6 @@ public class UserController extends AbstractApiController {
 
       User userResult = userService.addUser(user);
 
-      String token = firebaseService.generateToken(userResult.getId());
-      userResult.setToken(token);
-
       return sendResponseUser(userResult, userLocale);
     } catch (MegaIQException error) {
       String message = getCacheValue(configCache, MESSAGE_EMAIL_ALREADY_USED, userLocale);
@@ -167,8 +164,6 @@ public class UserController extends AbstractApiController {
 
       return sendResponseErrorRaw(message, userLocale);
     } catch (FirebaseAuthException error) {
-      return sendResponseErrorRaw(error.getLocalizedMessage(), userLocale);
-    } catch (IOException error) {
       return sendResponseErrorRaw(error.getLocalizedMessage(), userLocale);
     }
   }

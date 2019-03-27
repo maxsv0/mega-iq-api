@@ -30,39 +30,33 @@ import com.max.appengine.springboot.megaiq.model.User;
 
 @Service
 public class FirebaseService {
-  
+
   private static final InputStream serviceAccountJson =
       FirebaseService.class.getClassLoader().getResourceAsStream("firebase.json");
-  
-  private static final FirebaseOptions firebaseOptions = new FirebaseOptions.Builder()
-      .setCredentials(getCertCredential(serviceAccountJson))
-      .setDatabaseUrl("https://megaiq637.firebaseio.com/").build();
-  
+
+  private static final FirebaseOptions firebaseOptions =
+      new FirebaseOptions.Builder().setCredentials(getCertCredential(serviceAccountJson))
+          .setDatabaseUrl("https://megaiq637.firebaseio.com/").build();
+
   private final FirebaseApp firebaseApp;
   private FirebaseAuth auth;
 
   public FirebaseService() throws IOException {
-    if(FirebaseApp.getApps().isEmpty()) {
+    if (FirebaseApp.getApps().isEmpty()) {
       firebaseApp = FirebaseApp.initializeApp(firebaseOptions);
     } else {
       firebaseApp = FirebaseApp.getInstance();
     }
-    
+
     auth = FirebaseAuth.getInstance(firebaseApp);
   }
-  
+
   public String getPasswordResetLink(String email) throws FirebaseAuthException {
     return auth.generatePasswordResetLink(email);
   }
 
   public String getEmailVerificationLink(String email) throws FirebaseAuthException {
     return auth.generateEmailVerificationLink(email);
-  }
-
-  public String generateToken(Integer userId) throws FirebaseAuthException, IOException {
-    String token = auth.createCustomToken(userId.toString());
-    //FirebaseCustomAuthToken parsedToken = FirebaseCustomAuthToken.parse(new GsonFactory(), token);
-    return token;
   }
 
   public FirebaseToken checkToken(String token) throws FirebaseAuthException {
@@ -73,7 +67,7 @@ public class FirebaseService {
     FirebaseToken firebaseToken = checkToken(token);
     return Integer.valueOf(firebaseToken.getUid());
   }
-  
+
   public UserRecord saveUser(User user) throws FirebaseAuthException {
     UpdateRequest request = new UpdateRequest(user.getUid());
     request.setEmail(user.getEmail());
@@ -100,7 +94,7 @@ public class FirebaseService {
   public UserRecord getUserRecord(User user) throws FirebaseAuthException {
     return auth.getUserByEmail(user.getEmail());
   }
-  
+
   public static GoogleCredentials getCertCredential(InputStream stream) {
     try {
       return GoogleCredentials.fromStream(stream);
