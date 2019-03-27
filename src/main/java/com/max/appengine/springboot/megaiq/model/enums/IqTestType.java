@@ -15,5 +15,5 @@
 package com.max.appengine.springboot.megaiq.model.enums;
 
 public enum IqTestType {
-  PRACTICE_IQ, STANDART_IQ, MEGA_IQ, MATH, GRAMMAR,
+  PRACTICE_IQ, STANDARD_IQ, MEGA_IQ, MATH, GRAMMAR,
 }

@@ -126,7 +126,7 @@ public class TestResultService {
 
     Integer points = 0;
 
-    if (testResult.getType().equals(IqTestType.STANDART_IQ)
+    if (testResult.getType().equals(IqTestType.STANDARD_IQ)
         || testResult.getType().equals(IqTestType.MEGA_IQ)) {
       QuestionGroupsResult questionGroupsResult =
           new QuestionGroupsResult(testResult.getId(), 1, 1, 1, 1);

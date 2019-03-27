@@ -78,7 +78,7 @@ public class QuestionsService {
     switch (testType) {
       case PRACTICE_IQ:
         break;
-      case STANDART_IQ:
+      case STANDARD_IQ:
         break;
       case MEGA_IQ:
         break;

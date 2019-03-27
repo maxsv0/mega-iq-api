@@ -138,7 +138,7 @@ public class TestController extends AbstractApiController {
 
           if (testResultNew.isPresent()) {
 
-            if (testResult.get().getType().equals(IqTestType.STANDART_IQ)
+            if (testResult.get().getType().equals(IqTestType.STANDARD_IQ)
                 || testResult.get().getType().equals(IqTestType.MEGA_IQ)) {
               emailService.sendIqTestResult(userResult.get(), testResult.get());
             } else {
