@@ -53,52 +53,13 @@ public class EmailService extends AbstractSendgridEmailService {
   public boolean sendEmailRegistration(User user) {
     HashMap<String, String> userData = loadUserData(user);
     userData.put("domain_url", getCachedDomain(configCache, user.getLocale()));
-    userData.put("test_url_mega_iq", getCacheValue(configCache, "test_url_mega_iq", user.getLocale()));
-    userData.put("test_title_mega_iq", getCacheValue(configCache, "test_title_mega_iq", user.getLocale()));
-    userData.put("test_title_promo_mega_iq", getCacheValue(configCache, "test_title_promo_mega_iq", user.getLocale()));
-    userData.put("test_pic_mega_iq", getCacheValue(configCache, "test_pic_mega_iq", user.getLocale()));
-    userData.put("test_questions_mega_iq", getCacheValue(configCache, "test_questions_mega_iq", user.getLocale()));
-    userData.put("test_time_mega_iq", getCacheValue(configCache, "test_time_mega_iq", user.getLocale()));
-    
-    userData.put("test_url_standard_iq", getCacheValue(configCache, "test_url_standard_iq", user.getLocale()));
-    userData.put("test_title_standard_iq", getCacheValue(configCache, "test_title_standard_iq", user.getLocale()));
-    userData.put("test_title_promo_standard_iq", getCacheValue(configCache, "test_title_promo_standard_iq", user.getLocale()));
-    userData.put("test_pic_standard_iq", getCacheValue(configCache, "test_pic_standard_iq", user.getLocale()));
-    userData.put("test_questions_standard_iq", getCacheValue(configCache, "test_questions_standard_iq", user.getLocale()));
-    userData.put("test_time_standard_iq", getCacheValue(configCache, "test_time_standard_iq", user.getLocale()));
-
-    userData.put("test_url_practice_iq", getCacheValue(configCache, "test_url_practice_iq", user.getLocale()));
-    userData.put("test_title_practice_iq", getCacheValue(configCache, "test_title_practice_iq", user.getLocale()));
-    userData.put("test_title_promo_practice_iq", getCacheValue(configCache, "test_title_promo_practice_iq", user.getLocale()));
-    userData.put("test_pic_practice_iq", getCacheValue(configCache, "test_pic_practice_iq", user.getLocale()));
-    userData.put("test_questions_practice_iq", getCacheValue(configCache, "test_questions_practice_iq", user.getLocale()));
-    userData.put("test_time_practice_iq", getCacheValue(configCache, "test_time_practice_iq", user.getLocale()));
+    preparePromoFields(userData, user);
 
     String content = loadTemplateFromPath("new-user-registration", user.getLocale());
     List<String> fieldsRequired = new ArrayList<String>();
     fieldsRequired.add("name");
     fieldsRequired.add("domain_url");
-
-    fieldsRequired.add("test_url_mega_iq");
-    fieldsRequired.add("test_title_mega_iq");
-    fieldsRequired.add("test_title_promo_mega_iq");
-    fieldsRequired.add("test_pic_mega_iq");
-    fieldsRequired.add("test_questions_mega_iq");
-    fieldsRequired.add("test_time_mega_iq");
-
-    fieldsRequired.add("test_url_standard_iq");
-    fieldsRequired.add("test_title_standard_iq");
-    fieldsRequired.add("test_title_promo_standard_iq");
-    fieldsRequired.add("test_pic_standard_iq");
-    fieldsRequired.add("test_questions_standard_iq");
-    fieldsRequired.add("test_time_standard_iq");
-
-    fieldsRequired.add("test_url_practice_iq");
-    fieldsRequired.add("test_title_practice_iq");
-    fieldsRequired.add("test_title_promo_practice_iq");
-    fieldsRequired.add("test_pic_practice_iq");
-    fieldsRequired.add("test_questions_practice_iq");
-    fieldsRequired.add("test_time_practice_iq");
+    preparePromoFieldsRequired(fieldsRequired);
 
     content = insertFields(content, fieldsRequired, userData);
 
@@ -110,12 +71,15 @@ public class EmailService extends AbstractSendgridEmailService {
     HashMap<String, String> userData = loadUserData(user);
     userData.put("domain_url", getCachedDomain(configCache, user.getLocale()));
     userData.put("verify_link", link);
+    preparePromoFields(userData, user);
 
     String content = loadTemplateFromPath("new-user-registration-verify", user.getLocale());
     List<String> fieldsRequired = new ArrayList<String>();
     fieldsRequired.add("name");
     fieldsRequired.add("verify_link");
     fieldsRequired.add("domain_url");
+    preparePromoFieldsRequired(fieldsRequired);
+    
     content = insertFields(content, fieldsRequired, userData);
 
     return loadTemplateAndSend(user.getLocale(), userData,
@@ -223,4 +187,50 @@ public class EmailService extends AbstractSendgridEmailService {
     return loadTemplateAndSend(testResult.getLocale(), userData, subject, content);
   }
 
+  private void preparePromoFields(HashMap<String, String> userData, User user){
+    userData.put("test_url_mega_iq", getCacheValue(configCache, "test_url_mega_iq", user.getLocale()));
+    userData.put("test_title_mega_iq", getCacheValue(configCache, "test_title_mega_iq", user.getLocale()));
+    userData.put("test_title_promo_mega_iq", getCacheValue(configCache, "test_title_promo_mega_iq", user.getLocale()));
+    userData.put("test_pic_mega_iq", getCacheValue(configCache, "test_pic_mega_iq", user.getLocale()));
+    userData.put("test_questions_mega_iq", getCacheValue(configCache, "test_questions_mega_iq", user.getLocale()));
+    userData.put("test_time_mega_iq", getCacheValue(configCache, "test_time_mega_iq", user.getLocale()));
+    
+    userData.put("test_url_standard_iq", getCacheValue(configCache, "test_url_standard_iq", user.getLocale()));
+    userData.put("test_title_standard_iq", getCacheValue(configCache, "test_title_standard_iq", user.getLocale()));
+    userData.put("test_title_promo_standard_iq", getCacheValue(configCache, "test_title_promo_standard_iq", user.getLocale()));
+    userData.put("test_pic_standard_iq", getCacheValue(configCache, "test_pic_standard_iq", user.getLocale()));
+    userData.put("test_questions_standard_iq", getCacheValue(configCache, "test_questions_standard_iq", user.getLocale()));
+    userData.put("test_time_standard_iq", getCacheValue(configCache, "test_time_standard_iq", user.getLocale()));
+
+    userData.put("test_url_practice_iq", getCacheValue(configCache, "test_url_practice_iq", user.getLocale()));
+    userData.put("test_title_practice_iq", getCacheValue(configCache, "test_title_practice_iq", user.getLocale()));
+    userData.put("test_title_promo_practice_iq", getCacheValue(configCache, "test_title_promo_practice_iq", user.getLocale()));
+    userData.put("test_pic_practice_iq", getCacheValue(configCache, "test_pic_practice_iq", user.getLocale()));
+    userData.put("test_questions_practice_iq", getCacheValue(configCache, "test_questions_practice_iq", user.getLocale()));
+    userData.put("test_time_practice_iq", getCacheValue(configCache, "test_time_practice_iq", user.getLocale()));
+  }
+ 
+  
+  private void preparePromoFieldsRequired(List<String> fieldsRequired){
+    fieldsRequired.add("test_url_mega_iq");
+    fieldsRequired.add("test_title_mega_iq");
+    fieldsRequired.add("test_title_promo_mega_iq");
+    fieldsRequired.add("test_pic_mega_iq");
+    fieldsRequired.add("test_questions_mega_iq");
+    fieldsRequired.add("test_time_mega_iq");
+
+    fieldsRequired.add("test_url_standard_iq");
+    fieldsRequired.add("test_title_standard_iq");
+    fieldsRequired.add("test_title_promo_standard_iq");
+    fieldsRequired.add("test_pic_standard_iq");
+    fieldsRequired.add("test_questions_standard_iq");
+    fieldsRequired.add("test_time_standard_iq");
+
+    fieldsRequired.add("test_url_practice_iq");
+    fieldsRequired.add("test_title_practice_iq");
+    fieldsRequired.add("test_title_promo_practice_iq");
+    fieldsRequired.add("test_pic_practice_iq");
+    fieldsRequired.add("test_questions_practice_iq");
+    fieldsRequired.add("test_time_practice_iq");
+  }
 }
