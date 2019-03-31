@@ -163,7 +163,11 @@ public class QuestionsService {
       // }
 
       if (addQuestion) {
-        questionSetList.add(question);
+        Question questionAdd = new Question(question);
+        questionAdd.setAnswers(question.getAnswers());
+        Collections.shuffle(questionAdd.getAnswers());
+        
+        questionSetList.add(questionAdd);
         questionNumber++;
       }
 
