@@ -25,6 +25,67 @@ public class ApiUserPublic {
   private Integer iq;
   private String location;
 
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((age == null) ? 0 : age.hashCode());
+    result = prime * result + ((id == null) ? 0 : id.hashCode());
+    result = prime * result + ((iq == null) ? 0 : iq.hashCode());
+    result = prime * result + ((location == null) ? 0 : location.hashCode());
+    result = prime * result + ((name == null) ? 0 : name.hashCode());
+    result = prime * result + ((pic == null) ? 0 : pic.hashCode());
+    result = prime * result + ((url == null) ? 0 : url.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    ApiUserPublic other = (ApiUserPublic) obj;
+    if (age == null) {
+      if (other.age != null)
+        return false;
+    } else if (!age.equals(other.age))
+      return false;
+    if (id == null) {
+      if (other.id != null)
+        return false;
+    } else if (!id.equals(other.id))
+      return false;
+    if (iq == null) {
+      if (other.iq != null)
+        return false;
+    } else if (!iq.equals(other.iq))
+      return false;
+    if (location == null) {
+      if (other.location != null)
+        return false;
+    } else if (!location.equals(other.location))
+      return false;
+    if (name == null) {
+      if (other.name != null)
+        return false;
+    } else if (!name.equals(other.name))
+      return false;
+    if (pic == null) {
+      if (other.pic != null)
+        return false;
+    } else if (!pic.equals(other.pic))
+      return false;
+    if (url == null) {
+      if (other.url != null)
+        return false;
+    } else if (!url.equals(other.url))
+      return false;
+    return true;
+  }
+
   public ApiUserPublic() {
     super();
   }

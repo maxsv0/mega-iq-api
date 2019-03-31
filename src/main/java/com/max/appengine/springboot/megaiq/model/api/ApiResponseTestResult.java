@@ -34,6 +34,12 @@ public class ApiResponseTestResult extends ApiResponseBase {
     this.setOk();
     this.setDate(new Date());
     this.setMsg(null);
+    this.setLocale(testResult.getLocale());
+  }
+
+  @Override
+  public String toString() {
+    return "ApiResponseTestResult [test=" + test + "]";
   }
 
 }

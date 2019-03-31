@@ -23,6 +23,55 @@ public class ApiUser extends ApiUserPublic {
   private Boolean isPublic;
   private Boolean isEmailVerified;
 
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((email == null) ? 0 : email.hashCode());
+    result = prime * result + ((isEmailVerified == null) ? 0 : isEmailVerified.hashCode());
+    result = prime * result + ((isPublic == null) ? 0 : isPublic.hashCode());
+    result = prime * result + ((password == null) ? 0 : password.hashCode());
+    result = prime * result + ((token == null) ? 0 : token.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    ApiUser other = (ApiUser) obj;
+    if (email == null) {
+      if (other.email != null)
+        return false;
+    } else if (!email.equals(other.email))
+      return false;
+    if (isEmailVerified == null) {
+      if (other.isEmailVerified != null)
+        return false;
+    } else if (!isEmailVerified.equals(other.isEmailVerified))
+      return false;
+    if (isPublic == null) {
+      if (other.isPublic != null)
+        return false;
+    } else if (!isPublic.equals(other.isPublic))
+      return false;
+    if (password == null) {
+      if (other.password != null)
+        return false;
+    } else if (!password.equals(other.password))
+      return false;
+    if (token == null) {
+      if (other.token != null)
+        return false;
+    } else if (!token.equals(other.token))
+      return false;
+    return true;
+  }
+
   public ApiUser() {
     super();
   }

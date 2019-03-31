@@ -25,6 +25,48 @@ public class ApiAnswer {
     super();
   }
 
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((id == null) ? 0 : id.hashCode());
+    result = prime * result + ((pic == null) ? 0 : pic.hashCode());
+    result = prime * result + ((pic2x == null) ? 0 : pic2x.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    ApiAnswer other = (ApiAnswer) obj;
+    if (id == null) {
+      if (other.id != null)
+        return false;
+    } else if (!id.equals(other.id))
+      return false;
+    if (pic == null) {
+      if (other.pic != null)
+        return false;
+    } else if (!pic.equals(other.pic))
+      return false;
+    if (pic2x == null) {
+      if (other.pic2x != null)
+        return false;
+    } else if (!pic2x.equals(other.pic2x))
+      return false;
+    return true;
+  }
+
+  @Override
+  public String toString() {
+    return "ApiAnswer [id=" + id + ", pic=" + pic + ", pic2x=" + pic2x + "]";
+  }
+
   public ApiAnswer(AbstractAnswer answer) {
     super();
 

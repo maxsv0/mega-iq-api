@@ -31,6 +31,84 @@ public class ApiQuestion {
   private Date updateDate;
   private List<ApiAnswer> answers;
 
+  public ApiQuestion() {
+    super();
+  }
+
+  @Override
+  public String toString() {
+    return "ApiQuestion [pic=" + pic + ", pic2x=" + pic2x + ", answerCorrect=" + answerCorrect
+        + ", answerUser=" + answerUser + ", title=" + title + ", description=" + description
+        + ", updateDate=" + updateDate + ", answers=" + answers + "]";
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((answerCorrect == null) ? 0 : answerCorrect.hashCode());
+    result = prime * result + ((answerUser == null) ? 0 : answerUser.hashCode());
+    result = prime * result + ((answers == null) ? 0 : answers.hashCode());
+    result = prime * result + ((description == null) ? 0 : description.hashCode());
+    result = prime * result + ((pic == null) ? 0 : pic.hashCode());
+    result = prime * result + ((pic2x == null) ? 0 : pic2x.hashCode());
+    result = prime * result + ((title == null) ? 0 : title.hashCode());
+    result = prime * result + ((updateDate == null) ? 0 : updateDate.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    ApiQuestion other = (ApiQuestion) obj;
+    if (answerCorrect == null) {
+      if (other.answerCorrect != null)
+        return false;
+    } else if (!answerCorrect.equals(other.answerCorrect))
+      return false;
+    if (answerUser == null) {
+      if (other.answerUser != null)
+        return false;
+    } else if (!answerUser.equals(other.answerUser))
+      return false;
+    if (answers == null) {
+      if (other.answers != null)
+        return false;
+    } else if (!answers.equals(other.answers))
+      return false;
+    if (description == null) {
+      if (other.description != null)
+        return false;
+    } else if (!description.equals(other.description))
+      return false;
+    if (pic == null) {
+      if (other.pic != null)
+        return false;
+    } else if (!pic.equals(other.pic))
+      return false;
+    if (pic2x == null) {
+      if (other.pic2x != null)
+        return false;
+    } else if (!pic2x.equals(other.pic2x))
+      return false;
+    if (title == null) {
+      if (other.title != null)
+        return false;
+    } else if (!title.equals(other.title))
+      return false;
+    if (updateDate == null) {
+      if (other.updateDate != null)
+        return false;
+    } else if (!updateDate.equals(other.updateDate))
+      return false;
+    return true;
+  }
+
   public ApiQuestion(AbstractQuestionUser questionUser, Question questionData) {
     super();
 
