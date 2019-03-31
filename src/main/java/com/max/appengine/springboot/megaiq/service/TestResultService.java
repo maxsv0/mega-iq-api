@@ -180,16 +180,16 @@ public class TestResultService {
         }
 
       }
-      points += Math.round(pointsCorrect / pointsTotal * 90);
+      points += Math.round(pointsCorrect * 80 / pointsTotal);
 
-      questionGroupsResult
-          .setMath(questionGroupsCorrect.getMath() / questionGroupsResult.getMath() * 100);
-      questionGroupsResult
-          .setGrammar(questionGroupsCorrect.getGrammar() / questionGroupsResult.getGrammar() * 100);
-      questionGroupsResult.setHorizons(
-          questionGroupsCorrect.getHorizons() / questionGroupsResult.getHorizons() * 100);
-      questionGroupsResult
-          .setLogic(questionGroupsCorrect.getLogic() / questionGroupsResult.getLogic() * 100);
+      questionGroupsResult.setMath(
+          Math.round(100 * questionGroupsCorrect.getMath() / questionGroupsResult.getMath()));
+      questionGroupsResult.setGrammar(
+          Math.round(100 * questionGroupsCorrect.getGrammar() / questionGroupsResult.getGrammar()));
+      questionGroupsResult.setHorizons(Math
+          .round(100 * questionGroupsCorrect.getHorizons() / questionGroupsResult.getHorizons()));
+      questionGroupsResult.setLogic(
+          Math.round(100 * questionGroupsCorrect.getLogic() / questionGroupsResult.getLogic()));
 
       testResult.setGroupsGraph(questionGroupsResult);
     } else {
