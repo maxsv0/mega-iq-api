@@ -4,10 +4,10 @@ Variables used by all template:
 * {email_title}
 * {email_preheader}
 * {email_content}
-* {link_unsubscribe}
+* {unsubscribe_block}
 
-Variables used by each template:
 
+Templates and variables:
 
 ### [direct-login](EN/direct-login.html) 
 * {name}
@@ -17,22 +17,58 @@ Variables used by each template:
 ### [new-user-registration](EN/new-user-registration.html) 
 * {name}
 * {domain_url}
+* {test_pic_mega_iq}
+* {test_url_mega_iq}
+* {test_title_mega_iq}
+* {test_title_promo_mega_iq}
+* {test_questions_mega_iq}
+* {test_time_mega_iq}
+* {test_pic_standard_iq}
+* {test_url_standard_iq}
+* {test_title_standard_iq}
+* {test_title_promo_standard_iq}
+* {test_questions_standard_iq}
+* {test_time_standard_iq}
+* {test_pic_practice_iq}
+* {test_url_practice_iq}
+* {test_title_practice_iq}
+* {test_title_promo_practice_iq}
+* {test_questions_practice_iq}
+* {test_time_practice_iq}
 
-
+                    
 ### [new-user-registration-verify](EN/new-user-registration-verify.html) 
 * {name}
-* {token_verify}
+* {verify_link}
 * {domain_url}
+* {test_pic_mega_iq}
+* {test_url_mega_iq}
+* {test_title_mega_iq}
+* {test_title_promo_mega_iq}
+* {test_questions_mega_iq}
+* {test_time_mega_iq}
+* {test_pic_standard_iq}
+* {test_url_standard_iq}
+* {test_title_standard_iq}
+* {test_title_promo_standard_iq}
+* {test_questions_standard_iq}
+* {test_time_standard_iq}
+* {test_pic_practice_iq}
+* {test_url_practice_iq}
+* {test_title_practice_iq}
+* {test_title_promo_practice_iq}
+* {test_questions_practice_iq}
+* {test_time_practice_iq}
 
 
 ### [user-email-verify](EN/user-email-verify.html)
 * {name}
-* {token_verify}
+* {verify_link}
 
 
 ### [password-forget](EN/password-forget.html)
 * {name}
-* {token_access}
+* {forget_link}
 
 
 ### [user-finish-test](EN/user-finish-test.html)
