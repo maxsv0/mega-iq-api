@@ -18,6 +18,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -84,6 +85,36 @@ public class TestResultServiceTest extends AbstractUnitTest {
 
     testUserResultFinished.setUser(testUserPublic);
     testUserResultFinished.getUser().setPassword(null);
+  }
+
+  @Test
+  public void testExpireTest() {
+    List<Question> questionSetList = new ArrayList<Question>();
+
+    Question question = new Question(-1, "pic", 5, 1, "title", "description",
+        new ArrayList<IqQuestionGroup>(), new Date(), new Date(), testUserPublic.getLocale());
+    questionSetList.add(question);
+
+    Optional<TestResult> testResult = this.testResultService.startUserTest(testUserPublic,
+        IqTestType.PRACTICE_IQ, questionSetList, testUserPublic.getLocale());
+    assertTrue(testResult.isPresent());
+    assertEquals(IqTestType.PRACTICE_IQ, testResult.get().getType());
+    assertEquals(IqTestStatus.ACTIVE, testResult.get().getStatus());
+
+    Optional<TestResult> testResultExpired = this.testResultService
+        .getTestResultByCode(testResult.get().getCode(), testResult.get().getLocale());
+    assertTrue(testResultExpired.isPresent());
+
+    testResultExpired.get().setCreateDate(getDateYesterday());
+    testResultReporitory.save(testResultExpired.get());
+    this.testResultService.expireTestResults();
+
+    Optional<TestResult> testResultExpiredAlready = this.testResultService
+        .getTestResultByCode(testResult.get().getCode(), testResult.get().getLocale());
+    assertTrue(testResultExpired.isPresent());
+    assertEquals(IqTestStatus.EXPIRED, testResultExpiredAlready.get().getStatus());
+    
+    testResultReporitory.delete(testResultExpiredAlready.get());
   }
 
   @Test
@@ -168,5 +199,11 @@ public class TestResultServiceTest extends AbstractUnitTest {
 
     // delete result
     this.testResultService.deleteTestResult(testResult.get());
+  }
+
+  private Date getDateYesterday() {
+    final Calendar cal = Calendar.getInstance();
+    cal.add(Calendar.DATE, -1);
+    return cal.getTime();
   }
 }

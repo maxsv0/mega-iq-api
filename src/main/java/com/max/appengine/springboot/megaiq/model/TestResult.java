@@ -68,6 +68,26 @@ public class TestResult extends AbstractTestResult {
     super();
   }
 
+  public TestResult(TestResult testResult) {
+    super();
+
+    this.setId(testResult.getId());
+    this.setCode(testResult.getCode());
+    this.setUrl(testResult.getUrl());
+    this.setUserId(testResult.getUserId());
+    this.setType(testResult.getType());
+    this.setStatus(testResult.getStatus());
+    this.setCreateDate(testResult.getCreateDate());
+    this.setUpdateDate(testResult.getUpdateDate());
+    this.setFinishDate(testResult.getFinishDate());
+    this.setPoints(testResult.getPoints());
+    this.setGroupsGraph(testResult.getGroupsGraph());
+    this.setLocale(testResult.getLocale());
+    
+    this.setUser(testResult.getUser());
+    this.setQuestionSet(testResult.getQuestionSet());
+  }
+
   public TestResult(Integer userId, IqTestType type, Locale locale) {
     super();
 

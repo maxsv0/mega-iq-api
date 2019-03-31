@@ -51,18 +51,6 @@ public class QuestionsServiceTest extends AbstractUnitTest {
 
   private QuestionsService questionsService;
 
-  @Test(expected = RuntimeException.class)
-  public void testQuestionsServiceException() throws MegaIQException {
-    this.questionsService =
-        new QuestionsService(answerReporitory, questionReporitory, configurationService);
-
-    for (Locale locale : Locale.values()) {
-      for (IqTestType type : IqTestType.values()) {
-        questionsService.initQuestionsByTestType(type, locale);
-      }
-    }
-  }
-
   @Test
   public void testQuestionsServiceBasis() throws MegaIQException {
     for (Locale locale : Locale.values()) {

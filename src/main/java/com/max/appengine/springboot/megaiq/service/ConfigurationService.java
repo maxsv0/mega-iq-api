@@ -18,7 +18,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.max.appengine.springboot.megaiq.model.Configuration;
-import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.repository.ConfigurationReporitory;
@@ -54,14 +53,15 @@ public class ConfigurationService {
     return Integer.valueOf(getConfigValueByNameAndType("test_questions", type));
   }
 
-  public String getDomainByLocale(Locale locale) {
-    return getConfigGlobal("domain", locale);
-  }
-
-  public String getTestResultTitle(TestResult testResult) {
-    return getConfigValueByNameAndTypeAndLocale("test_title", testResult.getLocale(),
-        testResult.getType());
-  }
+  // TODO: remove unused code
+  // public String getDomainByLocale(Locale locale) {
+  // return getConfigGlobal("domain", locale);
+  // }
+  //
+  // public String getTestResultTitle(TestResult testResult) {
+  // return getConfigValueByNameAndTypeAndLocale("test_title", testResult.getLocale(),
+  // testResult.getType());
+  // }
 
   public String getConfigValueByNameAndType(String name, IqTestType type) {
     for (Configuration configuration : this.getConfig()) {
