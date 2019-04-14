@@ -1,26 +1,11 @@
-Mega-IQ 3.0 for App Engine Standard (Java 8)
+Mega-IQ 3.0 for Google App Engine (Java 8)
 ============================
 
 Mega-IQ Spring Boot + Google App Engine application.
 
-See the [Google App Engine standard environment documentation][ae-docs] for more
-detailed instructions.
+## MEGA-IQ 3.0. Requirements
 
-[ae-docs]: https://cloud.google.com/appengine/docs/java/
-
-* [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
-* [Maven](https://maven.apache.org/download.cgi) (at least 3.5)
-* [Google Cloud SDK](https://cloud.google.com/sdk/) (aka gcloud command line tool)
-
-## Setup
-
-* Download and initialize the [Cloud SDK](https://cloud.google.com/sdk/)
-
-    `gcloud init`
-
-* Create an App Engine app within the current Google Cloud Project
-
-    `gcloud app create`
+## [Requirements Document](https://docs.google.com/document/d/1juGpnjcJOHJY45edddpCGH7KFqlJFZyafU-qRk0eF3s/edit?usp=sharing)
 
 ## Maven
 ### Running locally
@@ -33,18 +18,15 @@ To use vist: http://localhost:8080/
 
 `mvn -Dapp.deploy.projectId=megaiq637 -Dapp.deploy.version=$(date "+%Y%m%d-%H%M") clean package com.google.cloud.tools:appengine-maven-plugin:deploy`
 
-To use vist:  https://YOUR-PROJECT-ID.appspot.com
+To use visit:  https://megaiq637.appspot.com
+
+Production proxy: http://api.mega-iq.com
+
+Localized end-point URL: 
+* http://en2.mega-iq.com/api/v1 (EN)
+* http://de.mega-iq.com/api/v1 (DE)
+* http://ru.mega-iq.com/api/v1 (RU)
 
 ## Testing
 
 `mvn verify`
-
-* [Junit4](http://junit.org/junit4/)
-* [Mockito](http://mockito.org/)
-* [Truth](http://google.github.io/truth/)
-
-
-For further information, consult the
-[Java App Engine](https://developers.google.com/appengine/docs/java/overview) documentation.
-
-
