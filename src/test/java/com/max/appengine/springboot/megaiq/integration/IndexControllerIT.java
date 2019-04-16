@@ -12,7 +12,7 @@
  * the License.
  */
 
-package com.max.appengine.springboot.megaiq.integration.index;
+package com.max.appengine.springboot.megaiq.integration;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -27,14 +27,13 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.max.appengine.springboot.megaiq.Application;
-import com.max.appengine.springboot.megaiq.integration.AbstractIntegrationTest;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
 import com.max.appengine.springboot.megaiq.rest.IndexController;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
 @AutoConfigureMockMvc
-public class IndexControllerIT extends AbstractIntegrationTest {
+public class IndexControllerIT extends AbstractIntegrationIT {
   @Autowired
   private MockMvc mvc;
 

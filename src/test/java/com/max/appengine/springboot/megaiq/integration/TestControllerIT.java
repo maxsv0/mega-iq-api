@@ -1,4 +1,4 @@
-package com.max.appengine.springboot.megaiq.integration.service;
+package com.max.appengine.springboot.megaiq.integration;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -19,15 +19,17 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.max.appengine.springboot.megaiq.Application;
-import com.max.appengine.springboot.megaiq.integration.AbstractIntegrationTest;
 import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.api.ApiQuestion;
 import com.max.appengine.springboot.megaiq.model.api.ApiRequestSubmitAnswer;
+import com.max.appengine.springboot.megaiq.model.api.ApiResponseTestInfoList;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseTestResult;
+import com.max.appengine.springboot.megaiq.model.api.ApiTestInfo;
 import com.max.appengine.springboot.megaiq.model.api.ApiTestResult;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.repository.UserReporitory;
+import com.max.appengine.springboot.megaiq.service.ConfigurationService;
 import com.max.appengine.springboot.megaiq.service.EmailService;
 import com.max.appengine.springboot.megaiq.service.UserService;
 import mockit.Mock;
@@ -36,12 +38,15 @@ import mockit.MockUp;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
 @AutoConfigureMockMvc
-public class TestControllerTest extends AbstractIntegrationTest {
+public class TestControllerIT extends AbstractIntegrationIT {
   @Autowired
   private MockMvc mvc;
 
   @Autowired
   private UserReporitory userReporitory;
+
+  @Autowired
+  private ConfigurationService configurationService;
 
   private User user;
 
@@ -65,7 +70,37 @@ public class TestControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testPassPractivIqTest() throws Exception {
+  public void getTestList() throws Exception {
+    MvcResult resultApiTest =
+        mvc.perform(MockMvcRequestBuilders.get("/test/?locale=" + user.getLocale())
+            .header("Authorization", "Bearer 123")).andReturn();
+    ObjectMapper objectMapper = new ObjectMapper();
+    ApiResponseTestInfoList responseTest = objectMapper
+        .readValue(resultApiTest.getResponse().getContentAsString(), ApiResponseTestInfoList.class);
+    log.info("responseTests = {}", responseTest);
+
+    for (ApiTestInfo testInfo : responseTest.getTests()) {
+      assertEquals(testInfo.getName(), configurationService.getConfigValueByNameAndTypeAndLocale(
+          "test_title", user.getLocale(), testInfo.getType()));
+
+      assertEquals(testInfo.getDescription(),
+          configurationService.getConfigValueByNameAndTypeAndLocale("test_title_promo",
+              user.getLocale(), testInfo.getType()));
+
+      assertEquals(testInfo.getUrl(), configurationService
+          .getConfigValueByNameAndTypeAndLocale("test_url", user.getLocale(), testInfo.getType()));
+
+      assertEquals(testInfo.getPic(), configurationService
+          .getConfigValueByNameAndTypeAndLocale("test_pic", user.getLocale(), testInfo.getType()));
+
+      assertEquals(testInfo.getExpire(), configurationService.getTestExpire(testInfo.getType()));
+      
+      assertTrue(testInfo.getTime() > 0);
+    }
+  }
+
+  @Test
+  public void testPassPracticeIqTest() throws Exception {
     ApiTestResult testResult = startTestAndFinish(IqTestType.PRACTICE_IQ);
 
     Integer answersCorrect = 0;
@@ -80,7 +115,7 @@ public class TestControllerTest extends AbstractIntegrationTest {
     assertEquals(answersCorrect, testResult.getPoints());
     assertNull(testResult.getGroupsGraph());
   }
-  
+
   @Test
   public void testPassStandardIqTest() throws Exception {
     ApiTestResult testResult = startTestAndFinish(IqTestType.STANDARD_IQ);
@@ -94,7 +129,7 @@ public class TestControllerTest extends AbstractIntegrationTest {
         answersCorrect++;
       }
     }
-    
+
     assertTrue(answersCorrect > 0);
     assertNotNull(testResult.getGroupsGraph());
     assertTrue((testResult.getGroupsGraph().getGrammar() * testResult.getGroupsGraph().getHorizons()
@@ -114,7 +149,7 @@ public class TestControllerTest extends AbstractIntegrationTest {
         answersCorrect++;
       }
     }
-    
+
     assertTrue(answersCorrect > 0);
     assertNotNull(testResult.getGroupsGraph());
     assertTrue((testResult.getGroupsGraph().getGrammar() * testResult.getGroupsGraph().getHorizons()
@@ -125,22 +160,22 @@ public class TestControllerTest extends AbstractIntegrationTest {
   public void testSendIncorrectQuestionId() throws Exception {
     // 1. start the test
     ApiResponseTestResult responseTest = startTest(IqTestType.MATH);
-    
+
     assertTrue(responseTest.isOk());
     assertNull(responseTest.getMsg());
     assertNotNull(responseTest.getLocale());
     assertNotNull(responseTest.getDate());
     assertNotNull(responseTest.getTest());
     assertEquals(IqTestStatus.ACTIVE, responseTest.getTest().getStatus());
-    
+
     // 2. send incorrect request
     ApiResponseTestResult responseTestAnswer =
         testAnswerQuestion(responseTest.getTest().getCode(), -1, 1);
-    
+
     assertTrue(responseTest.isOk());
     assertNull(responseTest.getMsg());
     assertNotNull(responseTestAnswer.getTest());
-    
+
     assertEquals(responseTest.getTest(), responseTestAnswer.getTest());
   }
 

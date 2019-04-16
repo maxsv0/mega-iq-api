@@ -1,3 +1,4 @@
+package com.max.appengine.springboot.megaiq.unit;
 ///*
 // * Copyright 2018 mega-iq.com
 // *

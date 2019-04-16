@@ -1,4 +1,4 @@
-package com.max.appengine.springboot.megaiq.integration.service;
+package com.max.appengine.springboot.megaiq.integration;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -18,7 +18,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.firebase.auth.UserRecord;
 import com.max.appengine.springboot.megaiq.Application;
-import com.max.appengine.springboot.megaiq.integration.AbstractIntegrationTest;
 import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseUser;
@@ -30,7 +29,7 @@ import mockit.MockUp;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
 @AutoConfigureMockMvc
-public class UserControllerTest extends AbstractIntegrationTest {
+public class UserControllerIT extends AbstractIntegrationIT {
   @Autowired
   private MockMvc mvc;
 

@@ -12,7 +12,7 @@
  * the License.
  */
 
-package com.max.appengine.springboot.megaiq.unit.index;
+package com.max.appengine.springboot.megaiq.unit;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import org.junit.Test;
@@ -24,7 +24,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import com.max.appengine.springboot.megaiq.Application;
-import com.max.appengine.springboot.megaiq.unit.AbstractUnitTest;
 
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc

@@ -12,7 +12,7 @@
  * the License.
  */
 
-package com.max.appengine.springboot.megaiq.unit.service;
+package com.max.appengine.springboot.megaiq.unit;
 
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
@@ -26,7 +26,6 @@ import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.service.EmailService;
-import com.max.appengine.springboot.megaiq.unit.AbstractUnitTest;
 import mockit.Mock;
 import mockit.MockUp;
 

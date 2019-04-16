@@ -12,7 +12,7 @@
  * the License.
  */
 
-package com.max.appengine.springboot.megaiq.unit.service;
+package com.max.appengine.springboot.megaiq.unit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -26,7 +26,6 @@ import com.google.firebase.auth.UserRecord;
 import com.max.appengine.springboot.megaiq.Application;
 import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.service.FirebaseService;
-import com.max.appengine.springboot.megaiq.unit.AbstractUnitTest;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)

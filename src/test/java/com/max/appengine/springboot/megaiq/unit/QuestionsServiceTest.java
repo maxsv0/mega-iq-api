@@ -12,7 +12,7 @@
  * the License.
  */
 
-package com.max.appengine.springboot.megaiq.unit.service;
+package com.max.appengine.springboot.megaiq.unit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -31,7 +31,6 @@ import com.max.appengine.springboot.megaiq.repository.AnswerReporitory;
 import com.max.appengine.springboot.megaiq.repository.QuestionReporitory;
 import com.max.appengine.springboot.megaiq.service.ConfigurationService;
 import com.max.appengine.springboot.megaiq.service.QuestionsService;
-import com.max.appengine.springboot.megaiq.unit.AbstractUnitTest;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)

@@ -37,9 +37,9 @@ import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.repository.AnswerReporitory;
 import com.max.appengine.springboot.megaiq.repository.QuestionReporitory;
 
-public abstract class AbstractIntegrationTest {
+public abstract class AbstractIntegrationIT {
 
-  protected static final Logger log = LoggerFactory.getLogger(AbstractIntegrationTest.class);
+  protected static final Logger log = LoggerFactory.getLogger(AbstractIntegrationIT.class);
 
   @Rule
   public TestName name = new TestName();
