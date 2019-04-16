@@ -35,11 +35,14 @@ import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.api.ApiRequestSubmitAnswer;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
+import com.max.appengine.springboot.megaiq.model.api.ApiResponseTestInfoList;
+import com.max.appengine.springboot.megaiq.model.api.ApiTestInfo;
 import com.max.appengine.springboot.megaiq.model.api.ApiTestResult;
 import com.max.appengine.springboot.megaiq.model.api.ApiUser;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.model.exception.MegaIQException;
+import com.max.appengine.springboot.megaiq.service.AbstractServiceHelper;
 import com.max.appengine.springboot.megaiq.service.ConfigurationService;
 import com.max.appengine.springboot.megaiq.service.EmailService;
 import com.max.appengine.springboot.megaiq.service.QuestionsService;
@@ -64,6 +67,8 @@ public class TestController extends AbstractApiController {
 
   private final EmailService emailService;
 
+  private final ConfigurationService configurationService;
+
   private final Table<String, Locale, String> configCache = HashBasedTable.create();
 
   @Autowired
@@ -74,11 +79,50 @@ public class TestController extends AbstractApiController {
     this.userService = userService;
     this.testResultService = testResultService;
     this.emailService = emailService;
+    this.configurationService = configurationService;
 
     cacheValuesForAllLocales(configurationService, configCache, MESSAGE_START_TEST_FAIL);
     cacheValuesForAllLocales(configurationService, configCache, MESSAGE_DELETE_SUCCESS);
     cacheValuesForAllLocales(configurationService, configCache, MESSAGE_INVALID_ACCESS);
     cacheValuesForAllLocales(configurationService, configCache, MESSAGE_WRONG_REQUEST);
+    AbstractServiceHelper.cacheInfoForAllTestType(configurationService, configCache);
+  }
+
+  @RequestMapping(value = "/test", method = RequestMethod.GET)
+  public ResponseEntity<ApiResponseBase> tests(HttpServletRequest request,
+      @RequestParam Optional<String> locale) {
+
+    Locale userLocale = loadLocale(locale);
+
+    List<ApiTestInfo> tests = new ArrayList<ApiTestInfo>();
+    for (IqTestType type : IqTestType.values()) {
+      ApiTestInfo testInfo = new ApiTestInfo();
+
+      testInfo.setType(type);
+      testInfo.setName(
+          getCacheValue(configCache, "test_title_" + type.toString().toLowerCase(), userLocale));
+
+      testInfo.setTime(Integer.valueOf(
+          getCacheValue(configCache, "test_time_" + type.toString().toLowerCase(), userLocale)));
+
+      testInfo.setQuestions(Integer.valueOf(getCacheValue(configCache,
+          "test_questions_" + type.toString().toLowerCase(), userLocale)));
+
+      testInfo.setPic(
+          getCacheValue(configCache, "test_pic_" + type.toString().toLowerCase(), userLocale));
+
+      testInfo.setDescription(getCacheValue(configCache,
+          "test_title_promo_" + type.toString().toLowerCase(), userLocale));
+
+      testInfo.setUrl(
+          getCacheValue(configCache, "test_url_" + type.toString().toLowerCase(), userLocale));
+
+      testInfo.setExpire(this.configurationService.getTestExpire(type));
+
+      tests.add(testInfo);
+    }
+
+    return sendResponseOk(new ApiResponseTestInfoList(tests, userLocale));
   }
 
   @RequestMapping(value = "/test/start", method = RequestMethod.GET)
