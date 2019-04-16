@@ -32,7 +32,7 @@ import com.sendgrid.Request;
 import com.sendgrid.Response;
 import com.sendgrid.SendGrid;
 
-abstract class AbstractSendgridEmailService extends AbstractService {
+abstract class AbstractSendgridEmailService {
 
   public String sendgridApiKey = "";
 

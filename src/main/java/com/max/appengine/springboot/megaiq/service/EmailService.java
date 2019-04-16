@@ -41,18 +41,24 @@ public class EmailService extends AbstractSendgridEmailService {
 
   @Autowired
   public EmailService(ConfigurationService configurationService) {
-    cacheValuesForAllLocales(configurationService, configCache, EMAIL_SUBJECT_NEW_USER);
-    cacheValuesForAllLocales(configurationService, configCache, EMAIL_SUBJECT_EMAIL_VERIFY);
-    cacheValuesForAllLocales(configurationService, configCache, EMAIL_SUBJECT_FORGET);
-    cacheValuesForAllLocales(configurationService, configCache, EMAIL_SUBJECT_DIRECT_LOGIN);
-    cacheValuesForAllLocales(configurationService, configCache, EMAIL_SUBJECT_TEST_RESULT);
-    cacheInfoForAllTestType(configurationService, configCache);
-    cacheDomainForAllLocale(configurationService, configCache);
+    AbstractServiceHelper.cacheValuesForAllLocales(configurationService, configCache,
+        EMAIL_SUBJECT_NEW_USER);
+    AbstractServiceHelper.cacheValuesForAllLocales(configurationService, configCache,
+        EMAIL_SUBJECT_EMAIL_VERIFY);
+    AbstractServiceHelper.cacheValuesForAllLocales(configurationService, configCache,
+        EMAIL_SUBJECT_FORGET);
+    AbstractServiceHelper.cacheValuesForAllLocales(configurationService, configCache,
+        EMAIL_SUBJECT_DIRECT_LOGIN);
+    AbstractServiceHelper.cacheValuesForAllLocales(configurationService, configCache,
+        EMAIL_SUBJECT_TEST_RESULT);
+    AbstractServiceHelper.cacheInfoForAllTestType(configurationService, configCache);
+    AbstractServiceHelper.cacheDomainForAllLocale(configurationService, configCache);
   }
 
   public boolean sendEmailRegistration(User user) {
     HashMap<String, String> userData = loadUserData(user);
-    userData.put("domain_url", getCachedDomain(configCache, user.getLocale()));
+    userData.put("domain_url",
+        AbstractServiceHelper.getCachedDomain(configCache, user.getLocale()));
     preparePromoFields(userData, user);
 
     String content = loadTemplateFromPath("new-user-registration", user.getLocale());
@@ -64,12 +70,14 @@ public class EmailService extends AbstractSendgridEmailService {
     content = insertFields(content, fieldsRequired, userData);
 
     return loadTemplateAndSend(user.getLocale(), userData,
-        getCacheValue(configCache, EMAIL_SUBJECT_NEW_USER, user.getLocale()), content);
+        AbstractServiceHelper.getCacheValue(configCache, EMAIL_SUBJECT_NEW_USER, user.getLocale()),
+        content);
   }
 
   public boolean sendEmailRegistrationWithVerify(User user, String link) {
     HashMap<String, String> userData = loadUserData(user);
-    userData.put("domain_url", getCachedDomain(configCache, user.getLocale()));
+    userData.put("domain_url",
+        AbstractServiceHelper.getCachedDomain(configCache, user.getLocale()));
     userData.put("verify_link", link);
     preparePromoFields(userData, user);
 
@@ -79,11 +87,12 @@ public class EmailService extends AbstractSendgridEmailService {
     fieldsRequired.add("verify_link");
     fieldsRequired.add("domain_url");
     preparePromoFieldsRequired(fieldsRequired);
-    
+
     content = insertFields(content, fieldsRequired, userData);
 
     return loadTemplateAndSend(user.getLocale(), userData,
-        getCacheValue(configCache, EMAIL_SUBJECT_NEW_USER, user.getLocale()), content);
+        AbstractServiceHelper.getCacheValue(configCache, EMAIL_SUBJECT_NEW_USER, user.getLocale()),
+        content);
   }
 
   public boolean sendEmailVerify(User user, String link) {
@@ -96,8 +105,8 @@ public class EmailService extends AbstractSendgridEmailService {
     fieldsRequired.add("verify_link");
     content = insertFields(content, fieldsRequired, userData);
 
-    return loadTemplateAndSend(user.getLocale(), userData,
-        getCacheValue(configCache, EMAIL_SUBJECT_EMAIL_VERIFY, user.getLocale()), content);
+    return loadTemplateAndSend(user.getLocale(), userData, AbstractServiceHelper
+        .getCacheValue(configCache, EMAIL_SUBJECT_EMAIL_VERIFY, user.getLocale()), content);
   }
 
   public boolean sendEmailForget(User user, String link) {
@@ -111,12 +120,14 @@ public class EmailService extends AbstractSendgridEmailService {
     content = insertFields(content, fieldsRequired, userData);
 
     return loadTemplateAndSend(user.getLocale(), userData,
-        getCacheValue(configCache, EMAIL_SUBJECT_FORGET, user.getLocale()), content);
+        AbstractServiceHelper.getCacheValue(configCache, EMAIL_SUBJECT_FORGET, user.getLocale()),
+        content);
   }
 
   public boolean sendEmailDirectLogin(User user) {
     HashMap<String, String> userData = loadUserData(user);
-    userData.put("domain_url", getCachedDomain(configCache, user.getLocale()));
+    userData.put("domain_url",
+        AbstractServiceHelper.getCachedDomain(configCache, user.getLocale()));
 
     String content = loadTemplateFromPath("direct-login", user.getLocale());
     List<String> fieldsRequired = new ArrayList<String>();
@@ -124,13 +135,13 @@ public class EmailService extends AbstractSendgridEmailService {
     fieldsRequired.add("domain_url");
     content = insertFields(content, fieldsRequired, userData);
 
-    return loadTemplateAndSend(user.getLocale(), userData,
-        getCacheValue(configCache, EMAIL_SUBJECT_DIRECT_LOGIN, user.getLocale()), content);
+    return loadTemplateAndSend(user.getLocale(), userData, AbstractServiceHelper
+        .getCacheValue(configCache, EMAIL_SUBJECT_DIRECT_LOGIN, user.getLocale()), content);
   }
 
   public boolean sendIqTestResult(User user, TestResult testResult) {
     HashMap<String, String> userData = loadUserData(user);
-    String domainUrl = getCachedDomain(configCache, testResult.getLocale());
+    String domainUrl = AbstractServiceHelper.getCachedDomain(configCache, testResult.getLocale());
     userData.put("test_url", domainUrl + testResult.getUrl());
     userData.put("test_iq_score", testResult.getPoints().toString());
 
@@ -139,7 +150,8 @@ public class EmailService extends AbstractSendgridEmailService {
             + domainUrl + "/login?token=" + user.getToken()
             + "&returnUrl=%2Fsettings\">unsubscribe</a>. </td></tr>");
 
-    userData.put("test_type_title", getCachedTitleByTest(configCache, testResult));
+    userData.put("test_type_title",
+        AbstractServiceHelper.getCachedTitleByTest(configCache, testResult));
 
     String content = loadTemplateFromPath("user-finish-iq-test", user.getLocale());
     List<String> fieldsRequired = new ArrayList<String>();
@@ -151,7 +163,8 @@ public class EmailService extends AbstractSendgridEmailService {
     List<String> fieldsRequiredSubject = new ArrayList<String>();
     fieldsRequiredSubject.add("test_type_title");
 
-    String subject = getCacheValue(configCache, EMAIL_SUBJECT_TEST_RESULT, user.getLocale());
+    String subject = AbstractServiceHelper.getCacheValue(configCache, EMAIL_SUBJECT_TEST_RESULT,
+        user.getLocale());
     subject = insertFields(subject, fieldsRequiredSubject, userData);
 
     return loadTemplateAndSend(user.getLocale(), userData, subject, content);
@@ -159,7 +172,7 @@ public class EmailService extends AbstractSendgridEmailService {
 
   public boolean sendTestResult(User user, TestResult testResult) {
     HashMap<String, String> userData = loadUserData(user);
-    String domainUrl = getCachedDomain(configCache, testResult.getLocale());
+    String domainUrl = AbstractServiceHelper.getCachedDomain(configCache, testResult.getLocale());
 
     userData.put("test_url", domainUrl + testResult.getUrl());
     userData.put("test_score", testResult.getPoints() + " / " + testResult.getQuestionSet().size());
@@ -169,7 +182,8 @@ public class EmailService extends AbstractSendgridEmailService {
             + domainUrl + "/login?token=" + user.getToken()
             + "&returnUrl=%2Fsettings\">unsubscribe</a>. </td></tr>");
 
-    userData.put("test_type_title", getCachedTitleByTest(configCache, testResult));
+    userData.put("test_type_title",
+        AbstractServiceHelper.getCachedTitleByTest(configCache, testResult));
 
     String content = loadTemplateFromPath("user-finish-test", user.getLocale());
     List<String> fieldsRequired = new ArrayList<String>();
@@ -181,37 +195,56 @@ public class EmailService extends AbstractSendgridEmailService {
     List<String> fieldsRequiredSubject = new ArrayList<String>();
     fieldsRequiredSubject.add("test_type_title");
 
-    String subject = getCacheValue(configCache, EMAIL_SUBJECT_TEST_RESULT, user.getLocale());
+    String subject = AbstractServiceHelper.getCacheValue(configCache, EMAIL_SUBJECT_TEST_RESULT,
+        user.getLocale());
     subject = insertFields(subject, fieldsRequiredSubject, userData);
 
     return loadTemplateAndSend(testResult.getLocale(), userData, subject, content);
   }
 
-  private void preparePromoFields(HashMap<String, String> userData, User user){
-    userData.put("test_url_mega_iq", getCacheValue(configCache, "test_url_mega_iq", user.getLocale()));
-    userData.put("test_title_mega_iq", getCacheValue(configCache, "test_title_mega_iq", user.getLocale()));
-    userData.put("test_title_promo_mega_iq", getCacheValue(configCache, "test_title_promo_mega_iq", user.getLocale()));
-    userData.put("test_pic_mega_iq", getCacheValue(configCache, "test_pic_mega_iq", user.getLocale()));
-    userData.put("test_questions_mega_iq", getCacheValue(configCache, "test_questions_mega_iq", user.getLocale()));
-    userData.put("test_time_mega_iq", getCacheValue(configCache, "test_time_mega_iq", user.getLocale()));
-    
-    userData.put("test_url_standard_iq", getCacheValue(configCache, "test_url_standard_iq", user.getLocale()));
-    userData.put("test_title_standard_iq", getCacheValue(configCache, "test_title_standard_iq", user.getLocale()));
-    userData.put("test_title_promo_standard_iq", getCacheValue(configCache, "test_title_promo_standard_iq", user.getLocale()));
-    userData.put("test_pic_standard_iq", getCacheValue(configCache, "test_pic_standard_iq", user.getLocale()));
-    userData.put("test_questions_standard_iq", getCacheValue(configCache, "test_questions_standard_iq", user.getLocale()));
-    userData.put("test_time_standard_iq", getCacheValue(configCache, "test_time_standard_iq", user.getLocale()));
+  private void preparePromoFields(HashMap<String, String> userData, User user) {
+    userData.put("test_url_mega_iq",
+        AbstractServiceHelper.getCacheValue(configCache, "test_url_mega_iq", user.getLocale()));
+    userData.put("test_title_mega_iq",
+        AbstractServiceHelper.getCacheValue(configCache, "test_title_mega_iq", user.getLocale()));
+    userData.put("test_title_promo_mega_iq", AbstractServiceHelper.getCacheValue(configCache,
+        "test_title_promo_mega_iq", user.getLocale()));
+    userData.put("test_pic_mega_iq",
+        AbstractServiceHelper.getCacheValue(configCache, "test_pic_mega_iq", user.getLocale()));
+    userData.put("test_questions_mega_iq", AbstractServiceHelper.getCacheValue(configCache,
+        "test_questions_mega_iq", user.getLocale()));
+    userData.put("test_time_mega_iq",
+        AbstractServiceHelper.getCacheValue(configCache, "test_time_mega_iq", user.getLocale()));
 
-    userData.put("test_url_practice_iq", getCacheValue(configCache, "test_url_practice_iq", user.getLocale()));
-    userData.put("test_title_practice_iq", getCacheValue(configCache, "test_title_practice_iq", user.getLocale()));
-    userData.put("test_title_promo_practice_iq", getCacheValue(configCache, "test_title_promo_practice_iq", user.getLocale()));
-    userData.put("test_pic_practice_iq", getCacheValue(configCache, "test_pic_practice_iq", user.getLocale()));
-    userData.put("test_questions_practice_iq", getCacheValue(configCache, "test_questions_practice_iq", user.getLocale()));
-    userData.put("test_time_practice_iq", getCacheValue(configCache, "test_time_practice_iq", user.getLocale()));
+    userData.put("test_url_standard_iq",
+        AbstractServiceHelper.getCacheValue(configCache, "test_url_standard_iq", user.getLocale()));
+    userData.put("test_title_standard_iq", AbstractServiceHelper.getCacheValue(configCache,
+        "test_title_standard_iq", user.getLocale()));
+    userData.put("test_title_promo_standard_iq", AbstractServiceHelper.getCacheValue(configCache,
+        "test_title_promo_standard_iq", user.getLocale()));
+    userData.put("test_pic_standard_iq",
+        AbstractServiceHelper.getCacheValue(configCache, "test_pic_standard_iq", user.getLocale()));
+    userData.put("test_questions_standard_iq", AbstractServiceHelper.getCacheValue(configCache,
+        "test_questions_standard_iq", user.getLocale()));
+    userData.put("test_time_standard_iq", AbstractServiceHelper.getCacheValue(configCache,
+        "test_time_standard_iq", user.getLocale()));
+
+    userData.put("test_url_practice_iq",
+        AbstractServiceHelper.getCacheValue(configCache, "test_url_practice_iq", user.getLocale()));
+    userData.put("test_title_practice_iq", AbstractServiceHelper.getCacheValue(configCache,
+        "test_title_practice_iq", user.getLocale()));
+    userData.put("test_title_promo_practice_iq", AbstractServiceHelper.getCacheValue(configCache,
+        "test_title_promo_practice_iq", user.getLocale()));
+    userData.put("test_pic_practice_iq",
+        AbstractServiceHelper.getCacheValue(configCache, "test_pic_practice_iq", user.getLocale()));
+    userData.put("test_questions_practice_iq", AbstractServiceHelper.getCacheValue(configCache,
+        "test_questions_practice_iq", user.getLocale()));
+    userData.put("test_time_practice_iq", AbstractServiceHelper.getCacheValue(configCache,
+        "test_time_practice_iq", user.getLocale()));
   }
- 
-  
-  private void preparePromoFieldsRequired(List<String> fieldsRequired){
+
+
+  private void preparePromoFieldsRequired(List<String> fieldsRequired) {
     fieldsRequired.add("test_url_mega_iq");
     fieldsRequired.add("test_title_mega_iq");
     fieldsRequired.add("test_title_promo_mega_iq");

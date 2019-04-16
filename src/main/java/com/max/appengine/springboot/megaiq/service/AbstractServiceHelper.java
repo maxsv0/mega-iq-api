@@ -19,20 +19,26 @@ import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
-abstract class AbstractService {
+public abstract class AbstractServiceHelper {
 
-  protected String getCachedTitleByTest(Table<String, Locale, String> cache,
+  public static String getCachedTitleByTest(Table<String, Locale, String> cache,
       TestResult testResult) {
-
-    return this.getCacheValue(cache, "test_title_" + testResult.getType().toString().toLowerCase(),
-        testResult.getLocale());
+    return getCacheValue(cache,
+        "test_title_" + testResult.getType().toString().toLowerCase(), testResult.getLocale());
+  }
+  
+  public static String getCachedTitlePromoByTest(Table<String, Locale, String> cache,
+      TestResult testResult) {
+    return getCacheValue(cache,
+        "test_title_promo_" + testResult.getType().toString().toLowerCase(), testResult.getLocale());
   }
 
-  protected String getCachedDomain(Table<String, Locale, String> cache, Locale locale) {
-    return this.getCacheValue(cache, "domain", locale);
+  public static String getCachedDomain(Table<String, Locale, String> cache, Locale locale) {
+    return getCacheValue(cache, "domain", locale);
   }
 
-  protected String getCacheValue(Table<String, Locale, String> cache, String name, Locale locale) {
+  public static String getCacheValue(Table<String, Locale, String> cache, String name,
+      Locale locale) {
     String value = cache.get(name, locale);
 
     if (value == null) {
@@ -43,7 +49,7 @@ abstract class AbstractService {
     return value;
   }
 
-  protected void cacheInfoForAllTestType(ConfigurationService configurationService,
+  public static void cacheInfoForAllTestType(ConfigurationService configurationService,
       Table<String, Locale, String> cache) {
 
     for (IqTestType type : IqTestType.values()) {
@@ -66,19 +72,17 @@ abstract class AbstractService {
     }
   }
 
-  protected void cacheDomainForAllLocale(ConfigurationService configurationService,
+  protected static void cacheDomainForAllLocale(ConfigurationService configurationService,
       Table<String, Locale, String> cache) {
 
     cacheValuesForAllLocales(configurationService, cache, "domain");
   }
 
-  protected void cacheValuesForAllLocales(ConfigurationService configurationService,
+  protected static void cacheValuesForAllLocales(ConfigurationService configurationService,
       Table<String, Locale, String> cache, String name) {
     for (Locale locale : Locale.values()) {
       cache.put(name, locale, configurationService.getConfigGlobal(name, locale));
     }
   }
-
-
 
 }
