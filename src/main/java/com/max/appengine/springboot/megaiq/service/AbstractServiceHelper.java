@@ -23,14 +23,14 @@ public abstract class AbstractServiceHelper {
 
   public static String getCachedTitleByTest(Table<String, Locale, String> cache,
       TestResult testResult) {
-    return getCacheValue(cache,
-        "test_title_" + testResult.getType().toString().toLowerCase(), testResult.getLocale());
+    return getCacheValue(cache, "test_title_" + testResult.getType().toString().toLowerCase(),
+        testResult.getLocale());
   }
-  
+
   public static String getCachedTitlePromoByTest(Table<String, Locale, String> cache,
       TestResult testResult) {
-    return getCacheValue(cache,
-        "test_title_promo_" + testResult.getType().toString().toLowerCase(), testResult.getLocale());
+    return getCacheValue(cache, "test_title_promo_" + testResult.getType().toString().toLowerCase(),
+        testResult.getLocale());
   }
 
   public static String getCachedDomain(Table<String, Locale, String> cache, Locale locale) {
@@ -68,6 +68,8 @@ public abstract class AbstractServiceHelper {
             .getConfigValueByNameAndTypeAndLocale("test_questions", locale, type));
         cache.put("test_time_" + prefix, locale,
             configurationService.getConfigValueByNameAndTypeAndLocale("test_time", locale, type));
+        cache.put("test_style_name_" + prefix, locale, configurationService
+            .getConfigValueByNameAndTypeAndLocale("test_style_name", locale, type));
       }
     }
   }

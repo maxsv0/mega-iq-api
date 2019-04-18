@@ -158,8 +158,12 @@ INSERT INTO configuration (id, name, type, locale, value) VALUES
 (123, 'message_verify_email_send', NULL,'DE', 'message_verify_email_send_DE'),
 (124, 'message_verify_success', NULL,'DE', 'message_verify_success_DE'),
 (125, 'message_email_already_used', NULL,'DE', 'Email ''%s'' already exists'),
-(126, 'message_email_forget_was_sent', NULL,'DE', 'message_email_forget_was_sent_DE');
-
+(126, 'message_email_forget_was_sent', NULL,'DE', 'message_email_forget_was_sent_DE'),
+(127, 'test_style_name', 'PRACTICE_IQ', NULL,'practice'),
+(128, 'test_style_name', 'STANDARD_IQ', NULL,'standard'),
+(129, 'test_style_name', 'MEGA_IQ', NULL,'megaiq'),
+(130, 'test_style_name', 'MATH', NULL,'math'),
+(131, 'test_style_name', 'GRAMMAR', NULL,'grammar');
 
 insert into answer (id , pic, pic2x, question_id, create_date , update_date, locale ) values  
 (1, 'q1img1-pic', 'q1img1-pic2x', 1,now(),now(),'EN'),

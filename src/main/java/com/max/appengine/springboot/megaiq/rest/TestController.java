@@ -117,6 +117,9 @@ public class TestController extends AbstractApiController {
       testInfo.setUrl(
           getCacheValue(configCache, "test_url_" + type.toString().toLowerCase(), userLocale));
 
+      testInfo.setStyleName(getCacheValue(configCache,
+          "test_style_name_" + type.toString().toLowerCase(), userLocale));
+
       testInfo.setExpire(this.configurationService.getTestExpire(type));
 
       tests.add(testInfo);

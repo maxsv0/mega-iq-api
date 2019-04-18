@@ -20,14 +20,15 @@ import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 
 @JsonInclude(Include.NON_NULL)
 public class ApiTestInfo {
-  private String name;
   private IqTestType type;
-  private String description;
+  private String name;
   private String url;
   private String pic;
+  private String description;
   private Integer questions;
   private Integer time;
   private Integer expire;
+  private String styleName;
 
   public String getName() {
     return name;
@@ -91,6 +92,14 @@ public class ApiTestInfo {
 
   public void setExpire(Integer expire) {
     this.expire = expire;
+  }
+
+  public String getStyleName() {
+    return styleName;
+  }
+
+  public void setStyleName(String styleName) {
+    this.styleName = styleName;
   }
 
   @Override
