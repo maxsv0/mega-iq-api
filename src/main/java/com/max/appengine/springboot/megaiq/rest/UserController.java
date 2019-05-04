@@ -201,7 +201,7 @@ public class UserController extends AbstractApiController {
     }
   }
 
-  @RequestMapping(value = "/user/{userId}", method = RequestMethod.PUT)
+  @RequestMapping(value = "/user/{userId}", method = RequestMethod.POST)
   public ResponseEntity<ApiResponseBase> updateUserById(HttpServletRequest request,
       @PathVariable Integer userId, @RequestBody User user, @RequestParam Optional<String> locale) {
 
@@ -239,6 +239,7 @@ public class UserController extends AbstractApiController {
     userCurrent.setLocation(user.getLocation());
     userCurrent.setPic(user.getPic());
     userCurrent.setIsPublic(user.getIsPublic());
+    userCurrent.setIsUnsubscribed(user.getIsUnsubscribed());
 
     userCurrent.setIp(getIp(request));
 
