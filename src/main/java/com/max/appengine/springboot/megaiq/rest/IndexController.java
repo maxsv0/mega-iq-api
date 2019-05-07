@@ -17,6 +17,7 @@ package com.max.appengine.springboot.megaiq.rest;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,6 +26,7 @@ import com.google.appengine.api.utils.SystemProperty;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
+@CrossOrigin
 @RestController
 public class IndexController extends AbstractApiController {
   public static final String VERSION_NAME = "Mega-IQ API v.1";
