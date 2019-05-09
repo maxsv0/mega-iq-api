@@ -186,14 +186,17 @@ public class TestController extends AbstractApiController {
               this.testResultService.submitFinish(testResult.get());
 
           if (testResultNew.isPresent()) {
-
-            if (testResult.get().getType().equals(IqTestType.STANDARD_IQ)
-                || testResult.get().getType().equals(IqTestType.MEGA_IQ)) {
-              emailService.sendIqTestResult(userResult.get(), testResult.get());
-            } else {
-              emailService.sendTestResult(userResult.get(), testResult.get());
+              
+            if (!userResult.get().getIsUnsubscribed()) {
+              // STANDARD_IQ and MEGA_IQ have separate mail template
+              if (testResult.get().getType().equals(IqTestType.STANDARD_IQ)
+                  || testResult.get().getType().equals(IqTestType.MEGA_IQ)) {
+                emailService.sendIqTestResult(userResult.get(), testResult.get());
+              } else {
+                emailService.sendTestResult(userResult.get(), testResult.get());
+              }
             }
-
+            
             ApiTestResult apiTestResult =
                 new ApiTestResult(this.questionsService, testResultNew.get(), true);
 
