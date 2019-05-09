@@ -71,6 +71,7 @@ public class UserService {
       throw new MegaIQException(Level.SEVERE, "User already exists");
     }
 
+    user.setIsUnsubscribed(false);
     user.setCreateDate(new Date());
     userResult = userReporitory.save(user);
 
