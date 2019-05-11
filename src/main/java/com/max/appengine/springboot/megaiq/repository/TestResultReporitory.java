@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
@@ -32,4 +33,10 @@ public interface TestResultReporitory extends JpaRepository<TestResult, Integer>
 
   List<TestResult> findByCreateDateBeforeAndTypeAndStatus(Date createDate, IqTestType type,
       IqTestStatus status);
+
+  @Query("select count(*) from user_test_result as tr, question_user as qu where tr.id = qu.test_id and tr.status = 'FINISHED' and tr.user_id = %?1 and qu.answer_correct = qu.answer_user group by test_id")
+  List<Integer> getCountAnswersCorrectByUser(Integer userId);
+  
+  @Query("select count(*) from user_test_result as tr, question_user as qu where tr.id = qu.test_id and tr.status = 'FINISHED' and tr.user_id = %?1 group by test_id")
+  List<Integer> getCountAnswersByUser(Integer userId);
 }

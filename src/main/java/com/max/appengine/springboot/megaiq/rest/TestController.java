@@ -178,25 +178,33 @@ public class TestController extends AbstractApiController {
       Optional<User> userResult = userService.getUserByToken(token.get());
 
       if (userResult.isPresent()) {
-        Optional<TestResult> testResult =
-            loadIqTestDetailsPrivate(testCode, userResult.get(), userLocale);
+        User user = userResult.get();
+
+        Optional<TestResult> testResult = loadIqTestDetailsPrivate(testCode, user, userLocale);
 
         if (testResult.isPresent()) {
           Optional<TestResult> testResultNew =
               this.testResultService.submitFinish(testResult.get());
 
           if (testResultNew.isPresent()) {
-              
-            if (!userResult.get().getIsUnsubscribed()) {
+            Boolean showIq = this.testResultService.getIsEligibleToShowIq(user);
+            if (showIq) {
+              if (user.getIq() == null || user.getIq() < testResult.get().getPoints()) {
+                user.setIq(testResult.get().getPoints());
+                this.userService.saveUser(user);
+              }
+            }
+
+            if (!user.getIsUnsubscribed()) {
               // STANDARD_IQ and MEGA_IQ have separate mail template
               if (testResult.get().getType().equals(IqTestType.STANDARD_IQ)
                   || testResult.get().getType().equals(IqTestType.MEGA_IQ)) {
-                emailService.sendIqTestResult(userResult.get(), testResult.get());
+                emailService.sendIqTestResult(user, testResult.get());
               } else {
-                emailService.sendTestResult(userResult.get(), testResult.get());
+                emailService.sendTestResult(user, testResult.get());
               }
             }
-            
+
             ApiTestResult apiTestResult =
                 new ApiTestResult(this.questionsService, testResultNew.get(), true);
 

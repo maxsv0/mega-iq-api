@@ -14,9 +14,6 @@
 
 package com.max.appengine.springboot.megaiq.service;
 
-import com.max.appengine.springboot.megaiq.model.QuestionGroupsResult;
-import com.max.appengine.springboot.megaiq.model.enums.IqQuestionGroup;
-import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -29,9 +26,12 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import com.max.appengine.springboot.megaiq.model.Question;
+import com.max.appengine.springboot.megaiq.model.QuestionGroupsResult;
 import com.max.appengine.springboot.megaiq.model.QuestionUser;
 import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.User;
+import com.max.appengine.springboot.megaiq.model.enums.IqQuestionGroup;
+import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.repository.QuestionUserRepository;
@@ -42,6 +42,8 @@ import com.max.appengine.springboot.megaiq.repository.UserReporitory;
 public class TestResultService {
   public static final String CONFIG_RESULT_EXPIRE = "test_expire";
 
+  public static final Integer NUMBER_ANSWERS_FOR_USER_IQ = 100;
+  
   private static final Logger log = LoggerFactory.getLogger(TestResultService.class);
 
   private final UserReporitory userReporitory;
@@ -252,7 +254,15 @@ public class TestResultService {
   public void deleteTestResult(TestResult testResult) {
     testResultReporitory.delete(testResult);
   }
+  
+  public boolean getIsEligibleToShowIq(User user) {
+    List<Integer> listCount = this.testResultReporitory.getCountAnswersByUser(user.getId());
 
+    int sumAnswers = listCount.stream().mapToInt(Integer::intValue).sum();
+    
+    return sumAnswers > NUMBER_ANSWERS_FOR_USER_IQ;
+  }
+  
   private void expireByType(Integer minutes, IqTestType type) {
     Date date = new Date();
     Calendar c = Calendar.getInstance();
