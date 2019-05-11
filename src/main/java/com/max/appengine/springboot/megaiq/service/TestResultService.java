@@ -14,6 +14,7 @@
 
 package com.max.appengine.springboot.megaiq.service;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -43,7 +44,7 @@ public class TestResultService {
   public static final String CONFIG_RESULT_EXPIRE = "test_expire";
 
   public static final Integer NUMBER_ANSWERS_FOR_USER_IQ = 100;
-  
+
   private static final Logger log = LoggerFactory.getLogger(TestResultService.class);
 
   private final UserReporitory userReporitory;
@@ -254,15 +255,21 @@ public class TestResultService {
   public void deleteTestResult(TestResult testResult) {
     testResultReporitory.delete(testResult);
   }
-  
-  public boolean getIsEligibleToShowIq(User user) {
-    List<Long> listCount = this.testResultReporitory.getCountAnswersByUser(user.getId());
 
-    int sumAnswers = listCount.stream().mapToInt(Long::intValue).sum();
-    
+  public boolean getIsEligibleToShowIq(User user) {
+    List<Integer> listTestsId = new ArrayList<Integer>();
+
+    List<TestResult> testsList =
+        this.testResultReporitory.findByUserIdAndStatus(user.getId(), IqTestStatus.FINISHED);
+    for (TestResult test : testsList) {
+      listTestsId.add(test.getId());
+    }
+
+    Long sumAnswers = this.questionUserRepository.countByTestIdIn(listTestsId);
+
     return sumAnswers > NUMBER_ANSWERS_FOR_USER_IQ;
   }
-  
+
   private void expireByType(Integer minutes, IqTestType type) {
     Date date = new Date();
     Calendar c = Calendar.getInstance();

@@ -14,6 +14,7 @@
 
 package com.max.appengine.springboot.megaiq.repository;
 
+import java.util.Collection;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.max.appengine.springboot.megaiq.model.QuestionUser;
@@ -21,4 +22,6 @@ import com.max.appengine.springboot.megaiq.model.QuestionUser;
 public interface QuestionUserRepository extends JpaRepository<QuestionUser, Integer> {
 
   List<QuestionUser> findByTestIdOrderByIdDesc(Integer testId);
+  
+  Long countByTestIdIn(Collection<Integer> testsListId);
 }
