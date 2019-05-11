@@ -123,6 +123,7 @@ public abstract class AbstractIntegrationIT {
 
     user.setToken(UUID.randomUUID().toString());
     user.setIsEmailVerified(true);
+    user.setIsUnsubscribed(false);
 
     assertNull(user.getUid());
     assertNotNull(user.getName());

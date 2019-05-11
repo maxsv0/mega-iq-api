@@ -34,9 +34,9 @@ public interface TestResultReporitory extends JpaRepository<TestResult, Integer>
   List<TestResult> findByCreateDateBeforeAndTypeAndStatus(Date createDate, IqTestType type,
       IqTestStatus status);
 
-  @Query("select count(*) from TestResult as tr, QuestionUser as qu where tr.id = qu.testId and tr.status = 'FINISHED' and tr.userId = ?1 and qu.answerCorrect = qu.answerUser group by testId")
-  List<Integer> getCountAnswersCorrectByUser(Integer userId);
+  @Query("select count(*) from TestResult as tr, QuestionUser as qu where tr.id = qu.testId and tr.status = 'FINISHED' and tr.userId = ?1 and qu.answerCorrect = qu.answerUser group by test_id")
+  List<Long> getCountAnswersCorrectByUser(Integer userId);
   
-  @Query("select count(*) from TestResult as tr, QuestionUser as qu where tr.id = qu.testId and tr.status = 'FINISHED' and tr.userId = ?1 group by testId")
-  List<Integer> getCountAnswersByUser(Integer userId);
+  @Query("select count(*) from TestResult as tr, QuestionUser as qu where tr.id = qu.testId and tr.status = 'FINISHED' and tr.userId = ?1 group by test_id")
+  List<Long> getCountAnswersByUser(Integer userId);
 }

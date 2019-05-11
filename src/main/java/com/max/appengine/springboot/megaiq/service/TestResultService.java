@@ -256,9 +256,9 @@ public class TestResultService {
   }
   
   public boolean getIsEligibleToShowIq(User user) {
-    List<Integer> listCount = this.testResultReporitory.getCountAnswersByUser(user.getId());
+    List<Long> listCount = this.testResultReporitory.getCountAnswersByUser(user.getId());
 
-    int sumAnswers = listCount.stream().mapToInt(Integer::intValue).sum();
+    int sumAnswers = listCount.stream().mapToInt(Long::intValue).sum();
     
     return sumAnswers > NUMBER_ANSWERS_FOR_USER_IQ;
   }
