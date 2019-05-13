@@ -56,11 +56,11 @@ public class UserService {
       currentPage = page.get();
     }
 
-    return loadUsersList(locale, 30, PageRequest.of(currentPage, LIMIT_LIST_PAGE));
+    return loadUsersByPeriod(locale, 30, PageRequest.of(currentPage, LIMIT_LIST_PAGE));
   }
 
   public List<User> getUsersListTopToday(Locale locale) {
-    return loadUsersList(locale, 1, PageRequest.of(0, LIMIT_HOME_PAGE));
+    return loadUsersByPeriod(locale, 1, PageRequest.of(0, LIMIT_HOME_PAGE));
   }
 
   public User addUser(User user) throws MegaIQException, FirebaseAuthException {
@@ -185,12 +185,12 @@ public class UserService {
   // return hashString;
   // }
 
-  private List<User> loadUsersList(Locale locale, Integer period, Pageable pageRequest) {
+  private List<User> loadUsersByPeriod(Locale locale, Integer period, Pageable pageRequest) {
     LocalDate dateLocal = LocalDate.now().minusDays(period);
     Date date = Date.from(dateLocal.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
     return userReporitory
-        .findByLocaleAndCreateDateAfterAndIsPublicIsTrueAndIqIsNotNullOrderByIqDesc(locale, date,
+        .findByLocaleAndUpdateDateAfterAndIsPublicIsTrueAndIqIsNotNullOrderByIqDesc(locale, date,
             pageRequest);
   }
 }

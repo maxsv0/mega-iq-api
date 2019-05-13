@@ -28,6 +28,6 @@ public interface UserReporitory extends JpaRepository<User, Integer> {
 
   Optional<User> findByUid(String uid);
   
-  List<User> findByLocaleAndCreateDateAfterAndIsPublicIsTrueAndIqIsNotNullOrderByIqDesc(
+  List<User> findByLocaleAndUpdateDateAfterAndIsPublicIsTrueAndIqIsNotNullOrderByIqDesc(
       Locale locale, Date createDate, Pageable pageable);
 }
