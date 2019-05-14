@@ -66,4 +66,9 @@ public class ApiResponseUsersTop extends ApiResponseBase {
     super();
   }
 
+  @Override
+  public String toString() {
+    return "ApiResponseUsersTop [users=" + users + ", usersTop=" + usersTop + ", count=" + count
+        + "]";
+  }
 }

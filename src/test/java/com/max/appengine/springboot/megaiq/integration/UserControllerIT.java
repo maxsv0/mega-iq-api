@@ -21,6 +21,7 @@ import com.max.appengine.springboot.megaiq.Application;
 import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseUser;
+import com.max.appengine.springboot.megaiq.model.api.ApiResponseUsersTop;
 import com.max.appengine.springboot.megaiq.service.EmailService;
 import com.max.appengine.springboot.megaiq.service.FirebaseService;
 import mockit.Mock;
@@ -103,5 +104,15 @@ public class UserControllerIT extends AbstractIntegrationIT {
     assertNotNull(responseBase.getMsg());
     assertNotNull(responseBase.getLocale());
     assertNotNull(responseBase.getDate());
+  }
+  
+  @Test
+  public void testUsersTop() throws Exception {
+    MvcResult resultApi = mvc.perform(MockMvcRequestBuilders.get("/user/top")).andReturn();
+    ObjectMapper objectMapper = new ObjectMapper();
+    ApiResponseUsersTop response =
+        objectMapper.readValue(resultApi.getResponse().getContentAsString(), ApiResponseUsersTop.class);
+    
+    log.info("response top = {}", response);
   }
 }
