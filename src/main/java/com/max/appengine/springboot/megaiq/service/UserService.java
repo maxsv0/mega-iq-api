@@ -166,7 +166,7 @@ public class UserService {
   }
   
   public List<User> findByUserIdIn(List<Integer> userIds) {
-    return this.userReporitory.findByUserIdIn(userIds);
+    return this.userReporitory.findByIdIn(userIds);
   }
 
   // TODO: remove

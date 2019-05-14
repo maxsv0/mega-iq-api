@@ -32,5 +32,5 @@ public interface UserReporitory extends JpaRepository<User, Integer> {
   List<User> findByLocaleAndUpdateDateAfterAndIsPublicIsTrueAndIqIsNotNullOrderByIqDesc(
       Locale locale, Date createDate, Pageable pageable);
   
-  List<User> findByUserIdIn(Collection<Integer> userIds);
+  List<User> findByIdIn(Collection<Integer> userIds);
 }
