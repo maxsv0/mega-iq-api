@@ -29,9 +29,11 @@ import com.max.appengine.springboot.megaiq.model.api.ApiResponseTestResultList;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseUser;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseUserPublic;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseUsersList;
+import com.max.appengine.springboot.megaiq.model.api.ApiResponseUsersTop;
 import com.max.appengine.springboot.megaiq.model.api.ApiTestResult;
 import com.max.appengine.springboot.megaiq.model.api.ApiUser;
 import com.max.appengine.springboot.megaiq.model.api.ApiUserPublic;
+import com.max.appengine.springboot.megaiq.model.api.ApiUserTop;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.service.ConfigurationService;
 
@@ -44,7 +46,12 @@ public abstract class AbstractApiController {
   protected ResponseEntity<ApiResponseBase> sendResponseTestResult(ApiTestResult testResult) {
     return sendResponseOk(new ApiResponseTestResult(testResult));
   }
-
+  
+  protected ResponseEntity<ApiResponseBase> sendResponseUsersTop(List<ApiUserTop> apiUsersTop,
+      List<ApiUserPublic> apiUsers, long count, Locale locale) {
+    return sendResponseOk(new ApiResponseUsersTop(apiUsersTop, apiUsers, count, locale));
+  }
+  
   protected ResponseEntity<ApiResponseBase> sendResponseUsersList(List<ApiUserPublic> apiUsers,
       long count, Locale locale) {
     return sendResponseOk(new ApiResponseUsersList(apiUsers, count, locale));

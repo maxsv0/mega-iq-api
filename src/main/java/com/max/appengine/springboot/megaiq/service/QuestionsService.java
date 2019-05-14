@@ -118,7 +118,7 @@ public class QuestionsService {
 
     return null;
   }
-
+  
   private List<Question> getQuestionsByGroups(Locale locale, Integer total, Integer math,
       Integer grammar, Integer horizons, Integer logic) throws MegaIQException {
     List<Question> questionAllList = getAllQuestionsByLocale(locale);

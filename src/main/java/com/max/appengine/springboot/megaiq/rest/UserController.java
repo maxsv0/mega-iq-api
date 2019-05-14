@@ -15,6 +15,7 @@
 package com.max.appengine.springboot.megaiq.rest;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -41,6 +42,7 @@ import com.max.appengine.springboot.megaiq.model.api.ApiRequestForget;
 import com.max.appengine.springboot.megaiq.model.api.ApiRequestLoginToken;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
 import com.max.appengine.springboot.megaiq.model.api.ApiUserPublic;
+import com.max.appengine.springboot.megaiq.model.api.ApiUserTop;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.model.exception.MegaIQException;
 import com.max.appengine.springboot.megaiq.service.ConfigurationService;
@@ -269,8 +271,27 @@ public class UserController extends AbstractApiController {
     for (User user : usersList) {
       usersPublicList.add(new ApiUserPublic(user));
     }
-    return sendResponseUsersList(usersPublicList, this.testResultService.getResultCount(),
-        userLocale);
+    
+    List<Object[]> usersListIds = this.testResultService.findTopUserIds(userLocale);
+    
+    List<Integer> usersIds = new ArrayList<Integer>();
+    HashMap<Integer, Integer> usersScore = new HashMap<Integer, Integer>();
+    for (Object[] obj : usersListIds) {
+      Integer userId = (Integer) obj[0];
+      Integer score = (Integer) obj[1];
+      
+      usersIds.add(userId);
+      usersScore.put(userId, score);
+    }
+    
+    List<User> listUsers = this.userService.findByUserIdIn(usersIds);
+    List<ApiUserTop> usersTopList = new ArrayList<ApiUserTop>();
+    for (User user : listUsers) {
+      usersTopList.add(new ApiUserTop(user, usersScore.get(user.getId())));
+    }
+    
+    return sendResponseUsersTop(usersTopList, usersPublicList,
+        this.testResultService.getResultCount(), userLocale);
   }
 
   @RequestMapping(value = "/user/list", method = RequestMethod.GET)

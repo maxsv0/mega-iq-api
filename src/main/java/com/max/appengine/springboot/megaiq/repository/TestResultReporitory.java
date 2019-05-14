@@ -18,7 +18,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
@@ -34,4 +36,7 @@ public interface TestResultReporitory extends JpaRepository<TestResult, Integer>
       IqTestStatus status);
 
   List<TestResult> findByUserIdAndStatus(Integer userId, IqTestStatus status);
+  
+  @Query("select userId, sum(points) as score from TestResult as t where t.locale = ?1 and status = 'FINISHED' group by userId order by score desc")
+  List<Object[]> findTopUserIds(Locale locale, Pageable pageable);
 }

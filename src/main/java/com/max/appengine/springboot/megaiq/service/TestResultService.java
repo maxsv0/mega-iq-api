@@ -23,6 +23,8 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
@@ -268,6 +270,10 @@ public class TestResultService {
     Long sumAnswers = this.questionUserRepository.countByTestIdIn(listTestsId);
 
     return sumAnswers > NUMBER_ANSWERS_FOR_USER_IQ;
+  }
+  
+  public List<Object[]> findTopUserIds(Locale locale) {
+    return this.testResultReporitory.findTopUserIds(locale, new PageRequest(0,1));
   }
 
   private void expireByType(Integer minutes, IqTestType type) {

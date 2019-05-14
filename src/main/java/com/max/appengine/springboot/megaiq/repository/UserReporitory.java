@@ -14,6 +14,7 @@
 
 package com.max.appengine.springboot.megaiq.repository;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -30,4 +31,6 @@ public interface UserReporitory extends JpaRepository<User, Integer> {
   
   List<User> findByLocaleAndUpdateDateAfterAndIsPublicIsTrueAndIqIsNotNullOrderByIqDesc(
       Locale locale, Date createDate, Pageable pageable);
+  
+  List<User> findByIdIn(Collection<Integer> userIds);
 }
