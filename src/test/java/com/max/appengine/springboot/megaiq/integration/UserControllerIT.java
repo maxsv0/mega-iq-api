@@ -4,6 +4,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import java.util.Date;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,10 +19,16 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.firebase.auth.UserRecord;
 import com.max.appengine.springboot.megaiq.Application;
+import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseUser;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseUsersTop;
+import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
+import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
+import com.max.appengine.springboot.megaiq.model.enums.Locale;
+import com.max.appengine.springboot.megaiq.repository.TestResultReporitory;
+import com.max.appengine.springboot.megaiq.repository.UserReporitory;
 import com.max.appengine.springboot.megaiq.service.EmailService;
 import com.max.appengine.springboot.megaiq.service.FirebaseService;
 import mockit.Mock;
@@ -37,6 +44,12 @@ public class UserControllerIT extends AbstractIntegrationIT {
   @Autowired
   private FirebaseService firebaseService;
 
+  @Autowired
+  private TestResultReporitory testResultReporitory;
+  
+  @Autowired
+  private UserReporitory userReporitory;
+  
   private User user;
 
   @Before
@@ -108,11 +121,35 @@ public class UserControllerIT extends AbstractIntegrationIT {
   
   @Test
   public void testUsersTop() throws Exception {
+    User user = generateUser();
+    user.setCreateDate(new Date());
+    user.setUpdateDate(new Date());
+    this.userReporitory.save(user);
+   
+    TestResult testResult = generateTestResult(user.getId(), IqTestType.MEGA_IQ, user.getLocale());
+    testResult.setStatus(IqTestStatus.FINISHED);
+    testResult.setCreateDate(new Date());
+    testResult.setFinishDate(new Date());
+    testResultReporitory.save(testResult);
+    
     MvcResult resultApi = mvc.perform(MockMvcRequestBuilders.get("/user/top")).andReturn();
     ObjectMapper objectMapper = new ObjectMapper();
     ApiResponseUsersTop response =
         objectMapper.readValue(resultApi.getResponse().getContentAsString(), ApiResponseUsersTop.class);
     
     log.info("response top = {}", response);
+  }
+  
+  private ApiResponseUser createNewUser(User user) throws Exception {
+    MvcResult resultApi = mvc
+        .perform(MockMvcRequestBuilders.post("/user/new").content(asJsonString(user))
+            .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+        .andReturn();
+
+    log.info("User create result = {}", resultApi.getResponse().getContentAsString());
+    ObjectMapper objectMapper = new ObjectMapper();
+    
+    return objectMapper.readValue(resultApi.getResponse().getContentAsString(),
+        ApiResponseUser.class);
   }
 }

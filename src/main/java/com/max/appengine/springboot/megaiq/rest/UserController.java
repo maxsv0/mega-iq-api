@@ -278,10 +278,10 @@ public class UserController extends AbstractApiController {
     HashMap<Integer, Integer> usersScore = new HashMap<Integer, Integer>();
     for (Object[] obj : usersListIds) {
       Integer userId = (Integer) obj[0];
-      Integer score = (Integer) obj[1];
+      Long score = (Long) obj[1];
       
       usersIds.add(userId);
-      usersScore.put(userId, score);
+      usersScore.put(userId, Math.toIntExact(score));
     }
     
     List<User> listUsers = this.userService.findByUserIdIn(usersIds);

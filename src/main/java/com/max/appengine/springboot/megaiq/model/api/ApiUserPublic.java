@@ -158,6 +158,10 @@ public class ApiUserPublic {
     this.location = location;
   }
 
-
+  @Override
+  public String toString() {
+    return "ApiUserPublic [id=" + id + ", name=" + name + ", pic=" + pic + ", url=" + url + ", age="
+        + age + ", iq=" + iq + ", location=" + location + "]";
+  }
 
 }

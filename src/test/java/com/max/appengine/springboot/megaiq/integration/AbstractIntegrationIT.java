@@ -31,8 +31,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.max.appengine.springboot.megaiq.model.Answer;
 import com.max.appengine.springboot.megaiq.model.Question;
+import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.enums.IqQuestionGroup;
+import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.repository.AnswerReporitory;
 import com.max.appengine.springboot.megaiq.repository.QuestionReporitory;
@@ -115,7 +117,6 @@ public abstract class AbstractIntegrationIT {
     answerReporitory.saveAll(answers);
   }
 
-  
   protected User generateUser() {
     User user = new User("java-build-test+" + Math.random() + "@mega-iq.com", "TEST", "/user/1",
         "https://lh3.googleusercontent.com/INTuvwHpiXTigV8UQWi5MpSaRt-0mimAQL_eyfGMOynRK_USId0_Z45KFIrKI3tp21J_q6panwRUfrDOBAqHbA",
@@ -132,6 +133,12 @@ public abstract class AbstractIntegrationIT {
     assertNotNull(user.getIsEmailVerified());
 
     return user;
+  }
+  
+  protected TestResult generateTestResult(Integer userId, IqTestType type, Locale locale) {
+    TestResult result = new TestResult(userId, type, locale);
+    
+    return result;
   }
 
 }

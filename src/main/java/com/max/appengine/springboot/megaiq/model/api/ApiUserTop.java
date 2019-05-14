@@ -43,4 +43,13 @@ public class ApiUserTop extends ApiUserPublic {
   public void setTotalScore(Integer totalScore) {
     this.totalScore = totalScore;
   }
+
+  @Override
+  public String toString() {
+    return "ApiUserTop [totalScore=" + totalScore + ", hashCode()=" + hashCode() + ", getId()="
+        + getId() + ", getName()=" + getName() + ", getPic()=" + getPic() + ", getUrl()=" + getUrl()
+        + ", getAge()=" + getAge() + ", getIq()=" + getIq() + ", getLocation()=" + getLocation()
+        + "]";
+  }
+  
 }
