@@ -164,6 +164,10 @@ public class UserService {
     }
 
   }
+  
+  public List<User> findByUserIdIn(List<Integer> userIds) {
+    return this.userReporitory.findByUserIdIn(userIds);
+  }
 
   // TODO: remove
   // private String convertPassowrdToHash(String password) {

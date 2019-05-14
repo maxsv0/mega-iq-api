@@ -269,6 +269,10 @@ public class TestResultService {
 
     return sumAnswers > NUMBER_ANSWERS_FOR_USER_IQ;
   }
+  
+  public List<Object[]> findTopUserIds(Locale locale) {
+    return this.testResultReporitory.findTopUserIds(locale);
+  }
 
   private void expireByType(Integer minutes, IqTestType type) {
     Date date = new Date();
