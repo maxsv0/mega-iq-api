@@ -101,7 +101,11 @@ public class UserService {
   public Optional<User> getUserByUid(String uId) {
     return userReporitory.findByUid(uId);
   }
-
+  
+  public Optional<User> getLastProfile(Locale locale) {
+    return userReporitory.findOneByIqGreaterThanAndLocaleAndIsPublicIsTrueOrderByUpdateDate(125, locale);
+  }
+   
   public Optional<User> getUserByEmail(String email) {
     Optional<User> userResult = userReporitory.findByEmail(email);
     if (!userResult.isPresent()) {

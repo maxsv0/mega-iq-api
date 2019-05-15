@@ -279,6 +279,7 @@ public class UserController extends AbstractApiController {
     for (Object[] obj : usersListIds) {
       Integer userId = (Integer) obj[0];
       Long score = (Long) obj[1];
+      if (score == null) continue;
       
       usersIds.add(userId);
       usersScore.put(userId, Math.toIntExact(score));
@@ -290,8 +291,13 @@ public class UserController extends AbstractApiController {
       usersTopList.add(new ApiUserTop(user, usersScore.get(user.getId())));
     }
     
+    ApiUserPublic exampleProfile = null;
+    Optional<User> user = this.userService.getLastProfile(userLocale);
+    if (user.isPresent()) {
+      exampleProfile = new ApiUserPublic(user.get());
+    } 
     return sendResponseUsersTop(usersTopList, usersPublicList,
-        this.testResultService.getResultCount(), userLocale);
+        this.testResultService.getResultCount(), exampleProfile, userLocale);
   }
 
   @RequestMapping(value = "/user/list", method = RequestMethod.GET)

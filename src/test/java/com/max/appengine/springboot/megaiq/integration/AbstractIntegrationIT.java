@@ -34,6 +34,7 @@ import com.max.appengine.springboot.megaiq.model.Question;
 import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.enums.IqQuestionGroup;
+import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.repository.AnswerReporitory;
@@ -137,6 +138,11 @@ public abstract class AbstractIntegrationIT {
   
   protected TestResult generateTestResult(Integer userId, IqTestType type, Locale locale) {
     TestResult result = new TestResult(userId, type, locale);
+    
+    result.setCreateDate(new Date());
+    result.setFinishDate(new Date());
+    result.setStatus(IqTestStatus.FINISHED);
+    result.setPoints(165);
     
     return result;
   }

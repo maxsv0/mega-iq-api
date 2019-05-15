@@ -1,5 +1,6 @@
 package com.max.appengine.springboot.megaiq.integration;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -24,9 +25,7 @@ import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseUser;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseUsersTop;
-import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
-import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.repository.TestResultReporitory;
 import com.max.appengine.springboot.megaiq.repository.UserReporitory;
 import com.max.appengine.springboot.megaiq.service.EmailService;
@@ -66,16 +65,7 @@ public class UserControllerIT extends AbstractIntegrationIT {
 
   @Test
   public void testNewUserCreateAndDelete() throws Exception {
-    MvcResult resultApi = mvc
-        .perform(MockMvcRequestBuilders.post("/user/new").content(asJsonString(user))
-            .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
-        .andReturn();
-
-    log.info("MvcResult is = {}", resultApi.getResponse().getContentAsString());
-    ObjectMapper objectMapper = new ObjectMapper();
-    ApiResponseUser responseUser =
-        objectMapper.readValue(resultApi.getResponse().getContentAsString(), ApiResponseUser.class);
-    log.info("MvcResultUser = {}", responseUser);
+    ApiResponseUser responseUser = createNewUser(user);
     
     assertTrue(responseUser.isOk());
     assertNull(responseUser.getMsg());
@@ -91,12 +81,7 @@ public class UserControllerIT extends AbstractIntegrationIT {
   
   @Test
   public void testCreateUserTwice() throws Exception {
-    MvcResult resultApi = mvc
-        .perform(MockMvcRequestBuilders.post("/user/new").content(asJsonString(user))
-            .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
-        .andReturn();
-
-    log.info("MvcResult is = {}", resultApi.getResponse().getContentAsString());
+    createNewUser(user);
 
     UserRecord userRecord = firebaseService.getUserRecord(user);
     user.setUid(userRecord.getUid());
@@ -127,9 +112,6 @@ public class UserControllerIT extends AbstractIntegrationIT {
     this.userReporitory.save(user);
    
     TestResult testResult = generateTestResult(user.getId(), IqTestType.MEGA_IQ, user.getLocale());
-    testResult.setStatus(IqTestStatus.FINISHED);
-    testResult.setCreateDate(new Date());
-    testResult.setFinishDate(new Date());
     testResultReporitory.save(testResult);
     
     MvcResult resultApi = mvc.perform(MockMvcRequestBuilders.get("/user/top")).andReturn();
@@ -138,6 +120,12 @@ public class UserControllerIT extends AbstractIntegrationIT {
         objectMapper.readValue(resultApi.getResponse().getContentAsString(), ApiResponseUsersTop.class);
     
     log.info("response top = {}", response);
+    
+    assertEquals(1, response.getUsers().size());
+    assertEquals(1, response.getUsersTop().size());
+    assertEquals(user.getName(), response.getExampleProfile().getName());
+    assertEquals(user.getName(), response.getUsers().get(0).getName());
+    assertEquals(user.getName(), response.getUsersTop().get(0).getName());
   }
   
   private ApiResponseUser createNewUser(User user) throws Exception {

@@ -46,12 +46,13 @@ public abstract class AbstractApiController {
   protected ResponseEntity<ApiResponseBase> sendResponseTestResult(ApiTestResult testResult) {
     return sendResponseOk(new ApiResponseTestResult(testResult));
   }
-  
+
   protected ResponseEntity<ApiResponseBase> sendResponseUsersTop(List<ApiUserTop> apiUsersTop,
-      List<ApiUserPublic> apiUsers, long count, Locale locale) {
-    return sendResponseOk(new ApiResponseUsersTop(apiUsersTop, apiUsers, count, locale));
+      List<ApiUserPublic> apiUsers, long count, ApiUserPublic exampleProfile, Locale locale) {
+    return sendResponseOk(
+        new ApiResponseUsersTop(apiUsersTop, apiUsers, count, exampleProfile, locale));
   }
-  
+
   protected ResponseEntity<ApiResponseBase> sendResponseUsersList(List<ApiUserPublic> apiUsers,
       long count, Locale locale) {
     return sendResponseOk(new ApiResponseUsersList(apiUsers, count, locale));
