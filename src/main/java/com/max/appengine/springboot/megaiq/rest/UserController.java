@@ -242,9 +242,16 @@ public class UserController extends AbstractApiController {
     userCurrent.setAge(user.getAge());
     userCurrent.setLocation(user.getLocation());
     userCurrent.setPic(user.getPic());
-    userCurrent.setIsPublic(user.getIsPublic());
-    userCurrent.setIsUnsubscribed(user.getIsUnsubscribed());
-
+    if (user.getIsPublic() != null && user.getIsPublic()) {
+      userCurrent.setIsPublic(true);
+    } else {
+      userCurrent.setIsPublic(false);
+    }
+    if (user.getIsUnsubscribed() != null && user.getIsUnsubscribed()) {
+      userCurrent.setIsUnsubscribed(true);  
+    } else {
+      userCurrent.setIsUnsubscribed(false);
+    }
     userCurrent.setIp(getIp(request));
 
     try {
