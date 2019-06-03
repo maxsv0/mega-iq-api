@@ -16,6 +16,7 @@ package com.max.appengine.springboot.megaiq.rest;
 
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,6 +32,7 @@ import com.max.appengine.springboot.megaiq.service.StorageService;
 public class StorageController extends AbstractApiController {
   private final StorageService storageService;
 
+  @Autowired
   public StorageController(StorageService storageService) {
     this.storageService = storageService;
   }

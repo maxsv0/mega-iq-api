@@ -54,6 +54,13 @@
 			<scope>provided</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>com.google.appengine.tools</groupId>
+			<artifactId>appengine-gcs-client</artifactId>
+			<version>0.6</version>
+			<scope>compile</scope>
+		</dependency>
+
 		<!-- Include Servlet API -->
 		<dependency>
 			<groupId>javax.servlet</groupId>
@@ -123,6 +130,14 @@
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<version>1.4.199</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.google.appengine/appengine-testing -->
+		<dependency>
+			<groupId>com.google.appengine</groupId>
+			<artifactId>appengine-testing</artifactId>
+			<version>1.4.0</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

@@ -17,6 +17,9 @@ package com.max.appengine.springboot.megaiq.service;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.channels.Channels;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.ServletException;
@@ -29,10 +32,20 @@ import com.google.appengine.api.blobstore.UploadOptions;
 import com.google.appengine.api.images.ImagesService;
 import com.google.appengine.api.images.ImagesServiceFactory;
 import com.google.appengine.api.images.ServingUrlOptions;
+import com.google.appengine.tools.cloudstorage.GcsFileOptions;
+import com.google.appengine.tools.cloudstorage.GcsFilename;
+import com.google.appengine.tools.cloudstorage.GcsOutputChannel;
+import com.google.appengine.tools.cloudstorage.GcsService;
+import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
+import com.google.appengine.tools.cloudstorage.RetryParams;
 
 @Service
 public class StorageService {
+  private static final int BUFFER_SIZE = 1024 * 512;
+
   public static final String GCS_BUCKET = "mega-iq-build";
+
+  public static final String GCS_FOLDER_USER_CERTIFICATE = "user-certificate";
 
   public static final String GCS_FOLDER_USER_UPLOAD = "user-pic";
 
@@ -43,6 +56,9 @@ public class StorageService {
   private ImagesService imagesService = ImagesServiceFactory.getImagesService();
 
   private BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
+
+  private final GcsService gcsService = GcsServiceFactory.createGcsService(new RetryParams.Builder()
+      .initialRetryDelayMillis(10).retryMaxAttempts(10).totalRetryPeriodMillis(15000).build());
 
   public String uploadFile(HttpServletRequest request) throws ServletException, IOException {
     Map<String, List<BlobKey>> blobs = blobstoreService.getUploads(request);
@@ -74,7 +90,7 @@ public class StorageService {
 
     FileOutputStream stream = new FileOutputStream(file);
 
-    long blockSize = 1024 * 512;
+    long blockSize = BUFFER_SIZE;
     long inxStart = 0;
     long inxEnd = blockSize;
     boolean flag = false;
@@ -113,5 +129,31 @@ public class StorageService {
         .withGoogleStorageFileName("/gs/" + GCS_BUCKET + "/" + path).secureUrl(true);
 
     return imagesService.getServingUrl(options);
+  }
+
+  public String uploadCertificateToStorage(InputStream inputCertificate) throws IOException {
+    String filePath =  GCS_FOLDER_USER_CERTIFICATE + "/" + "";
+    
+    GcsFileOptions instance = GcsFileOptions.getDefaultInstance();
+    GcsFilename fileName = new GcsFilename(GCS_BUCKET, filePath);
+    GcsOutputChannel outputChannel;
+    outputChannel = gcsService.createOrReplace(fileName, instance);
+    copy(inputCertificate, Channels.newOutputStream(outputChannel));
+    
+    return filePath;
+  }
+
+  private void copy(InputStream input, OutputStream output) throws IOException {
+    try {
+      byte[] buffer = new byte[BUFFER_SIZE];
+      int bytesRead = input.read(buffer);
+      while (bytesRead != -1) {
+        output.write(buffer, 0, bytesRead);
+        bytesRead = input.read(buffer);
+      }
+    } finally {
+      input.close();
+      output.close();
+    }
   }
 }

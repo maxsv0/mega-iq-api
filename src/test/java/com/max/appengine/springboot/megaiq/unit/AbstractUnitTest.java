@@ -29,6 +29,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.google.appengine.tools.development.testing.LocalBlobstoreServiceTestConfig;
+import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
+import com.google.appengine.tools.development.testing.LocalImagesServiceTestConfig;
+import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.max.appengine.springboot.megaiq.model.Answer;
 import com.max.appengine.springboot.megaiq.model.Question;
 import com.max.appengine.springboot.megaiq.model.QuestionGroupsResult;
@@ -46,13 +50,18 @@ import com.max.appengine.springboot.megaiq.service.ConfigurationService;
 public abstract class AbstractUnitTest {
 
   protected static final Logger log = LoggerFactory.getLogger(AbstractUnitTest.class);
-
+  
+//  private static final LocalServiceTestHelper helper = 
+//      new LocalServiceTestHelper(new LocalBlobstoreServiceTestConfig(),
+//                                 new LocalImagesServiceTestConfig()
+//                                );
   @Rule
   public TestName name = new TestName();
 
   @Before
   public void printTestStart() {
     log.info("UT Started: {}.{}", name.getClass(), name.getMethodName());
+    //helper.setUp();
   }
 
   @After

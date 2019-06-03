@@ -14,6 +14,7 @@
 
 package com.max.appengine.springboot.megaiq.service;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
@@ -42,12 +43,16 @@ public class UserService {
   private final FirebaseService firebaseService;
 
   private final EmailService emailService;
-  
+
+  private final CertificateService certificateService;
+
   @Autowired
-  public UserService(UserReporitory userReporitory, FirebaseService firebaseService, EmailService emailService) {
+  public UserService(UserReporitory userReporitory, FirebaseService firebaseService,
+      EmailService emailService, CertificateService certificateService) {
     this.userReporitory = userReporitory;
     this.firebaseService = firebaseService;
     this.emailService = emailService;
+    this.certificateService = certificateService;
   }
 
   public List<User> getUsersListTopMonth(Locale locale, Optional<Integer> page) {
@@ -84,7 +89,7 @@ public class UserService {
       String link = firebaseService.getEmailVerificationLink(userResult.getEmail());
       emailService.sendEmailRegistrationWithVerify(userResult, link);
     }
-    
+
     return userResult;
   }
 
@@ -97,15 +102,16 @@ public class UserService {
   public Optional<User> getUserById(Integer userId) {
     return userReporitory.findById(userId);
   }
-  
+
   public Optional<User> getUserByUid(String uId) {
     return userReporitory.findByUid(uId);
   }
-  
+
   public Optional<User> getLastProfile(Locale locale) {
-    return userReporitory.findOneByIqGreaterThanAndLocaleAndIsPublicIsTrueOrderByUpdateDate(125, locale);
+    return userReporitory.findOneByIqGreaterThanAndLocaleAndIsPublicIsTrueOrderByUpdateDate(125,
+        locale);
   }
-   
+
   public Optional<User> getUserByEmail(String email) {
     Optional<User> userResult = userReporitory.findByEmail(email);
     if (!userResult.isPresent()) {
@@ -126,7 +132,7 @@ public class UserService {
 
     Optional<User> userResult = getUserByUid(firebaseToken.getUid());
 
-    User user =  null;
+    User user = null;
     if (userResult.isPresent()) {
       user = userResult.get();
     } else {
@@ -139,11 +145,11 @@ public class UserService {
       user.setIsPublic(true);
       user.setLocale(locale);
       user.setIp(ip);
-      
+
       // save to locale DB
       user = addUser(user);
     }
-    
+
     user.setToken(token);
     return Optional.of(user);
   }
@@ -168,9 +174,22 @@ public class UserService {
     }
 
   }
-  
+
   public List<User> findByUserIdIn(List<Integer> userIds) {
     return this.userReporitory.findByIdIn(userIds);
+  }
+
+  public User setUserIqScore(User user, Integer points) {
+    user.setIq(points);
+
+    try {
+      String certificate = this.certificateService.createUserCertificate(user);
+      user.setCertificate(certificate);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    return this.saveUser(user);
   }
 
   // TODO: remove
