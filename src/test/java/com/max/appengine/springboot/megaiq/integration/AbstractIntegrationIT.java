@@ -29,6 +29,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.google.appengine.tools.development.testing.LocalBlobstoreServiceTestConfig;
+import com.google.appengine.tools.development.testing.LocalImagesServiceTestConfig;
+import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.max.appengine.springboot.megaiq.model.Answer;
 import com.max.appengine.springboot.megaiq.model.Question;
 import com.max.appengine.springboot.megaiq.model.TestResult;
@@ -135,15 +138,15 @@ public abstract class AbstractIntegrationIT {
 
     return user;
   }
-  
+
   protected TestResult generateTestResult(Integer userId, IqTestType type, Locale locale) {
     TestResult result = new TestResult(userId, type, locale);
-    
+
     result.setCreateDate(new Date());
     result.setFinishDate(new Date());
     result.setStatus(IqTestStatus.FINISHED);
     result.setPoints(165);
-    
+
     return result;
   }
 

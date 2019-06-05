@@ -4,8 +4,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Optional;
 import java.util.UUID;
+import javax.imageio.ImageIO;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,17 +23,23 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.appengine.tools.development.testing.LocalBlobstoreServiceTestConfig;
+import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
+import com.google.appengine.tools.development.testing.LocalImagesServiceTestConfig;
+import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.max.appengine.springboot.megaiq.Application;
 import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.api.ApiQuestion;
 import com.max.appengine.springboot.megaiq.model.api.ApiRequestSubmitAnswer;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseTestInfoList;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseTestResult;
+import com.max.appengine.springboot.megaiq.model.api.ApiResponseUser;
 import com.max.appengine.springboot.megaiq.model.api.ApiTestInfo;
 import com.max.appengine.springboot.megaiq.model.api.ApiTestResult;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.repository.UserReporitory;
+import com.max.appengine.springboot.megaiq.service.CertificateService;
 import com.max.appengine.springboot.megaiq.service.ConfigurationService;
 import com.max.appengine.springboot.megaiq.service.EmailService;
 import com.max.appengine.springboot.megaiq.service.UserService;
@@ -39,12 +50,16 @@ import mockit.MockUp;
 @SpringBootTest(classes = Application.class)
 @AutoConfigureMockMvc
 public class TestControllerIT extends AbstractIntegrationIT {
+  private static final LocalServiceTestHelper helperServices = new LocalServiceTestHelper(
+      new LocalDatastoreServiceTestConfig(), 
+      new LocalBlobstoreServiceTestConfig(), new LocalImagesServiceTestConfig());
+  
   @Autowired
   private MockMvc mvc;
 
   @Autowired
   private UserReporitory userReporitory;
-
+  
   @Autowired
   private ConfigurationService configurationService;
 
@@ -54,6 +69,8 @@ public class TestControllerIT extends AbstractIntegrationIT {
   public void setup() {
     user = userReporitory.save(generateUser());
 
+    helperServices.setUp();
+    
     new MockUp<EmailService>() {
       @Mock
       protected boolean sendEmail(String to, String subject, String content) {
@@ -67,6 +84,20 @@ public class TestControllerIT extends AbstractIntegrationIT {
         return Optional.of(user);
       }
     };
+    
+    // TODO: better to upload this file to cloud storage
+    new MockUp<CertificateService>() {
+      @Mock
+      public BufferedImage loadTemplate(String fileName) throws IOException  {
+        InputStream imageTemplate = this.getClass().getClassLoader().getResourceAsStream("cert_blank.png");
+        return ImageIO.read(imageTemplate);
+      }
+    };
+  }
+  
+  @After
+  public void tearDown() throws Exception {
+    helperServices.tearDown();
   }
 
   @Test
@@ -137,8 +168,10 @@ public class TestControllerIT extends AbstractIntegrationIT {
   }
 
   @Test
-  public void testPassMegaIqTest() throws Exception {
+  public void testPassMegaIqTestWIthRandomAnswer() throws Exception {
     ApiTestResult testResult = startTestAndFinish(IqTestType.MEGA_IQ);
+    log.info("Mega IQ test result: {}", testResult);
+    
     assertTrue(testResult.getPoints() > 80);
 
     Integer answersCorrect = 0;
@@ -154,6 +187,28 @@ public class TestControllerIT extends AbstractIntegrationIT {
     assertNotNull(testResult.getGroupsGraph());
     assertTrue((testResult.getGroupsGraph().getGrammar() * testResult.getGroupsGraph().getHorizons()
         * testResult.getGroupsGraph().getLogic() * testResult.getGroupsGraph().getMath()) > 0);
+  }
+  
+  @Test
+  public void testPassIqTestAndGetCertificate() throws Exception {
+    ApiTestResult testResult = startTestAndFinish(IqTestType.MEGA_IQ);
+    log.info("IQ test result1: {}", testResult);
+    
+    testResult = startTestAndFinish(IqTestType.MEGA_IQ);
+    log.info("IQ test result2: {}", testResult);
+    
+    testResult = startTestAndFinishWithCorrect(IqTestType.MEGA_IQ, true);
+    log.info("IQ test result3: {}", testResult);
+    
+    MvcResult resultApiUser = mvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId())).andReturn();
+    log.info("User result = {}", resultApiUser.getResponse().getContentAsString());
+    
+    ObjectMapper objectMapper = new ObjectMapper();
+    ApiResponseUser responseTest = objectMapper
+        .readValue(resultApiUser.getResponse().getContentAsString(), ApiResponseUser.class);
+    
+    assertEquals(Integer.valueOf(160), responseTest.getUser().getIq());
+    assertNotNull(responseTest.getUser().getCertificate());
   }
 
   @Test
@@ -178,8 +233,12 @@ public class TestControllerIT extends AbstractIntegrationIT {
 
     assertEquals(responseTest.getTest(), responseTestAnswer.getTest());
   }
-
+  
   private ApiTestResult startTestAndFinish(IqTestType type) throws Exception {
+    return startTestAndFinishWithCorrect(type, false);
+  }  
+  
+  private ApiTestResult startTestAndFinishWithCorrect(IqTestType type, boolean onlyCorrect) throws Exception {
     // 1. start the test
     ApiResponseTestResult responseTest = startTest(type);
 
@@ -194,7 +253,13 @@ public class TestControllerIT extends AbstractIntegrationIT {
     Integer index = 1;
     for (ApiQuestion question : responseTest.getTest().getQuestionSet()) {
       log.info("Now answer the question={}", question);
-      Integer answerUser = 1;
+      Integer answerUser;
+      if (onlyCorrect) {
+        // TODO: rework this part
+        answerUser = 557799;
+      } else {
+        answerUser = 1;
+      }
 
       ApiResponseTestResult responseTestAnswer =
           testAnswerQuestion(responseTest.getTest().getCode(), index, answerUser);
@@ -208,6 +273,8 @@ public class TestControllerIT extends AbstractIntegrationIT {
       index++;
     }
 
+    Thread.sleep(1000);
+    
     // 3. submit finish test
     ApiResponseTestResult responseFinish = testFinish(responseTest.getTest().getCode());
     assertTrue(responseFinish.isOk());

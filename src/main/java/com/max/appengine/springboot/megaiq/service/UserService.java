@@ -14,6 +14,7 @@
 
 package com.max.appengine.springboot.megaiq.service;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
@@ -43,11 +44,15 @@ public class UserService {
 
   private final EmailService emailService;
   
+  private final CertificateService certificateService;
+  
   @Autowired
-  public UserService(UserReporitory userReporitory, FirebaseService firebaseService, EmailService emailService) {
+  public UserService(UserReporitory userReporitory, FirebaseService firebaseService, 
+      EmailService emailService, CertificateService certificateService) {
     this.userReporitory = userReporitory;
     this.firebaseService = firebaseService;
     this.emailService = emailService;
+    this.certificateService = certificateService;
   }
 
   public List<User> getUsersListTopMonth(Locale locale, Optional<Integer> page) {
@@ -171,6 +176,20 @@ public class UserService {
   
   public List<User> findByUserIdIn(List<Integer> userIds) {
     return this.userReporitory.findByIdIn(userIds);
+  }
+  
+  public User setUserIqScore(User user, Integer points) {
+    user.setIq(points);
+
+    try {
+      String certificate = this.certificateService.createUserCertificate(user);
+      
+      user.setCertificate(certificate);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+
+    return this.saveUser(user);
   }
 
   // TODO: remove
