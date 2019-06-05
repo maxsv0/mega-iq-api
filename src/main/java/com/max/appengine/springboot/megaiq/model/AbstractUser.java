@@ -36,6 +36,7 @@ public abstract class AbstractUser {
   private String url;
   @Column(length = 512)
   private String pic;
+  private String certificate;
   private String location;
   private Integer age;
   private Integer iq;
@@ -92,6 +93,14 @@ public abstract class AbstractUser {
 
   public void setPic(String pic) {
     this.pic = pic;
+  }
+  
+  public String getCertificate() {
+    return certificate;
+  }
+
+  public void setCertificate(String certificate) {
+    this.certificate = certificate;
   }
 
   public String getLocation() {

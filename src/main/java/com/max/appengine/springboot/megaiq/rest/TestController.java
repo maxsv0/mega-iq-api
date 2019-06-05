@@ -188,10 +188,10 @@ public class TestController extends AbstractApiController {
 
           if (testResultNew.isPresent()) {
             Boolean showIq = this.testResultService.getIsEligibleToShowIq(user);
+
             if (showIq) {
               if (user.getIq() == null || user.getIq() < testResult.get().getPoints()) {
-                user.setIq(testResult.get().getPoints());
-                this.userService.saveUser(user);
+                this.userService.setUserIqScore(user, testResult.get().getPoints());
               }
             }
 
