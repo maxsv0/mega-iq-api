@@ -78,10 +78,11 @@ public class CertificateService {
 
     // user name
     writeGraphics(graphics, user.getName(), 270, 458, new Font(Font.SERIF, Font.ITALIC, 40));
-    
+
     // user iq result
-    writeGraphics(graphics, user.getIq().toString(), 440, 650, new Font(Font.SERIF, Font.ITALIC, 60));
-    
+    writeGraphics(graphics, user.getIq().toString(), 440, 650,
+        new Font(Font.SERIF, Font.ITALIC, 60));
+
     // current date
     DateTime dt = new DateTime();
     DateTimeFormatter dtf = DateTimeFormat.forPattern("dd-MM-yyyy");
@@ -91,15 +92,16 @@ public class CertificateService {
     ImageIO.write(imgCertificate, "png", outputStream);
     InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
 
-    String fileName = "certificate-" + user.getId() + ".png";
+    DateTimeFormatter fileDtf = DateTimeFormat.forPattern("dd-MM-yyyy-HH-mm-ss");
+    String fileName = "certificate-" + user.getId() + "-" + dt.toString(fileDtf) + ".png";
     String filePath = this.storageService.uploadCertificateToStorage(fileName, inputStream);
 
     return this.storageService.serveFileByPath(filePath);
   }
-  
+
   private void writeGraphics(Graphics2D graphics, String text, int x, int y, Font font) {
     graphics.setFont(font);
-    
+
     graphics.setColor(COLOR_TEXT_SHADOW);
     graphics.drawString(text, x + 2, y + 2);
 
