@@ -48,9 +48,9 @@ public abstract class AbstractApiController {
   }
 
   protected ResponseEntity<ApiResponseBase> sendResponseUsersTop(List<ApiUserTop> apiUsersTop,
-      List<ApiUserPublic> apiUsers, long count, ApiUserPublic exampleProfile, Locale locale) {
+      List<ApiUserPublic> apiUsers, long count, List<ApiUserPublic> exampleProfiles, Locale locale) {
     return sendResponseOk(
-        new ApiResponseUsersTop(apiUsersTop, apiUsers, count, exampleProfile, locale));
+        new ApiResponseUsersTop(apiUsersTop, apiUsers, count, exampleProfiles, locale));
   }
 
   protected ResponseEntity<ApiResponseBase> sendResponseUsersList(List<ApiUserPublic> apiUsers,

@@ -298,13 +298,14 @@ public class UserController extends AbstractApiController {
       usersTopList.add(new ApiUserTop(user, usersScore.get(user.getId())));
     }
     
-    ApiUserPublic exampleProfile = null;
-    Optional<User> user = this.userService.getLastProfile(userLocale);
-    if (user.isPresent()) {
-      exampleProfile = new ApiUserPublic(user.get());
-    } 
+    List<ApiUserPublic> exampleProfiles = new ArrayList<ApiUserPublic>();;
+    List<User> users = this.userService.getLastProfiles(userLocale);
+    for (User user : users) {
+      exampleProfiles.add(new ApiUserPublic(user));
+    }
+    
     return sendResponseUsersTop(usersTopList, usersPublicList,
-        this.testResultService.getResultCount(), exampleProfile, userLocale);
+        this.testResultService.getResultCount(), exampleProfiles, userLocale);
   }
 
   @RequestMapping(value = "/user/list", method = RequestMethod.GET)

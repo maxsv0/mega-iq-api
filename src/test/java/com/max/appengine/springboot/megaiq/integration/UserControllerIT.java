@@ -123,7 +123,7 @@ public class UserControllerIT extends AbstractIntegrationIT {
     
     assertEquals(1, response.getUsers().size());
     assertEquals(1, response.getUsersTop().size());
-    assertEquals(user.getName(), response.getExampleProfile().getName());
+    assertEquals(user.getName(), response.getExampleProfiles().get(0).getName());
     assertEquals(user.getName(), response.getUsers().get(0).getName());
     assertEquals(user.getName(), response.getUsersTop().get(0).getName());
   }

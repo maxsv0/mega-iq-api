@@ -25,7 +25,7 @@ public class ApiResponseUsersTop extends ApiResponseBase {
 
   private long count;
   
-  private ApiUserPublic exampleProfile;
+  private List<ApiUserPublic> exampleProfiles;
 
   public List<ApiUserPublic> getUsers() {
     return users;
@@ -51,17 +51,17 @@ public class ApiResponseUsersTop extends ApiResponseBase {
     this.count = count;
   }
   
-  public ApiUserPublic getExampleProfile() {
-    return exampleProfile;
+  public List<ApiUserPublic> getExampleProfiles() {
+    return exampleProfiles;
   }
 
   public ApiResponseUsersTop(List<ApiUserTop> apiUsersTop, List<ApiUserPublic> apiUsers, long count,
-      ApiUserPublic exampleProfile, Locale locale) {
+      List<ApiUserPublic> exampleProfiles, Locale locale) {
     super();
     this.usersTop = apiUsersTop;
     this.users = apiUsers;
     this.count = count;
-    this.exampleProfile = exampleProfile;
+    this.exampleProfiles = exampleProfiles;
 
     this.setOk();
     this.setDate(new Date());
@@ -76,7 +76,7 @@ public class ApiResponseUsersTop extends ApiResponseBase {
   @Override
   public String toString() {
     return "ApiResponseUsersTop [users=" + users + ", usersTop=" + usersTop + ", count=" + count
-        + ", exampleProfile=" + exampleProfile + ", isOk()=" + isOk() + ", getMsg()=" + getMsg()
-        + ", getDate()=" + getDate() + ", getLocale()=" + getLocale() + "]";
+        + ", exampleProfiles=" + exampleProfiles + "]";
   }
+
 }

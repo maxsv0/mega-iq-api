@@ -35,4 +35,7 @@ public interface UserReporitory extends JpaRepository<User, Integer> {
   List<User> findByIdIn(Collection<Integer> userIds);
   
   Optional<User> findOneByIqGreaterThanAndLocaleAndIsPublicIsTrueOrderByUpdateDate(Integer iq, Locale locale);
+  
+  List<User> findTop10ByIqGreaterThanAndLocaleAndIsPublicIsTrueOrderByUpdateDate(Integer iq, Locale locale);
+
 }
