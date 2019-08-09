@@ -30,7 +30,7 @@ public interface TestResultReporitory extends JpaRepository<TestResult, Integer>
 
   Optional<TestResult> findByCodeAndLocale(UUID code, Locale locale);
 
-  List<TestResult> findByUserIdAndLocaleOrderByCreateDateDesc(Integer userId, Locale locale);
+  List<TestResult> findTop8ByUserIdAndLocaleOrderByCreateDateDesc(Integer userId, Locale locale);
 
   List<TestResult> findByCreateDateBeforeAndTypeAndStatus(Date createDate, IqTestType type,
       IqTestStatus status);

@@ -149,8 +149,8 @@ public class TestResultService {
         if (question.getAnswerUser().equals(557799)) {
           isCorrect = true;
         }
-        // 
-        
+        //
+
         if (isCorrect) {
           pointsCorrect += question.getPoints();
         }
@@ -242,7 +242,14 @@ public class TestResultService {
   }
 
   public List<TestResult> findByUserId(Integer userId, Locale locale) {
-    return testResultReporitory.findByUserIdAndLocaleOrderByCreateDateDesc(userId, locale);
+    List<TestResult> resultTests = testResultReporitory.findTop8ByUserIdAndLocaleOrderByCreateDateDesc(userId, locale);
+    
+    List<TestResult> resultTestsFull = new ArrayList<>();
+    for (TestResult test : resultTests) {
+      resultTestsFull.add(this.loadQuestions(test));
+    }
+    
+    return resultTestsFull;
   }
 
   public TestResult loadQuestions(TestResult testResult) {
@@ -278,9 +285,9 @@ public class TestResultService {
 
     return sumAnswers > NUMBER_ANSWERS_FOR_USER_IQ;
   }
-  
+
   public List<Object[]> findTopUserIds(Locale locale) {
-    return this.testResultReporitory.findTopUserIds(locale, PageRequest.of(0,1));
+    return this.testResultReporitory.findTopUserIds(locale, PageRequest.of(0, 1));
   }
 
   private void expireByType(Integer minutes, IqTestType type) {
