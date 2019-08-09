@@ -41,6 +41,7 @@ public class ApiUser extends ApiUserPublic {
     this.setAge(user.getAge());
     this.setIq(user.getIq());
     this.setLocation(user.getLocation());
+    this.setCertificate(user.getCertificate());
 
     this.setEmail(user.getEmail());
     this.setPassword(user.getPassword());

@@ -39,6 +39,7 @@ public class ApiTestResult {
   private Date updateDate;
   private Date finishDate;
   private Integer points;
+  private Integer progress;
   private QuestionGroupsResult groupsGraph;
   private ArrayList<ApiQuestion> questionSet;
 
@@ -148,6 +149,7 @@ public class ApiTestResult {
     this.setFinishDate(testResult.getFinishDate());
     this.setPoints(testResult.getPoints());
     this.setGroupsGraph(testResult.getGroupsGraph());
+    this.setProgress(0);
 
     if (showPrivate) {
       this.setCreateDate(testResult.getCreateDate());
@@ -162,6 +164,10 @@ public class ApiTestResult {
           if (testResult.getStatus().equals(IqTestStatus.ACTIVE)) {
             apiQuestion.setAnswerCorrect(null);
             apiQuestion.setDescription(null);
+          }
+          
+          if (questionUser.getAnswerUser() != null) {
+            this.setProgress(this.getProgress() + 1);
           }
 
           this.getQuestionSet().add(apiQuestion);
@@ -248,6 +254,14 @@ public class ApiTestResult {
 
   public void setPoints(Integer points) {
     this.points = points;
+  }
+
+  public Integer getProgress() {
+    return progress;
+  }
+
+  public void setProgress(Integer progress) {
+    this.progress = progress;
   }
 
   public QuestionGroupsResult getGroupsGraph() {
