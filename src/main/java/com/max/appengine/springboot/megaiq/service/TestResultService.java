@@ -242,7 +242,7 @@ public class TestResultService {
   }
 
   public List<TestResult> findByUserId(Integer userId, Locale locale) {
-    List<TestResult> resultTests = testResultReporitory.findTop8ByUserIdAndLocaleOrderByCreateDateDesc(userId, locale);
+    List<TestResult> resultTests = testResultReporitory.findTop4ByUserIdAndLocaleOrderByCreateDateDesc(userId, locale);
     
     List<TestResult> resultTestsFull = new ArrayList<>();
     for (TestResult test : resultTests) {
