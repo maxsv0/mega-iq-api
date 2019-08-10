@@ -172,6 +172,9 @@ public class ApiTestResult {
 
           this.getQuestionSet().add(apiQuestion);
         }
+
+        this.setProgress(
+            (int) Math.floor(100 * this.getProgress() / testResult.getQuestionSet().size()));
       }
     }
   }
