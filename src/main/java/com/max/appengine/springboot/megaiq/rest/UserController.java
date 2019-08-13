@@ -23,6 +23,7 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,6 +42,8 @@ import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.api.ApiRequestForget;
 import com.max.appengine.springboot.megaiq.model.api.ApiRequestLoginToken;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
+import com.max.appengine.springboot.megaiq.model.api.ApiTestResult;
+import com.max.appengine.springboot.megaiq.model.api.ApiUser;
 import com.max.appengine.springboot.megaiq.model.api.ApiUserPublic;
 import com.max.appengine.springboot.megaiq.model.api.ApiUserTop;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
@@ -48,6 +51,7 @@ import com.max.appengine.springboot.megaiq.model.exception.MegaIQException;
 import com.max.appengine.springboot.megaiq.service.ConfigurationService;
 import com.max.appengine.springboot.megaiq.service.EmailService;
 import com.max.appengine.springboot.megaiq.service.FirebaseService;
+import com.max.appengine.springboot.megaiq.service.QuestionsService;
 import com.max.appengine.springboot.megaiq.service.TestResultService;
 import com.max.appengine.springboot.megaiq.service.UserService;
 
@@ -76,6 +80,8 @@ public class UserController extends AbstractApiController {
 
   private static final Logger log = Logger.getLogger(UserController.class.getName());
 
+  private final QuestionsService questionsService;
+  
   private final UserService userService;
 
   private final TestResultService testResultService;
@@ -89,12 +95,13 @@ public class UserController extends AbstractApiController {
   @Autowired
   public UserController(TestResultService testResultService, UserService userService,
       EmailService emailService, FirebaseService firebaseService,
-      ConfigurationService configurationService) {
+      ConfigurationService configurationService, QuestionsService questionsService) {
     this.userService = userService;
     this.testResultService = testResultService;
     this.emailService = emailService;
     this.firebaseService = firebaseService;
-
+    this.questionsService = questionsService;
+    
     cacheValuesForAllLocales(configurationService, configCache, MESSAGE_REGISTRATION_FAILED);
     cacheValuesForAllLocales(configurationService, configCache, MESSAGE_LOGIN_FAILED);
     cacheValuesForAllLocales(configurationService, configCache, MESSAGE_USER_NOT_FOUND);
@@ -187,16 +194,22 @@ public class UserController extends AbstractApiController {
 
   @RequestMapping(value = "/user/{userId}", method = RequestMethod.GET)
   public ResponseEntity<ApiResponseBase> requestUserById(HttpServletRequest request,
-      @PathVariable Integer userId, @RequestParam Optional<String> locale) {
+      @PathVariable Integer userId, @RequestParam Optional<String> locale, Pageable pageable) {
     Locale userLocale = loadLocale(locale);
 
     Optional<User> userResult = userService.getUserById(userId);
     if (userResult.isPresent()) {
-      List<TestResult> listResults = this.testResultService.findByUserId(userId, userLocale);
-      userResult.get().setTestResultList(listResults);
 
       if (userResult.get().getIsPublic()) {
-        return sendResponseUserPublic(userResult.get(), userLocale);
+          List<TestResult> listResults = this.testResultService.findTestResultByUserId(userId, userLocale, pageable);
+          userResult.get().setTestResultList(listResults);
+    	  
+          List<ApiTestResult> usersPublicList = new ArrayList<ApiTestResult>();
+          for (TestResult testResult : listResults) {
+            usersPublicList.add(new ApiTestResult(this.questionsService, testResult, true));
+          }
+          
+    	return sendResponseTestResultList(usersPublicList, new ApiUser(userResult.get()));
       } else {
         return sendResponseError(MESSAGE_USER_NOT_FOUND, configCache, userLocale);
       }

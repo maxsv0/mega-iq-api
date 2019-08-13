@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
@@ -241,8 +242,8 @@ public class TestResultService {
     return getTestResultById(testResultDb.getId());
   }
 
-  public List<TestResult> findByUserId(Integer userId, Locale locale) {
-    List<TestResult> resultTests = testResultReporitory.findTop4ByUserIdAndLocaleOrderByCreateDateDesc(userId, locale);
+  public List<TestResult> findTestResultByUserId(Integer userId, Locale locale, Pageable pageable) {
+    List<TestResult> resultTests = testResultReporitory.findTop8ByUserIdAndLocaleOrderByCreateDateDesc(userId, locale, pageable);
     
     List<TestResult> resultTestsFull = new ArrayList<>();
     for (TestResult test : resultTests) {

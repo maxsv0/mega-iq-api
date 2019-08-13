@@ -28,6 +28,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit4.SpringRunner;
 import com.max.appengine.springboot.megaiq.Application;
 import com.max.appengine.springboot.megaiq.model.Question;
@@ -126,8 +128,10 @@ public class TestResultServiceTest extends AbstractUnitTest {
 
   @Test
   public void testGetTestResultByCode() {
+	Pageable page = PageRequest.of(0, 20);
+	  
     List<TestResult> testResult =
-        this.testResultService.findByUserId(testUserPublic.getId(), testUserPublic.getLocale());
+        this.testResultService.findTestResultByUserId(testUserPublic.getId(), testUserPublic.getLocale(), page);
     assertEquals(1, testResult.size());
   }
 

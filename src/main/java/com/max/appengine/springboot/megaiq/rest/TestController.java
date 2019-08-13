@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -309,7 +310,7 @@ public class TestController extends AbstractApiController {
 
   @RequestMapping(value = "/list-my", method = RequestMethod.GET)
   public ResponseEntity<ApiResponseBase> requestListUserResults(HttpServletRequest request,
-      @RequestParam Optional<String> locale) {
+      @RequestParam Optional<String> locale, Pageable pageable) {
 
     Locale userLocale = loadLocale(locale);
 
@@ -328,7 +329,7 @@ public class TestController extends AbstractApiController {
       return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
     }
 
-    List<TestResult> listResults = loadResultsByUserId(user.get().getId(), userLocale);
+    List<TestResult> listResults = loadResultsByUserId(user.get().getId(), userLocale, pageable);
 
     List<ApiTestResult> usersPublicList = new ArrayList<ApiTestResult>();
     for (TestResult testResult : listResults) {
@@ -366,8 +367,8 @@ public class TestController extends AbstractApiController {
     }
   }
 
-  private List<TestResult> loadResultsByUserId(Integer userId, Locale locale) {
-    return testResultService.findByUserId(userId, locale);
+  private List<TestResult> loadResultsByUserId(Integer userId, Locale locale, Pageable pageable) {
+    return testResultService.findTestResultByUserId(userId, locale, pageable);
   }
 
   private Optional<TestResult> loadIqTestDetailsPublic(UUID testCode, Locale locale) {
