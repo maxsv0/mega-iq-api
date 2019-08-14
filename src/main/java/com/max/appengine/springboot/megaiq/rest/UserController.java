@@ -46,6 +46,7 @@ import com.max.appengine.springboot.megaiq.model.api.ApiTestResult;
 import com.max.appengine.springboot.megaiq.model.api.ApiUser;
 import com.max.appengine.springboot.megaiq.model.api.ApiUserPublic;
 import com.max.appengine.springboot.megaiq.model.api.ApiUserTop;
+import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.model.exception.MegaIQException;
 import com.max.appengine.springboot.megaiq.service.ConfigurationService;
@@ -81,7 +82,7 @@ public class UserController extends AbstractApiController {
   private static final Logger log = Logger.getLogger(UserController.class.getName());
 
   private final QuestionsService questionsService;
-  
+
   private final UserService userService;
 
   private final TestResultService testResultService;
@@ -101,7 +102,7 @@ public class UserController extends AbstractApiController {
     this.emailService = emailService;
     this.firebaseService = firebaseService;
     this.questionsService = questionsService;
-    
+
     cacheValuesForAllLocales(configurationService, configCache, MESSAGE_REGISTRATION_FAILED);
     cacheValuesForAllLocales(configurationService, configCache, MESSAGE_LOGIN_FAILED);
     cacheValuesForAllLocales(configurationService, configCache, MESSAGE_USER_NOT_FOUND);
@@ -201,15 +202,16 @@ public class UserController extends AbstractApiController {
     if (userResult.isPresent()) {
 
       if (userResult.get().getIsPublic()) {
-          List<TestResult> listResults = this.testResultService.findTestResultByUserId(userId, userLocale, pageable);
-          userResult.get().setTestResultList(listResults);
-    	  
-          List<ApiTestResult> usersPublicList = new ArrayList<ApiTestResult>();
-          for (TestResult testResult : listResults) {
-            usersPublicList.add(new ApiTestResult(this.questionsService, testResult, true));
-          }
-          
-    	return sendResponseTestResultList(usersPublicList, new ApiUser(userResult.get()));
+        List<TestResult> listResults = this.testResultService.findPublicTestResultByUserId(userId,
+            userLocale, IqTestStatus.FINISHED, pageable);
+        userResult.get().setTestResultList(listResults);
+
+        List<ApiTestResult> usersPublicList = new ArrayList<ApiTestResult>();
+        for (TestResult testResult : listResults) {
+          usersPublicList.add(new ApiTestResult(this.questionsService, testResult, true));
+        }
+
+        return sendResponseTestResultList(usersPublicList, new ApiUser(userResult.get()));
       } else {
         return sendResponseError(MESSAGE_USER_NOT_FOUND, configCache, userLocale);
       }
@@ -261,7 +263,7 @@ public class UserController extends AbstractApiController {
       userCurrent.setIsPublic(false);
     }
     if (user.getIsUnsubscribed() != null && user.getIsUnsubscribed()) {
-      userCurrent.setIsUnsubscribed(true);  
+      userCurrent.setIsUnsubscribed(true);
     } else {
       userCurrent.setIsUnsubscribed(false);
     }
@@ -291,32 +293,33 @@ public class UserController extends AbstractApiController {
     for (User user : usersList) {
       usersPublicList.add(new ApiUserPublic(user));
     }
-    
+
     List<Object[]> usersListIds = this.testResultService.findTopUserIds(userLocale);
-    
+
     List<Integer> usersIds = new ArrayList<Integer>();
     HashMap<Integer, Integer> usersScore = new HashMap<Integer, Integer>();
     for (Object[] obj : usersListIds) {
       Integer userId = (Integer) obj[0];
       Long score = (Long) obj[1];
-      if (score == null) continue;
-      
+      if (score == null)
+        continue;
+
       usersIds.add(userId);
       usersScore.put(userId, Math.toIntExact(score));
     }
-    
+
     List<User> listUsers = this.userService.findByUserIdIn(usersIds);
     List<ApiUserTop> usersTopList = new ArrayList<ApiUserTop>();
     for (User user : listUsers) {
       usersTopList.add(new ApiUserTop(user, usersScore.get(user.getId())));
     }
-    
+
     List<ApiUserPublic> exampleProfiles = new ArrayList<ApiUserPublic>();;
     List<User> users = this.userService.getLastProfiles(userLocale);
     for (User user : users) {
       exampleProfiles.add(new ApiUserPublic(user));
     }
-    
+
     return sendResponseUsersTop(usersTopList, usersPublicList,
         this.testResultService.getResultCount(), exampleProfiles, userLocale);
   }

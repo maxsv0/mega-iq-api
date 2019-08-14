@@ -242,6 +242,19 @@ public class TestResultService {
     return getTestResultById(testResultDb.getId());
   }
 
+  public List<TestResult> findPublicTestResultByUserId(Integer userId, Locale locale,
+      IqTestStatus status, Pageable pageable) {
+    List<TestResult> resultTests = testResultReporitory
+        .findTop8ByUserIdAndLocaleAndStatusOrderByCreateDateDesc(userId, locale, status, pageable);
+
+    List<TestResult> resultTestsFull = new ArrayList<>();
+    for (TestResult test : resultTests) {
+      resultTestsFull.add(this.loadQuestions(test));
+    }
+
+    return resultTestsFull;
+  }
+  
   public List<TestResult> findTestResultByUserId(Integer userId, Locale locale, Pageable pageable) {
     List<TestResult> resultTests = testResultReporitory.findTop8ByUserIdAndLocaleOrderByCreateDateDesc(userId, locale, pageable);
     

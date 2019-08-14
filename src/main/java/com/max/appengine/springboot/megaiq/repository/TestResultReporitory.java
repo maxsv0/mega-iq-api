@@ -30,13 +30,17 @@ public interface TestResultReporitory extends JpaRepository<TestResult, Integer>
 
   Optional<TestResult> findByCodeAndLocale(UUID code, Locale locale);
 
-  List<TestResult> findTop8ByUserIdAndLocaleOrderByCreateDateDesc(Integer userId, Locale locale, Pageable pageable);
+  List<TestResult> findTop8ByUserIdAndLocaleAndStatusOrderByCreateDateDesc(Integer userId,
+      Locale locale, IqTestStatus status, Pageable pageable);
+
+  List<TestResult> findTop8ByUserIdAndLocaleOrderByCreateDateDesc(Integer userId, Locale locale,
+      Pageable pageable);
 
   List<TestResult> findByCreateDateBeforeAndTypeAndStatus(Date createDate, IqTestType type,
       IqTestStatus status);
 
   List<TestResult> findByUserIdAndStatus(Integer userId, IqTestStatus status);
-  
+
   @Query("select userId, sum(points) as score from TestResult as t where t.locale = ?1 and status = 'FINISHED' group by userId order by score desc")
   List<Object[]> findTopUserIds(Locale locale, Pageable pageable);
 }
