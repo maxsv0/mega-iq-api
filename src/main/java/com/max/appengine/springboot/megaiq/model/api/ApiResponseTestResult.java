@@ -19,27 +19,29 @@ import java.util.Date;
 public class ApiResponseTestResult extends ApiResponseBase {
   private ApiTestResult test;
 
+  private ApiUserPublic user;
+  
   public ApiTestResult getTest() {
     return test;
+  }
+  
+  public ApiUserPublic getUser() {
+    return user;
   }
 
   public ApiResponseTestResult() {
     super();
   }
 
-  public ApiResponseTestResult(ApiTestResult testResult) {
+  public ApiResponseTestResult(ApiTestResult testResult, ApiUserPublic user) {
     super();
     this.test = testResult;
+    this.user = user;
 
     this.setOk();
     this.setDate(new Date());
     this.setMsg(null);
     this.setLocale(testResult.getLocale());
-  }
-
-  @Override
-  public String toString() {
-    return "ApiResponseTestResult [test=" + test + "]";
   }
 
 }

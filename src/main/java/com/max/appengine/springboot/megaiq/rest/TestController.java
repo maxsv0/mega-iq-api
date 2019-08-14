@@ -41,6 +41,7 @@ import com.max.appengine.springboot.megaiq.model.api.ApiResponseTestInfoList;
 import com.max.appengine.springboot.megaiq.model.api.ApiTestInfo;
 import com.max.appengine.springboot.megaiq.model.api.ApiTestResult;
 import com.max.appengine.springboot.megaiq.model.api.ApiUser;
+import com.max.appengine.springboot.megaiq.model.api.ApiUserPublic;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.model.exception.MegaIQException;
@@ -165,7 +166,7 @@ public class TestController extends AbstractApiController {
 
     ApiTestResult apiTestResult = new ApiTestResult(this.questionsService, testResult.get(), true);
 
-    return sendResponseTestResult(apiTestResult);
+    return sendResponseTestResult(apiTestResult, user.get());
   }
 
   @RequestMapping(value = "/test/finish", method = RequestMethod.GET)
@@ -209,7 +210,7 @@ public class TestController extends AbstractApiController {
             ApiTestResult apiTestResult =
                 new ApiTestResult(this.questionsService, testResultNew.get(), true);
 
-            return sendResponseTestResult(apiTestResult);
+            return sendResponseTestResult(apiTestResult, user);
           } else {
             return sendResponseError(MESSAGE_WRONG_REQUEST, configCache, userLocale);
           }
@@ -225,7 +226,7 @@ public class TestController extends AbstractApiController {
       return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
     }
   }
-
+  
   @RequestMapping(value = "/test/{testCode}", method = RequestMethod.GET)
   public ResponseEntity<ApiResponseBase> requestTestDetails(HttpServletRequest request,
       @PathVariable UUID testCode, @RequestParam Optional<String> locale) {
@@ -267,7 +268,7 @@ public class TestController extends AbstractApiController {
           ApiTestResult apiTestResult =
               new ApiTestResult(this.questionsService, testResultNew, true);
 
-          return sendResponseTestResult(apiTestResult);
+          return sendResponseTestResult(apiTestResult, userResult.get());
         } else {
           return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
         }
@@ -348,7 +349,7 @@ public class TestController extends AbstractApiController {
       ApiTestResult apiTestResult =
           new ApiTestResult(this.questionsService, testResult.get(), true);
 
-      return sendResponseTestResult(apiTestResult);
+      return sendResponseTestResult(apiTestResult, user);
     } else {
       return sendResponseError(MESSAGE_WRONG_REQUEST, configCache, locale);
     }
@@ -361,7 +362,7 @@ public class TestController extends AbstractApiController {
       ApiTestResult apiTestResult =
           new ApiTestResult(this.questionsService, testResult.get(), false);
 
-      return sendResponseTestResult(apiTestResult);
+      return sendResponsePublicTestResult(apiTestResult, new ApiUserPublic(testResult.get().getUser()));
     } else {
       return sendResponseError(MESSAGE_WRONG_REQUEST, configCache, locale);
     }

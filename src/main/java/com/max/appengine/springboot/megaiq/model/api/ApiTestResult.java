@@ -31,7 +31,6 @@ import com.max.appengine.springboot.megaiq.service.QuestionsService;
 public class ApiTestResult {
   private UUID code;
   private String url;
-  private ApiUser user;
   private IqTestType type;
   private Locale locale;
   private IqTestStatus status;
@@ -58,7 +57,6 @@ public class ApiTestResult {
     result = prime * result + ((type == null) ? 0 : type.hashCode());
     result = prime * result + ((updateDate == null) ? 0 : updateDate.hashCode());
     result = prime * result + ((url == null) ? 0 : url.hashCode());
-    result = prime * result + ((user == null) ? 0 : user.hashCode());
     return result;
   }
 
@@ -117,11 +115,6 @@ public class ApiTestResult {
         return false;
     } else if (!url.equals(other.url))
       return false;
-    if (user == null) {
-      if (other.user != null)
-        return false;
-    } else if (!user.equals(other.user))
-      return false;
     return true;
   }
 
@@ -131,7 +124,7 @@ public class ApiTestResult {
 
   @Override
   public String toString() {
-    return "ApiTestResult [code=" + code + ", url=" + url + ", user=" + user + ", type=" + type
+    return "ApiTestResult [code=" + code + ", url=" + url + ", type=" + type
         + ", locale=" + locale + ", status=" + status + ", createDate=" + createDate
         + ", updateDate=" + updateDate + ", finishDate=" + finishDate + ", points=" + points
         + ", groupsGraph=" + groupsGraph + ", questionSet=" + questionSet + "]";
@@ -193,14 +186,6 @@ public class ApiTestResult {
 
   public void setUrl(String url) {
     this.url = url;
-  }
-
-  public ApiUser getUser() {
-    return user;
-  }
-
-  public void setUser(ApiUser user) {
-    this.user = user;
   }
 
   public IqTestType getType() {

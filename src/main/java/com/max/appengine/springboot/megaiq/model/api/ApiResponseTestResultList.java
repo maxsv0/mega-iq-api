@@ -30,7 +30,7 @@ public class ApiResponseTestResultList extends ApiResponseBase {
     return user;
   }
 
-  public ApiResponseTestResultList(List<ApiTestResult> tests, ApiUser user) {
+  public ApiResponseTestResultList(List<ApiTestResult> tests, ApiUserPublic user) {
     super();
     this.tests = tests;
     this.user = user;

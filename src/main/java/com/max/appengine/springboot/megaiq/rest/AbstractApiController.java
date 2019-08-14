@@ -43,8 +43,14 @@ public abstract class AbstractApiController {
     return sendResponseOk(new ApiResponseTestResultList(testResultList, user));
   }
 
-  protected ResponseEntity<ApiResponseBase> sendResponseTestResult(ApiTestResult testResult) {
-    return sendResponseOk(new ApiResponseTestResult(testResult));
+  protected ResponseEntity<ApiResponseBase> sendResponsePublicTestResult(ApiTestResult testResult,
+      ApiUserPublic user) {
+    return sendResponseOk(new ApiResponseTestResult(testResult, user));
+  }
+  
+  protected ResponseEntity<ApiResponseBase> sendResponseTestResult(ApiTestResult testResult,
+      User user) {
+    return sendResponseOk(new ApiResponseTestResult(testResult, new ApiUser(user)));
   }
 
   protected ResponseEntity<ApiResponseBase> sendResponseUsersTop(List<ApiUserTop> apiUsersTop,
