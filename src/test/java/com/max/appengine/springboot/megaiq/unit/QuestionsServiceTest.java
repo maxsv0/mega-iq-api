@@ -36,8 +36,8 @@ import com.max.appengine.springboot.megaiq.service.QuestionsService;
 @SpringBootTest(classes = Application.class)
 public class QuestionsServiceTest extends AbstractUnitTest {
 
-  private static final int GENERATE_QUESTIONS_LIMIT = 100;
-  private static final int GENERATE_ANSWERS_LIMIT = 2;
+//  private static final int GENERATE_QUESTIONS_LIMIT = 100;
+//  private static final int GENERATE_ANSWERS_LIMIT = 2;
 
   @Autowired
   private AnswerReporitory answerReporitory;
@@ -52,10 +52,10 @@ public class QuestionsServiceTest extends AbstractUnitTest {
 
   @Test
   public void testQuestionsServiceBasis() throws MegaIQException {
-    for (Locale locale : Locale.values()) {
-      generateQuestionsAndAnswers(questionReporitory, answerReporitory, GENERATE_QUESTIONS_LIMIT,
-          GENERATE_ANSWERS_LIMIT, locale);
-    }
+//    for (Locale locale : Locale.values()) {
+//      generateQuestionsAndAnswers(questionReporitory, answerReporitory, GENERATE_QUESTIONS_LIMIT,
+//          GENERATE_ANSWERS_LIMIT, locale);
+//    }
 
     this.questionsService =
         new QuestionsService(answerReporitory, questionReporitory, configurationService);
@@ -75,8 +75,8 @@ public class QuestionsServiceTest extends AbstractUnitTest {
 
   @Test
   public void testQuestionsServiceTwoTestsAreNotEqual() throws MegaIQException {
-    generateQuestionsAndAnswers(questionReporitory, answerReporitory, 20, GENERATE_ANSWERS_LIMIT,
-        Locale.EN);
+//    generateQuestionsAndAnswers(questionReporitory, answerReporitory, 20, GENERATE_ANSWERS_LIMIT,
+//        Locale.EN);
 
     this.questionsService =
         new QuestionsService(answerReporitory, questionReporitory, configurationService);
