@@ -38,12 +38,15 @@ public abstract class AbstractUser {
   private String pic;
   private String certificate;
   private String location;
+  private String country;
+  private String cityLatLong;
   private Integer age;
   private Integer iq;
   private Boolean isPublic;
   private Boolean isEmailVerified;
   private Boolean isUnsubscribed;
   private String ip;
+  private String background;
   private Integer geoId;
   private Integer countryCode;
   private Date createDate;
@@ -94,7 +97,7 @@ public abstract class AbstractUser {
   public void setPic(String pic) {
     this.pic = pic;
   }
-  
+
   public String getCertificate() {
     return certificate;
   }
@@ -109,6 +112,22 @@ public abstract class AbstractUser {
 
   public void setLocation(String location) {
     this.location = location;
+  }
+
+  public String getCountry() {
+    return country;
+  }
+
+  public void setCountry(String country) {
+    this.country = country;
+  }
+
+  public String getCityLatLong() {
+    return cityLatLong;
+  }
+
+  public void setCityLatLong(String cityLatLong) {
+    this.cityLatLong = cityLatLong;
   }
 
   public Integer getAge() {
@@ -157,6 +176,14 @@ public abstract class AbstractUser {
 
   public void setIp(String ip) {
     this.ip = ip;
+  }
+
+  public String getBackground() {
+    return background;
+  }
+
+  public void setBackground(String background) {
+    this.background = background;
   }
 
   public Integer getGeoId() {
