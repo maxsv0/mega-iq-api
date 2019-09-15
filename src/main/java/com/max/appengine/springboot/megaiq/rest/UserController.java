@@ -267,8 +267,16 @@ public class UserController extends AbstractApiController {
     } else {
       userCurrent.setIsUnsubscribed(false);
     }
-    userCurrent.setIp(getIp(request));
+    userCurrent.setBackground(user.getBackground());
+    if (user.getCountry() != null) {
+      userCurrent.setCountry(user.getCountry());
+    }
+    if (user.getCityLatLong() != null) {
+      userCurrent.setCityLatLong(user.getCityLatLong());
+    }
 
+    userCurrent.setIp(getIp(request));
+    
     try {
       firebaseService.saveUser(userCurrent);
 

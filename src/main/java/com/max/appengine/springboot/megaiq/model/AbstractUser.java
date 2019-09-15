@@ -48,7 +48,6 @@ public abstract class AbstractUser {
   private String ip;
   private String background;
   private Integer geoId;
-  private Integer countryCode;
   private Date createDate;
   private Date updateDate;
   @Column(length = 128, unique = true)
@@ -192,14 +191,6 @@ public abstract class AbstractUser {
 
   public void setGeoId(Integer geoId) {
     this.geoId = geoId;
-  }
-
-  public Integer getCountryCode() {
-    return countryCode;
-  }
-
-  public void setCountryCode(Integer countryCode) {
-    this.countryCode = countryCode;
   }
 
   public Date getCreateDate() {
