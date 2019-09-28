@@ -33,7 +33,7 @@ import com.max.appengine.springboot.megaiq.model.api.ApiQuestion;
 import com.max.appengine.springboot.megaiq.model.api.ApiRequestSubmitAnswer;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseTestInfoList;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseTestResult;
-import com.max.appengine.springboot.megaiq.model.api.ApiResponseUser;
+import com.max.appengine.springboot.megaiq.model.api.ApiResponseTestResultList;
 import com.max.appengine.springboot.megaiq.model.api.ApiTestInfo;
 import com.max.appengine.springboot.megaiq.model.api.ApiTestResult;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
@@ -204,8 +204,8 @@ public class TestControllerIT extends AbstractIntegrationIT {
     log.info("User result = {}", resultApiUser.getResponse().getContentAsString());
     
     ObjectMapper objectMapper = new ObjectMapper();
-    ApiResponseUser responseTest = objectMapper
-        .readValue(resultApiUser.getResponse().getContentAsString(), ApiResponseUser.class);
+    ApiResponseTestResultList responseTest = objectMapper
+        .readValue(resultApiUser.getResponse().getContentAsString(), ApiResponseTestResultList.class);
     
     assertEquals(Integer.valueOf(160), responseTest.getUser().getIq());
     assertNotNull(responseTest.getUser().getCertificate());

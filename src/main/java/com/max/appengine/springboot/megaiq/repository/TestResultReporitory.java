@@ -42,5 +42,5 @@ public interface TestResultReporitory extends JpaRepository<TestResult, Integer>
   List<TestResult> findByUserIdAndStatus(Integer userId, IqTestStatus status);
 
   @Query("select userId, sum(points) as score from TestResult as t where t.locale = ?1 and status = 'FINISHED' group by userId order by score desc")
-  List<Object[]> findTopUserIds(Locale locale, Pageable pageable);
+  List<Object[]> findTopUserIds(Locale locale,  Pageable pageable);
 }

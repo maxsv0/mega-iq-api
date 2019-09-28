@@ -22,12 +22,14 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
+import org.hibernate.annotations.GenericGenerator;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
 @MappedSuperclass
 public abstract class AbstractUser {
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "IdOrGenerated")
+  @GenericGenerator(name = "IdOrGenerated", strategy = "com.max.appengine.springboot.megaiq.model.StrategyIdOrGenerate")
   private Integer id;
 
   @Column(unique = true)
@@ -56,6 +58,8 @@ public abstract class AbstractUser {
   @Enumerated(EnumType.STRING)
   @Column(length = 2)
   private Locale locale;
+  
+  private String source;
 
   public Integer getId() {
     return id;
@@ -223,6 +227,14 @@ public abstract class AbstractUser {
 
   public void setLocale(Locale locale) {
     this.locale = locale;
+  }
+
+  public String getSource() {
+    return source;
+  }
+
+  public void setSource(String source) {
+    this.source = source;
   }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 mega-iq.com
+ * Copyright 2019 mega-iq.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -16,24 +16,32 @@ package com.max.appengine.springboot.megaiq.model.api;
 
 import java.util.Date;
 
-public class ApiResponseTestResult extends ApiResponseBase {
+public class ResponseTestResultPublic extends ApiResponseBase {
   private ApiTestResult test;
 
-  private ApiUser user;
-  
+  private ApiUserPublic user;
+
+  public ResponseTestResultPublic() {
+    super();
+  }
+
   public ApiTestResult getTest() {
     return test;
   }
-  
+
+  public void setTest(ApiTestResult test) {
+    this.test = test;
+  }
+
   public ApiUserPublic getUser() {
     return user;
   }
 
-  public ApiResponseTestResult() {
-    super();
+  public void setUser(ApiUserPublic user) {
+    this.user = user;
   }
-  
-  public ApiResponseTestResult(ApiTestResult testResult, ApiUser user) {
+
+  public ResponseTestResultPublic(ApiTestResult testResult, ApiUserPublic user) {
     super();
     this.test = testResult;
     this.user = user;
@@ -43,6 +51,5 @@ public class ApiResponseTestResult extends ApiResponseBase {
     this.setMsg(null);
     this.setLocale(testResult.getLocale());
   }
- 
 
 }

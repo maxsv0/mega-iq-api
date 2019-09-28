@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
@@ -37,5 +38,8 @@ public interface UserReporitory extends JpaRepository<User, Integer> {
   Optional<User> findOneByIqGreaterThanAndLocaleAndIsPublicIsTrueOrderByUpdateDate(Integer iq, Locale locale);
   
   List<User> findTop10ByIqGreaterThanAndLocaleAndIsPublicIsTrueOrderByUpdateDate(Integer iq, Locale locale);
+  
+  @Query("SELECT max(id) FROM User")
+  Integer getMaxId();
 
 }

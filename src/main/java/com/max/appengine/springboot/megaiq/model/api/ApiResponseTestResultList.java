@@ -29,6 +29,10 @@ public class ApiResponseTestResultList extends ApiResponseBase {
   public ApiUserPublic getUser() {
     return user;
   }
+  
+  public ApiResponseTestResultList() {
+    super();
+  }
 
   public ApiResponseTestResultList(List<ApiTestResult> tests, ApiUserPublic user) {
     super();
@@ -38,6 +42,14 @@ public class ApiResponseTestResultList extends ApiResponseBase {
     this.setOk();
     this.setDate(new Date());
     this.setMsg(null);
+  }
+
+  @Override
+  public String toString() {
+    return "ApiResponseTestResultList [tests=" + tests + ", user=" + user + ", isOk()=" + isOk()
+        + ", getMsg()=" + getMsg() + ", getDate()=" + getDate() + ", getLocale()=" + getLocale()
+        + ", hashCode()=" + hashCode() + ", toString()=" + super.toString() + ", getClass()="
+        + getClass() + "]";
   }
 
 }

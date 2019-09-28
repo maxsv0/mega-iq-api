@@ -24,19 +24,20 @@ public class QuestionGroupsResult {
   @Id
   private Integer id;
 
-  private Integer math;
+  private Double math;
 
-  private Integer grammar;
+  private Double grammar;
 
-  private Integer horizons;
+  private Double horizons;
 
-  private Integer logic;
+  private Double logic;
 
   public QuestionGroupsResult() {
     super();
   }
 
-  public QuestionGroupsResult(Integer id, Integer math, Integer grammar, Integer horizons, Integer logic) {
+  public QuestionGroupsResult(Integer id, Double math, Double grammar, Double horizons,
+      Double logic) {
     super();
     this.id = id;
     this.math = math;
@@ -45,42 +46,42 @@ public class QuestionGroupsResult {
     this.logic = logic;
   }
 
-  public Integer getMath() {
+  public Double getMath() {
     return math;
   }
 
 
-  public void setMath(Integer math) {
+  public void setMath(Double math) {
     this.math = math;
   }
 
 
-  public Integer getGrammar() {
+  public Double getGrammar() {
     return grammar;
   }
 
 
-  public void setGrammar(Integer grammar) {
+  public void setGrammar(Double grammar) {
     this.grammar = grammar;
   }
 
 
-  public Integer getHorizons() {
+  public Double getHorizons() {
     return horizons;
   }
 
 
-  public void setHorizons(Integer horizons) {
+  public void setHorizons(Double horizons) {
     this.horizons = horizons;
   }
 
 
-  public Integer getLogic() {
+  public Double getLogic() {
     return logic;
   }
 
 
-  public void setLogic(Integer logic) {
+  public void setLogic(Double logic) {
     this.logic = logic;
   }
 

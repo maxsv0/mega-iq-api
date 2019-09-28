@@ -193,7 +193,7 @@ public class TestController extends AbstractApiController {
 
             if (showIq) {
               if (user.getIq() == null || user.getIq() < testResult.get().getPoints()) {
-                this.userService.setUserIqScore(user, testResult.get().getPoints());
+                this.userService.setIqScoreAndCertificate(user, testResult.get().getPoints());
               }
             }
 

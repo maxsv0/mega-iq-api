@@ -22,6 +22,7 @@ import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import com.max.appengine.springboot.megaiq.model.api.ImportUserTest;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
@@ -118,6 +119,22 @@ public class TestResult extends AbstractTestResult {
     this.setPoints(points);
     this.setGroupsGraph(groupsGraph);
     this.setLocale(locale);
+  }
+  
+  public TestResult(ImportUserTest importUserTest, Locale locale, Integer userId) {
+    super();
+
+    UUID code = UUID.randomUUID();
+    this.setCode(code);
+    this.setUrl("/iqtest/result/" + code);
+    this.setUserId(userId);
+    this.setType(importUserTest.getType());
+    this.setStatus(IqTestStatus.FINISHED);
+    this.setCreateDate(importUserTest.getCreateDate());
+    this.setUpdateDate(new Date());
+    this.setFinishDate(importUserTest.getFinishDate());
+    this.setLocale(locale);
+    this.setPoints(importUserTest.getPoints());
   }
 
   @Override

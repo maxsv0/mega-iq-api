@@ -5,3 +5,4 @@
 .idea
 .DS_Store
 WEB-INF/appengine-generated/
+/bin/

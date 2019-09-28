@@ -77,20 +77,29 @@ public class UserService {
     }
 
     user.setIsUnsubscribed(false);
-    user.setCreateDate(new Date());
-    userResult = userReporitory.save(user);
-
-    userResult.setUrl("/user/" + userResult.getId());
-    userResult = userReporitory.save(userResult);
-
-    if (user.getIsEmailVerified()) {
-      emailService.sendEmailRegistration(userResult);
-    } else {
-      String link = firebaseService.getEmailVerificationLink(userResult.getEmail());
-      emailService.sendEmailRegistrationWithVerify(userResult, link);
+    if (user.getCreateDate() == null) {
+      user.setCreateDate(new Date());
     }
-    
-    return userResult;
+
+    // in case id not set, save to get ID
+    if (user.getId() == null) {
+      userResult = userReporitory.save(user);
+
+      userResult.setUrl("/user/" + userResult.getId());
+
+      if (user.getIsEmailVerified()) {
+        emailService.sendEmailRegistration(userResult);
+      } else {
+        String link = firebaseService.getEmailVerificationLink(userResult.getEmail());
+        emailService.sendEmailRegistrationWithVerify(userResult, link);
+      }
+    } else {
+      user.setUrl("/user/" + user.getId());
+      
+      emailService.sendRegistrationImportUser(user);
+    }
+
+    return userReporitory.save(user);
   }
 
   public User saveUser(User user) {
@@ -140,6 +149,7 @@ public class UserService {
       user = userResult.get();
     } else {
       user = new User();
+      user.setSource("social-login");
       user.setUid(firebaseToken.getUid());
       user.setIsEmailVerified(firebaseToken.isEmailVerified());
       user.setEmail(firebaseToken.getEmail());
@@ -182,7 +192,7 @@ public class UserService {
     return this.userReporitory.findByIdIn(userIds);
   }
   
-  public User setUserIqScore(User user, Integer points) {
+  public User setIqScoreAndCertificate(User user, Integer points) {
     user.setIq(points);
 
     try {

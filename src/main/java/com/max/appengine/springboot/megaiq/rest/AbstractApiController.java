@@ -34,27 +34,35 @@ import com.max.appengine.springboot.megaiq.model.api.ApiTestResult;
 import com.max.appengine.springboot.megaiq.model.api.ApiUser;
 import com.max.appengine.springboot.megaiq.model.api.ApiUserPublic;
 import com.max.appengine.springboot.megaiq.model.api.ApiUserTop;
+import com.max.appengine.springboot.megaiq.model.api.ResponseTestResultPublic;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.service.ConfigurationService;
 
 public abstract class AbstractApiController {
   protected ResponseEntity<ApiResponseBase> sendResponseTestResultList(
-      List<ApiTestResult> testResultList, ApiUser user) {
+      List<ApiTestResult> testResultList, ApiUserPublic user) {
     return sendResponseOk(new ApiResponseTestResultList(testResultList, user));
   }
 
   protected ResponseEntity<ApiResponseBase> sendResponsePublicTestResult(ApiTestResult testResult,
       ApiUserPublic user) {
+    return sendResponseOk(new ResponseTestResultPublic(testResult, user));
+  }
+
+
+  protected ResponseEntity<ApiResponseBase> sendResponsePublicTestResult(ApiTestResult testResult,
+      ApiUser user) {
     return sendResponseOk(new ApiResponseTestResult(testResult, user));
   }
-  
+
   protected ResponseEntity<ApiResponseBase> sendResponseTestResult(ApiTestResult testResult,
       User user) {
     return sendResponseOk(new ApiResponseTestResult(testResult, new ApiUser(user)));
   }
 
   protected ResponseEntity<ApiResponseBase> sendResponseUsersTop(List<ApiUserTop> apiUsersTop,
-      List<ApiUserPublic> apiUsers, long count, List<ApiUserPublic> exampleProfiles, Locale locale) {
+      List<ApiUserPublic> apiUsers, long count, List<ApiUserPublic> exampleProfiles,
+      Locale locale) {
     return sendResponseOk(
         new ApiResponseUsersTop(apiUsersTop, apiUsers, count, exampleProfiles, locale));
   }

@@ -43,9 +43,10 @@ import com.max.appengine.springboot.megaiq.model.api.ApiRequestForget;
 import com.max.appengine.springboot.megaiq.model.api.ApiRequestLoginToken;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
 import com.max.appengine.springboot.megaiq.model.api.ApiTestResult;
-import com.max.appengine.springboot.megaiq.model.api.ApiUser;
 import com.max.appengine.springboot.megaiq.model.api.ApiUserPublic;
 import com.max.appengine.springboot.megaiq.model.api.ApiUserTop;
+import com.max.appengine.springboot.megaiq.model.api.ImportUserTest;
+import com.max.appengine.springboot.megaiq.model.api.RequestImportUser;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.model.exception.MegaIQException;
@@ -161,6 +162,7 @@ public class UserController extends AbstractApiController {
     user.setLocale(userLocale);
     user.setIsEmailVerified(false);
     user.setIsPublic(true);
+    user.setSource("register");
 
     try {
       UserRecord userRecord = firebaseService.createUser(user);
@@ -211,7 +213,7 @@ public class UserController extends AbstractApiController {
           usersPublicList.add(new ApiTestResult(this.questionsService, testResult, true));
         }
 
-        return sendResponseTestResultList(usersPublicList, new ApiUser(userResult.get()));
+        return sendResponseTestResultList(usersPublicList, new ApiUserPublic(userResult.get()));
       } else {
         return sendResponseError(MESSAGE_USER_NOT_FOUND, configCache, userLocale);
       }
@@ -316,6 +318,8 @@ public class UserController extends AbstractApiController {
       usersScore.put(userId, Math.toIntExact(score));
     }
 
+    System.out.println(usersIds);
+    
     List<User> listUsers = this.userService.findByUserIdIn(usersIds);
     List<ApiUserTop> usersTopList = new ArrayList<ApiUserTop>();
     for (User user : listUsers) {
@@ -441,6 +445,39 @@ public class UserController extends AbstractApiController {
     this.userService.saveUser(userVerify);
 
     return sendResponseBase(MESSAGE_VERIFY_SUCCESS, configCache, userLocale);
+  }
+
+  @RequestMapping(value = "/user/import", method = RequestMethod.POST,
+      consumes = "application/json")
+  public ResponseEntity<ApiResponseBase> requestImportUser(HttpServletRequest request,
+      @RequestBody RequestImportUser importUser) {
+
+    User userNew = new User(importUser);
+    userNew.setSource("import");
+    
+    try {
+      UserRecord userRecord = firebaseService.createUser(userNew);
+      userNew.setUid(userRecord.getUid());
+
+      User userResult = userService.addUser(userNew);
+
+      userResult = userService.setIqScoreAndCertificate(userResult, userResult.getIq());
+
+      if (importUser.getTests() != null) {
+        for (ImportUserTest importTest : importUser.getTests()) {
+          this.testResultService.importTestResult(importTest, userNew.getLocale(), userResult.getId());
+        }
+      }
+
+      return sendResponseUser(userResult, userNew.getLocale());
+    } catch (MegaIQException error) {
+      String message = getCacheValue(configCache, MESSAGE_EMAIL_ALREADY_USED, userNew.getLocale());
+      message = String.format(message, userNew.getEmail());
+
+      return sendResponseErrorRaw(message, userNew.getLocale());
+    } catch (FirebaseAuthException error) {
+      return sendResponseErrorRaw(error.getLocalizedMessage(), userNew.getLocale());
+    }
   }
 
 }

@@ -27,7 +27,10 @@ import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
 @Service
 public class EmailService extends AbstractSendgridEmailService {
+
   public static final String EMAIL_SUBJECT_NEW_USER = "email_subject_new_user";
+
+  public static final String EMAIL_SUBJECT_IMPORT_USER = "email_subject_import_user";
 
   public static final String EMAIL_SUBJECT_EMAIL_VERIFY = "email_subject_email_verify";
 
@@ -43,6 +46,10 @@ public class EmailService extends AbstractSendgridEmailService {
   public EmailService(ConfigurationService configurationService) {
     AbstractServiceHelper.cacheValuesForAllLocales(configurationService, configCache,
         EMAIL_SUBJECT_NEW_USER);
+
+    AbstractServiceHelper.cacheValuesForAllLocales(configurationService, configCache,
+        EMAIL_SUBJECT_IMPORT_USER);
+
     AbstractServiceHelper.cacheValuesForAllLocales(configurationService, configCache,
         EMAIL_SUBJECT_EMAIL_VERIFY);
     AbstractServiceHelper.cacheValuesForAllLocales(configurationService, configCache,
@@ -201,6 +208,39 @@ public class EmailService extends AbstractSendgridEmailService {
 
     return loadTemplateAndSend(testResult.getLocale(), userData, subject, content);
   }
+  
+  public boolean sendRegistrationImportUser(User user) {
+    HashMap<String, String> userData = loadUserData(user);
+    String domainUrl = AbstractServiceHelper.getCachedDomain(configCache, user.getLocale());
+    userData.put("profile_link", domainUrl + user.getUrl());
+    userData.put("test_iq_score", user.getIq().toString());
+
+    userData.put("unsubscribe_block",
+        "<tr><td class=\"unsubscribe\">If you no longer wish to receive messages like this one, you can <a href=\""
+            + domainUrl + "/login?token=" + user.getToken()
+            + "&returnUrl=%2Fsettings\">unsubscribe</a>. </td></tr>");
+
+    preparePromoFields(userData, user);
+    
+    String content = loadTemplateFromPath("import-user", user.getLocale());
+    List<String> fieldsRequired = new ArrayList<String>();
+    fieldsRequired.add("name");
+    fieldsRequired.add("test_iq_score");
+    fieldsRequired.add("profile_link");
+    preparePromoFieldsRequired(fieldsRequired);
+    
+    content = insertFields(content, fieldsRequired, userData);
+
+    List<String> fieldsRequiredSubject = new ArrayList<String>();
+    fieldsRequiredSubject.add("test_iq_score");
+
+    String subject = AbstractServiceHelper.getCacheValue(configCache, EMAIL_SUBJECT_IMPORT_USER,
+        user.getLocale());
+    subject = insertFields(subject, fieldsRequiredSubject, userData);
+
+    return loadTemplateAndSend(user.getLocale(), userData, subject, content);
+  }
+  
 
   private void preparePromoFields(HashMap<String, String> userData, User user) {
     userData.put("test_url_mega_iq",

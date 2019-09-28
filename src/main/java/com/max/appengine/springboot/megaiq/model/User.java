@@ -15,10 +15,12 @@
 package com.max.appengine.springboot.megaiq.model;
 
 import java.util.List;
+import java.util.UUID;
 import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import com.max.appengine.springboot.megaiq.model.api.RequestImportUser;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 
 @Entity
@@ -31,10 +33,10 @@ public class User extends AbstractUser {
 
   @Transient
   private String token;
-  
+
   @Transient
   private String password;
-  
+
   public List<TestResult> getTestResultList() {
     return testResultList;
   }
@@ -58,11 +60,29 @@ public class User extends AbstractUser {
   public void setPassword(String password) {
     this.password = password;
   }
-  
+
   public User() {
     super();
   }
-  
+
+  public User(RequestImportUser importUser) {
+    
+    this.setId(importUser.getId());
+    this.setLocale(importUser.getLocale());
+    this.setEmail(importUser.getEmail());
+    this.setName(importUser.getName());
+    this.setCreateDate(importUser.getCreateDate());
+    this.setLocation(importUser.getLocation());
+    this.setAge(importUser.getAge());
+    this.setIp(importUser.getIp());
+    this.setIq(importUser.getIq());
+    this.setIsPublic(importUser.getIsPublic());  
+    this.setPic(importUser.getPic());
+    this.setPassword(UUID.randomUUID().toString());
+    this.setIsEmailVerified(true);
+  }
+
+  // TODO: remove this constructor, not needed
   public User(String email, String name, String url, String pic, String location, Integer age,
       Integer iq, Boolean isPublic, String password, String ip, Integer geoId, Locale locale) {
     super();

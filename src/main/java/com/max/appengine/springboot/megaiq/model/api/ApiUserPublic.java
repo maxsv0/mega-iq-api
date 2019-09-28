@@ -109,8 +109,9 @@ public class ApiUserPublic {
 
   @Override
   public String toString() {
-    return "ApiUserPublic [id=" + id + ", name=" + name + ", pic=" + pic + ", url=" + url + ", age="
-        + age + ", iq=" + iq + ", location=" + location + "]";
+    return "ApiUserPublic [id=" + id + ", name=" + name + ", pic=" + pic + ", certificate="
+        + certificate + ", url=" + url + ", age=" + age + ", iq=" + iq + ", location=" + location
+        + "]";
   }
 
 }

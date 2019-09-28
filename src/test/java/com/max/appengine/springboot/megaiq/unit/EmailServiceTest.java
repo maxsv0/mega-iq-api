@@ -118,4 +118,14 @@ public class EmailServiceTest extends AbstractUnitTest {
       assertTrue(result);
     }
   }
+  
+  @Test
+  public void testEmailRegistrationImportUser() {
+    for (Locale locale : Locale.values()) {
+      User user = generateUser(locale);
+
+      boolean result = this.emailService.sendRegistrationImportUser(user);
+      assertTrue(result);
+    }
+  }
 }

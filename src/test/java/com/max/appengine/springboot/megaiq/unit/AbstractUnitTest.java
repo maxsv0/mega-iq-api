@@ -130,7 +130,7 @@ public abstract class AbstractUnitTest {
 
     TestResult testUserResult = new TestResult(1, code, "/iqtest/result/" + code, userId,
         IqTestType.MEGA_IQ, IqTestStatus.FINISHED, new Date(), new Date(), new Date(), 150,
-        new QuestionGroupsResult(1, 1, 1, 1, 1), locale);
+        new QuestionGroupsResult(1, 1.0, 1.0, 1.0, 1.0), locale);
 
     testUserResult.setQuestionSet(new ArrayList<QuestionUser>());
 

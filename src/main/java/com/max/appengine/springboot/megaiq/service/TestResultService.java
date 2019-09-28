@@ -33,6 +33,7 @@ import com.max.appengine.springboot.megaiq.model.QuestionGroupsResult;
 import com.max.appengine.springboot.megaiq.model.QuestionUser;
 import com.max.appengine.springboot.megaiq.model.TestResult;
 import com.max.appengine.springboot.megaiq.model.User;
+import com.max.appengine.springboot.megaiq.model.api.ImportUserTest;
 import com.max.appengine.springboot.megaiq.model.enums.IqQuestionGroup;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
@@ -69,8 +70,8 @@ public class TestResultService {
     }
   }
 
-  public long getResultCount() {
-    return testResultReporitory.count();
+  public Integer getResultCount() {
+    return userReporitory.getMaxId();
   }
 
   public Optional<TestResult> getTestResultById(Integer testId) {
@@ -134,9 +135,9 @@ public class TestResultService {
     if (testResult.getType().equals(IqTestType.STANDARD_IQ)
         || testResult.getType().equals(IqTestType.MEGA_IQ)) {
       QuestionGroupsResult questionGroupsResult =
-          new QuestionGroupsResult(testResult.getId(), 1, 1, 1, 1);
+          new QuestionGroupsResult(testResult.getId(), 1.0, 1.0, 1.0, 1.0);
       QuestionGroupsResult questionGroupsCorrect =
-          new QuestionGroupsResult(testResult.getId(), 1, 1, 1, 1);
+          new QuestionGroupsResult(testResult.getId(), 1.0, 1.0, 1.0, 1.0);
 
       // Init min value
       points = 80;
@@ -195,14 +196,14 @@ public class TestResultService {
       }
       points += Math.round(pointsCorrect * 80 / pointsTotal);
 
-      questionGroupsResult.setMath(
-          Math.round(100 * questionGroupsCorrect.getMath() / questionGroupsResult.getMath()));
-      questionGroupsResult.setGrammar(
-          Math.round(100 * questionGroupsCorrect.getGrammar() / questionGroupsResult.getGrammar()));
-      questionGroupsResult.setHorizons(Math
-          .round(100 * questionGroupsCorrect.getHorizons() / questionGroupsResult.getHorizons()));
-      questionGroupsResult.setLogic(
-          Math.round(100 * questionGroupsCorrect.getLogic() / questionGroupsResult.getLogic()));
+      questionGroupsResult
+          .setMath(100 * questionGroupsCorrect.getMath() / questionGroupsResult.getMath());
+      questionGroupsResult
+          .setGrammar(100 * questionGroupsCorrect.getGrammar() / questionGroupsResult.getGrammar());
+      questionGroupsResult.setHorizons(
+          100 * questionGroupsCorrect.getHorizons() / questionGroupsResult.getHorizons());
+      questionGroupsResult
+          .setLogic(100 * questionGroupsCorrect.getLogic() / questionGroupsResult.getLogic());
 
       testResult.setGroupsGraph(questionGroupsResult);
     } else {
@@ -254,15 +255,16 @@ public class TestResultService {
 
     return resultTestsFull;
   }
-  
+
   public List<TestResult> findTestResultByUserId(Integer userId, Locale locale, Pageable pageable) {
-    List<TestResult> resultTests = testResultReporitory.findTop8ByUserIdAndLocaleOrderByCreateDateDesc(userId, locale, pageable);
-    
+    List<TestResult> resultTests = testResultReporitory
+        .findTop8ByUserIdAndLocaleOrderByCreateDateDesc(userId, locale, pageable);
+
     List<TestResult> resultTestsFull = new ArrayList<>();
     for (TestResult test : resultTests) {
       resultTestsFull.add(this.loadQuestions(test));
     }
-    
+
     return resultTestsFull;
   }
 
@@ -301,7 +303,22 @@ public class TestResultService {
   }
 
   public List<Object[]> findTopUserIds(Locale locale) {
-    return this.testResultReporitory.findTopUserIds(locale, PageRequest.of(0, 1));
+    return this.testResultReporitory.findTopUserIds(locale, PageRequest.of(0, 10));
+  }
+
+  public TestResult importTestResult(ImportUserTest importTestResult, Locale locale,
+      Integer userId) {
+    TestResult newTestResult = new TestResult(importTestResult, locale, userId);
+
+    newTestResult = testResultReporitory.save(newTestResult);
+
+    QuestionGroupsResult questionGroupsResult = new QuestionGroupsResult(newTestResult.getId(),
+        importTestResult.getGroups().getMath(), importTestResult.getGroups().getGrammar(),
+        importTestResult.getGroups().getHorizons(), importTestResult.getGroups().getLogic());
+
+    newTestResult.setGroupsGraph(questionGroupsResult);
+
+    return testResultReporitory.save(newTestResult);
   }
 
   private void expireByType(Integer minutes, IqTestType type) {

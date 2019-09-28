@@ -51,5 +51,5 @@ public class ApiUserTop extends ApiUserPublic {
         + ", getAge()=" + getAge() + ", getIq()=" + getIq() + ", getLocation()=" + getLocation()
         + "]";
   }
-  
+
 }

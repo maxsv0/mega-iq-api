@@ -35,9 +35,9 @@ CREATE TABLE question_group (
 );
 
 INSERT INTO configuration (id, name, type, locale, value) VALUES
-(1, 'domain', NULL,'EN', 'http://www.mega-iq.com'),
-(2, 'domain', NULL,'DE', 'http://de.mega-iq.com'),
-(3, 'domain', NULL,'RU', 'http://ru.mega-iq.com'),
+(1, 'domain', NULL,'EN', 'https://www.mega-iq.com'),
+(2, 'domain', NULL,'DE', 'https://de.mega-iq.com'),
+(3, 'domain', NULL,'RU', 'https://ru.mega-iq.com'),
 (4, 'test_title', 'PRACTICE_IQ', 'EN', 'test_title_PRACTICE_IQ'),
 (5, 'test_title', 'PRACTICE_IQ', 'DE', 'test_title_PRACTICE_IQ'),
 (6, 'test_title', 'PRACTICE_IQ', 'RU', 'test_title_PRACTICE_IQ'),
@@ -164,7 +164,7 @@ INSERT INTO configuration (id, name, type, locale, value) VALUES
 (129, 'test_style_name', 'MEGA_IQ', NULL,'megaiq'),
 (130, 'test_style_name', 'MATH', NULL,'math'),
 (131, 'test_style_name', 'GRAMMAR', NULL,'grammar'),
-(132, 'domain', NULL,'ES', 'http://es.mega-iq.com'),
+(132, 'domain', NULL,'ES', 'https://es.mega-iq.com'),
 (133, 'test_title', 'PRACTICE_IQ', 'ES', 'Test CI de Práctica'),
 (134, 'test_title', 'STANDARD_IQ', 'ES', 'Test CI Estándar'),
 (135, 'test_title', 'MEGA_IQ', 'ES', 'Test CI Mega'),
@@ -196,7 +196,11 @@ INSERT INTO configuration (id, name, type, locale, value) VALUES
 (161, 'message_verify_email_send', NULL,'ES', 'Recibirás un correo electrónico conteniendo un enlace de verificiación'),
 (162, 'message_verify_success', NULL,'ES', 'Correo electrónico verificado con éxito'),
 (163, 'message_email_already_used', NULL,'ES', 'Dirección de correo electrónico ya existe'),
-(164, 'message_email_forget_was_sent', NULL,'ES', 'Recibirás un correo electrónico contendiendo instrucciones de cómo restablecer tus datos');
+(164, 'message_email_forget_was_sent', NULL,'ES', 'Recibirás un correo electrónico contendiendo instrucciones de cómo restablecer tus datos'),
+(165, 'email_subject_import_user', NULL,'EN', 'Welcome to Mega-IQ! Your IQ score is {test_iq_score}'),
+(166, 'email_subject_import_user', NULL,'RU', 'Добро пожаловать в Мега-Айкю! Ваш IQ рещультат - {test_iq_score}'),
+(167, 'email_subject_import_user', NULL,'DE', 'Welcome to Mega-IQ! Your IQ score is {test_iq_score}'),
+(168, 'email_subject_import_user', NULL,'ES', 'Welcome to Mega-IQ! Your IQ score is {test_iq_score}');
 
 insert into answer (id , pic, pic2x, question_id, create_date , update_date, locale ) values  
 (1, 'q1img1-pic', 'q1img1-pic2x', 1,now(),now(),'EN'),
