@@ -23,6 +23,10 @@ public class ImportUserTestGroup {
 
   private Double horizons;
 
+  public ImportUserTestGroup() {
+    super();
+  }
+
   public ImportUserTestGroup(Double math, Double logic, Double grammar, Double horizons) {
     super();
     this.math = math;

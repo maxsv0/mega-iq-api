@@ -44,6 +44,10 @@ public class RequestImportUser {
 
   private List<ImportUserTest> tests;
 
+  public RequestImportUser() {
+    super();
+  }
+
   public Integer getId() {
     return id;
   }

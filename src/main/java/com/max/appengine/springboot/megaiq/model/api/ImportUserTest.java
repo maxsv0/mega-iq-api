@@ -28,6 +28,10 @@ public class ImportUserTest {
 
   private ImportUserTestGroup groups;
 
+  public ImportUserTest() {
+    super();
+  }
+
   public ImportUserTest(IqTestType type, Date createDate, Date finishDate, Integer points,
       ImportUserTestGroup groups) {
     super();
