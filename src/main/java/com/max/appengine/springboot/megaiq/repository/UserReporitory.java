@@ -39,7 +39,7 @@ public interface UserReporitory extends JpaRepository<User, Integer> {
   
   List<User> findTop10ByIqGreaterThanAndLocaleAndIsPublicIsTrueOrderByUpdateDate(Integer iq, Locale locale);
   
-  @Query("SELECT max(id) FROM User")
+  @Query("SELECT coalesce(max(id), 0) FROM User")
   Integer getMaxId();
 
 }
