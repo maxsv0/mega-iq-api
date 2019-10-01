@@ -88,7 +88,7 @@ public class TestResultService {
 
   public Optional<TestResult> getTestResultByCode(UUID code, Locale locale) {
     Optional<TestResult> testResult = testResultReporitory.findByCodeAndLocale(code, locale);
-
+    
     if (testResult.isPresent()) {
       TestResult testResultDetails = loadTestDetails(testResult.get());
 
@@ -310,14 +310,16 @@ public class TestResultService {
       Integer userId) {
     TestResult newTestResult = new TestResult(importTestResult, locale, userId);
 
-    newTestResult = testResultReporitory.save(newTestResult);
+    if (importTestResult.getGroups() != null) {
+      newTestResult = testResultReporitory.save(newTestResult);
 
-    QuestionGroupsResult questionGroupsResult = new QuestionGroupsResult(newTestResult.getId(),
-        importTestResult.getGroups().getMath(), importTestResult.getGroups().getGrammar(),
-        importTestResult.getGroups().getHorizons(), importTestResult.getGroups().getLogic());
+      QuestionGroupsResult questionGroupsResult = new QuestionGroupsResult(newTestResult.getId(),
+          importTestResult.getGroups().getMath(), importTestResult.getGroups().getGrammar(),
+          importTestResult.getGroups().getHorizons(), importTestResult.getGroups().getLogic());
 
-    newTestResult.setGroupsGraph(questionGroupsResult);
-
+      newTestResult.setGroupsGraph(questionGroupsResult);
+    }
+    
     return testResultReporitory.save(newTestResult);
   }
 

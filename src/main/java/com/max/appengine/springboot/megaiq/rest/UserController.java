@@ -158,11 +158,16 @@ public class UserController extends AbstractApiController {
       @RequestBody User user, @RequestParam Optional<String> locale) {
     Locale userLocale = loadLocale(locale);
 
+    // set default values
     user.setIp(getIp(request));
     user.setLocale(userLocale);
     user.setIsEmailVerified(false);
     user.setIsPublic(true);
     user.setSource("register");
+    
+    // set random images
+    user.setPic(getRandomUserAvatar());
+    user.setBackground(getRandomUserBackground());
 
     try {
       UserRecord userRecord = firebaseService.createUser(user);
@@ -453,14 +458,22 @@ public class UserController extends AbstractApiController {
       @RequestBody RequestImportUser importUser) {
 
     User userNew = new User(importUser);
-    userNew.setSource("import");
+    userNew.setSource("register");
+    
+    // set random images if not set
+    if (userNew.getPic() == null) {
+      userNew.setPic(getRandomUserAvatar());
+    }
+    if (userNew.getBackground() == null) {
+      userNew.setBackground(getRandomUserBackground());
+    }
     
     try {
       UserRecord userRecord = firebaseService.createUser(userNew);
       userNew.setUid(userRecord.getUid());
 
       User userResult = userService.addUser(userNew);
-
+      
       userResult = userService.setIqScoreAndCertificate(userResult, userResult.getIq());
 
       if (importUser.getTests() != null) {
@@ -469,6 +482,9 @@ public class UserController extends AbstractApiController {
         }
       }
 
+      // reveal user password 
+      userResult.setPassword(userNew.getPassword());
+      
       return sendResponseUser(userResult, userNew.getLocale());
     } catch (MegaIQException error) {
       String message = getCacheValue(configCache, MESSAGE_EMAIL_ALREADY_USED, userNew.getLocale());

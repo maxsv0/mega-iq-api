@@ -169,7 +169,8 @@ public class EmailService extends AbstractSendgridEmailService {
 
     List<String> fieldsRequiredSubject = new ArrayList<String>();
     fieldsRequiredSubject.add("test_type_title");
-
+    fieldsRequiredSubject.add("test_iq_score");
+    
     String subject = AbstractServiceHelper.getCacheValue(configCache, EMAIL_SUBJECT_TEST_RESULT,
         user.getLocale());
     subject = insertFields(subject, fieldsRequiredSubject, userData);
@@ -214,17 +215,15 @@ public class EmailService extends AbstractSendgridEmailService {
     String domainUrl = AbstractServiceHelper.getCachedDomain(configCache, user.getLocale());
     userData.put("profile_link", domainUrl + user.getUrl());
     userData.put("test_iq_score", user.getIq().toString());
-
-    userData.put("unsubscribe_block",
-        "<tr><td class=\"unsubscribe\">If you no longer wish to receive messages like this one, you can <a href=\""
-            + domainUrl + "/login?token=" + user.getToken()
-            + "&returnUrl=%2Fsettings\">unsubscribe</a>. </td></tr>");
+    userData.put("domain_url",
+        AbstractServiceHelper.getCachedDomain(configCache, user.getLocale()));
 
     preparePromoFields(userData, user);
     
     String content = loadTemplateFromPath("import-user", user.getLocale());
     List<String> fieldsRequired = new ArrayList<String>();
     fieldsRequired.add("name");
+    fieldsRequired.add("domain_url");
     fieldsRequired.add("test_iq_score");
     fieldsRequired.add("profile_link");
     preparePromoFieldsRequired(fieldsRequired);
