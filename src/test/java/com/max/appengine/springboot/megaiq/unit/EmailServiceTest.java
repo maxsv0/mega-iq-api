@@ -82,7 +82,7 @@ public class EmailServiceTest extends AbstractUnitTest {
     for (Locale locale : Locale.values()) {
       User user = generateUser(locale);
 
-      boolean result = this.emailService.sendEmailForget(user, "http://mega-iq.com");
+      boolean result = this.emailService.sendEmailForget(user, "http://mega-iq.com", Locale.EN);
       assertTrue(result);
     }
   }

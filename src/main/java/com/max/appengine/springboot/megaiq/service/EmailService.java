@@ -116,19 +116,18 @@ public class EmailService extends AbstractSendgridEmailService {
         .getCacheValue(configCache, EMAIL_SUBJECT_EMAIL_VERIFY, user.getLocale()), content);
   }
 
-  public boolean sendEmailForget(User user, String link) {
+  public boolean sendEmailForget(User user, String link, Locale locale) {
     HashMap<String, String> userData = loadUserData(user);
     userData.put("forget_link", link);
 
-    String content = loadTemplateFromPath("password-forget", user.getLocale());
+    String content = loadTemplateFromPath("password-forget", locale);
     List<String> fieldsRequired = new ArrayList<String>();
     fieldsRequired.add("name");
     fieldsRequired.add("forget_link");
     content = insertFields(content, fieldsRequired, userData);
 
-    return loadTemplateAndSend(user.getLocale(), userData,
-        AbstractServiceHelper.getCacheValue(configCache, EMAIL_SUBJECT_FORGET, user.getLocale()),
-        content);
+    return loadTemplateAndSend(locale, userData,
+        AbstractServiceHelper.getCacheValue(configCache, EMAIL_SUBJECT_FORGET, locale), content);
   }
 
   public boolean sendEmailDirectLogin(User user) {

@@ -362,7 +362,7 @@ public class UserController extends AbstractApiController {
 
     Optional<User> userResult = userService.getUserByEmail(request.getEmail());
     if (!userResult.isPresent()) {
-      return sendResponseError(MESSAGE_WRONG_REQUEST, configCache, userLocale);
+      return sendResponseError(MESSAGE_USER_NOT_FOUND, configCache, userLocale);
     }
 
     String url;
@@ -371,7 +371,12 @@ public class UserController extends AbstractApiController {
     } catch (FirebaseAuthException e) {
       return sendResponseError(MESSAGE_INTERNAL_ERROR, configCache, userLocale);
     }
-    boolean resultEmail = emailService.sendEmailForget(userResult.get(), url);
+    
+    if (userLocale != Locale.EN) {
+      url = url.replace("lang=en", "lang=" + userLocale.toString().toLowerCase());
+    }
+    
+    boolean resultEmail = emailService.sendEmailForget(userResult.get(), url, userLocale);
 
     log.log(Level.INFO,
         "Sending forget email to a userID=" + userResult.get().getId() + ". Result={0}",
