@@ -232,6 +232,15 @@ public class TestController extends AbstractApiController {
       @PathVariable UUID testCode, @RequestParam Optional<String> locale) {
 
     Locale userLocale = loadLocale(locale);
+
+    return iqTestDetailsPublic(testCode, userLocale);
+  }
+  
+  @RequestMapping(value = "/classroom/{testCode}", method = RequestMethod.GET)
+  public ResponseEntity<ApiResponseBase> requestTestDetailsForClassroom(HttpServletRequest request,
+      @PathVariable UUID testCode, @RequestParam Optional<String> locale) {
+
+    Locale userLocale = loadLocale(locale);
     Optional<String> token = getTokenFromHeader(request);
 
     if (token.isPresent()) {
@@ -239,10 +248,12 @@ public class TestController extends AbstractApiController {
 
       if (userResult.isPresent()) {
         return iqTestDetailsPrivate(testCode, userResult.get(), userLocale);
+      } else {
+        return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
       }
+    } else {
+      return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
     }
-
-    return iqTestDetailsPublic(testCode, userLocale);
   }
 
   @RequestMapping(value = "/test/{testCode}", method = RequestMethod.POST,

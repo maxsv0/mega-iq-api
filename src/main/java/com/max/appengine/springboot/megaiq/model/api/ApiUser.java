@@ -19,7 +19,6 @@ import com.max.appengine.springboot.megaiq.model.User;
 public class ApiUser extends ApiUserPublic {
   private String country;
   private String cityLatLong;
-  private String background;
   private String email;
   private String password;
   private String token;
@@ -71,14 +70,6 @@ public class ApiUser extends ApiUserPublic {
 
   public void setCityLatLong(String cityLatLong) {
     this.cityLatLong = cityLatLong;
-  }
-
-  public String getBackground() {
-    return background;
-  }
-
-  public void setBackground(String background) {
-    this.background = background;
   }
 
   public String getEmail() {

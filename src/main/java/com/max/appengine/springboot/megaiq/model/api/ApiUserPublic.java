@@ -25,6 +25,7 @@ public class ApiUserPublic {
   private Integer age;
   private Integer iq;
   private String location;
+  private String background;
 
   public ApiUserPublic() {
     super();
@@ -41,6 +42,7 @@ public class ApiUserPublic {
     this.setAge(user.getAge());
     this.setIq(user.getIq());
     this.setLocation(user.getLocation());
+    this.setBackground(user.getBackground());
   }
 
   public Integer getId() {
@@ -107,11 +109,19 @@ public class ApiUserPublic {
     this.location = location;
   }
 
+  public String getBackground() {
+    return background;
+  }
+
+  public void setBackground(String background) {
+    this.background = background;
+  }
+
   @Override
   public String toString() {
     return "ApiUserPublic [id=" + id + ", name=" + name + ", pic=" + pic + ", certificate="
         + certificate + ", url=" + url + ", age=" + age + ", iq=" + iq + ", location=" + location
-        + "]";
+        + ", background=" + background + "]";
   }
 
 }
