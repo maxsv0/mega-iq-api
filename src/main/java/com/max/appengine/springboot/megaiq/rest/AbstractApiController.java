@@ -74,8 +74,8 @@ public abstract class AbstractApiController {
     return sendResponseOk(new ApiResponseUsersList(apiUsers, count, locale));
   }
 
-  protected ResponseEntity<ApiResponseBase> sendResponseUserPublic(User user, Locale locale) {
-    return sendResponseOk(new ApiResponseUserPublic(new ApiUserPublic(user), locale));
+  protected ResponseEntity<ApiResponseBase> sendResponseUserPublic(User user, Integer certificateProgress, Locale locale) {
+    return sendResponseOk(new ApiResponseUserPublic(new ApiUserPublic(user, certificateProgress), locale));
   }
 
   protected ResponseEntity<ApiResponseBase> sendResponseUser(User user, Locale locale) {

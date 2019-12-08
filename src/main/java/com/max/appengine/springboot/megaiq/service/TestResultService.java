@@ -287,8 +287,8 @@ public class TestResultService {
   public void deleteTestResult(TestResult testResult) {
     testResultReporitory.delete(testResult);
   }
-
-  public boolean getIsEligibleToShowIq(User user) {
+  
+  public Integer getCountToShowIq(User user) {
     List<Integer> listTestsId = new ArrayList<Integer>();
 
     List<TestResult> testsList =
@@ -297,9 +297,11 @@ public class TestResultService {
       listTestsId.add(test.getId());
     }
 
-    Long sumAnswers = this.questionUserRepository.countByTestIdIn(listTestsId);
+    return this.questionUserRepository.countByTestIdIn(listTestsId).intValue();
+  }
 
-    return sumAnswers > NUMBER_ANSWERS_FOR_USER_IQ;
+  public boolean getIsEligibleToShowIq(User user) {
+    return this.getCountToShowIq(user) > NUMBER_ANSWERS_FOR_USER_IQ;
   }
 
   public List<Object[]> findTopUserIds(Locale locale) {

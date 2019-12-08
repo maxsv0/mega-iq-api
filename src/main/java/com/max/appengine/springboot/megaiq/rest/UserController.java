@@ -217,8 +217,13 @@ public class UserController extends AbstractApiController {
         for (TestResult testResult : listResults) {
           usersPublicList.add(new ApiTestResult(this.questionsService, testResult, true));
         }
+        
+        Integer certificateProgress = null;
+        if (userResult.get().getCertificate() == null) {
+         certificateProgress = this.testResultService.getCountToShowIq(userResult.get());
+        }
 
-        return sendResponseTestResultList(usersPublicList, new ApiUserPublic(userResult.get()));
+        return sendResponseTestResultList(usersPublicList, new ApiUserPublic(userResult.get(), certificateProgress));
       } else {
         return sendResponseError(MESSAGE_USER_NOT_FOUND, configCache, userLocale);
       }

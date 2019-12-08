@@ -26,11 +26,28 @@ public class ApiUserPublic {
   private Integer iq;
   private String location;
   private String background;
-
+  private Integer certificateProgress;
+  
   public ApiUserPublic() {
     super();
   }
 
+  public ApiUserPublic(User user, Integer certificateProgress) {
+    super();
+
+    this.setId(user.getId());
+    this.setName(user.getName());
+    this.setPic(user.getPic());
+    this.setCertificate(user.getCertificate());
+    this.setUrl(user.getUrl());
+    this.setAge(user.getAge());
+    this.setIq(user.getIq());
+    this.setLocation(user.getLocation());
+    this.setBackground(user.getBackground());
+    this.setCertificateProgress(certificateProgress);
+  }
+
+  
   public ApiUserPublic(User user) {
     super();
 
@@ -117,11 +134,19 @@ public class ApiUserPublic {
     this.background = background;
   }
 
+  public Integer getCertificateProgress() {
+    return certificateProgress;
+  }
+
+  public void setCertificateProgress(Integer certificateProgress) {
+    this.certificateProgress = certificateProgress;
+  }
+
   @Override
   public String toString() {
     return "ApiUserPublic [id=" + id + ", name=" + name + ", pic=" + pic + ", certificate="
         + certificate + ", url=" + url + ", age=" + age + ", iq=" + iq + ", location=" + location
-        + ", background=" + background + "]";
+        + ", background=" + background + ", certificateProgress=" + certificateProgress + "]";
   }
 
 }
