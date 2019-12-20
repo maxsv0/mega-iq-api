@@ -1,16 +1,46 @@
-Mega-IQ 3.0 for Google App Engine (Java 8)
-============================
+# Mega-IQ 3.0 for Google App Engine (Java 8)
 
 Mega-IQ Spring Boot + Google App Engine application.
 
-## MEGA-IQ 3.0. Requirements
+## Features
+* Multi-language API for [www.mega-iq.com](https://www.mega-iq.com)
+* Spring Boot application for Google App Engine
+* Stateless application with automatic scaling
+* Firebase Authentication as SSO service
+* Sendgrid for emailing
+* Google storage buckets to store all of the application content
 
-## [Requirements Document](https://docs.google.com/document/d/1juGpnjcJOHJY45edddpCGH7KFqlJFZyafU-qRk0eF3s/edit?usp=sharing)
 
-## Maven
-### Running locally
+## Issues Tracking
+We use [GitHub Projects](https://github.com/maxsv0/mega-iq-api/projects) and [Issues](https://github.com/maxsv0/mega-iq-api/issues) 
+for tracking the issues and development tasks.
 
-`mvn appengine:run`
+## Contributors and sponsors
+
+Big thanks to the [Mega-IQ team](https://www.mega-iq.com/assets/static/about.html) and everyone who was contributing 
+to the development and support of Mega-IQ since 2008. 
+
+Thanks to [our sponsors](https://www.mega-iq.com/assets/static/thanks.html)!
+
+## Further help
+
+Visit our [GitHub Sponsorship page](https://github.com/sponsors/maxsv0) if you would like 
+to become a sponsor and support the [www.mega-iq.com](https://www.mega-iq.com).
+
+## Production instance
+Localized end-point URL: 
+* https://www.mega-iq.com/api/v1 (English)
+* https://es.mega-iq.com/api/v1 (Español) - ONLINE
+* https://ru.mega-iq.com/api/v1 (Русский) - ONLINE
+* https://de.mega-iq.com/api/v1 (Deutsch)
+
+## Development server
+
+No separate development environment right now.
+
+### Local development
+
+To run locally wih Maven `mvn appengine:run`
 
 To use vist: http://localhost:8080/
 
@@ -18,18 +48,32 @@ To use vist: http://localhost:8080/
 
 `mvn -Dapp.deploy.projectId=megaiq637 -Dapp.deploy.version=$(date "+%Y%m%d-%H%M") clean package com.google.cloud.tools:appengine-maven-plugin:deploy`
 
-To use visit:  https://megaiq637.appspot.com
-
-Production proxy: https://api.mega-iq.com
-
-Localized end-point URL: 
-* http://en2.mega-iq.com/api/v1 (EN)
-* http://de.mega-iq.com/api/v1 (DE)
-* http://ru.mega-iq.com/api/v1 (RU)
-
 ## Testing
 
 `mvn verify`
+
+## Requirements Document
+
+[MEGA-IQ 3.0. Requirements Document](https://docs.google.com/document/d/1juGpnjcJOHJY45edddpCGH7KFqlJFZyafU-qRk0eF3s/edit?usp=sharing) 
+was initially published in October 2018. 
+
+| Version        | Date           | Summary  |
+| ------------- |:-------------:| -----|
+| 0.1      | 22.10.2018    |  Draft |
+| 0.2      | 16.03.2019    |  Alpha release. Scope update |
+| 0.2.1    | 05.04.2019    |  Update according to current status |
+| 0.2.2    | 20.04.2019    |  Update page structure |
+
+The result of this doc is a list if tasks published in two projects 
+[Angular Front-end](https://github.com/maxsv0/mega-iq-ui) and [Java Back-end](https://github.com/maxsv0/mega-iq-api).
+
+| Status   | Tasks   | Repository           | Summary  |
+| ------------- |-------------| -----|-----|
+| DONE     | 12/12   | [mega-iq-api](https://github.com/maxsv0/mega-iq-api)   |  [Milestone 1. Enable Iq Website features](https://github.com/maxsv0/mega-iq-api/projects/1)  |
+| DONE     | 11/11    | [mega-iq-ui](https://github.com/maxsv0/mega-iq-ui)   |  [Milestone 1. Enable Iq Website features](https://github.com/maxsv0/mega-iq-ui/projects/1) |
+| progress | 14/15    | [mega-iq-api](https://github.com/maxsv0/mega-iq-api)   |  [Milestone 2. Mega-IQ 3.0 release](https://github.com/maxsv0/mega-iq-api/projects/2) |
+| progress | 30/36    | [mega-iq-ui](https://github.com/maxsv0/mega-iq-ui)   |  [Milestone 2. Mega-IQ 3.0 release](https://github.com/maxsv0/mega-iq-ui/projects/3) |
+
 
 ## API Documentation
 
