@@ -17,9 +17,11 @@ package com.max.appengine.springboot.megaiq.service;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.logging.Level;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -27,6 +29,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
+import com.google.firebase.auth.UserInfo;
+import com.google.firebase.auth.UserRecord;
 import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.model.exception.MegaIQException;
@@ -43,11 +47,11 @@ public class UserService {
   private final FirebaseService firebaseService;
 
   private final EmailService emailService;
-  
+
   private final CertificateService certificateService;
-  
+
   @Autowired
-  public UserService(UserReporitory userReporitory, FirebaseService firebaseService, 
+  public UserService(UserReporitory userReporitory, FirebaseService firebaseService,
       EmailService emailService, CertificateService certificateService) {
     this.userReporitory = userReporitory;
     this.firebaseService = firebaseService;
@@ -81,6 +85,15 @@ public class UserService {
       user.setCreateDate(new Date());
     }
 
+    // set random images
+    if (user.getPic() == null) {
+      user.setPic(getRandomUserAvatar());
+    }
+
+    if (user.getBackground() == null) {
+      user.setBackground(getRandomUserBackground());
+    }
+
     // in case id not set, save to get ID
     if (user.getId() == null) {
       userResult = userReporitory.save(user);
@@ -95,7 +108,7 @@ public class UserService {
       }
     } else {
       user.setUrl("/user/" + user.getId());
-      
+
       emailService.sendRegistrationImportUser(user);
     }
 
@@ -111,19 +124,21 @@ public class UserService {
   public Optional<User> getUserById(Integer userId) {
     return userReporitory.findById(userId);
   }
-  
+
   public Optional<User> getUserByUid(String uId) {
     return userReporitory.findByUid(uId);
   }
-  
+
   public Optional<User> getLastProfile(Locale locale) {
-    return userReporitory.findOneByIqGreaterThanAndLocaleAndIsPublicIsTrueOrderByUpdateDate(125, locale);
+    return userReporitory.findOneByIqGreaterThanAndLocaleAndIsPublicIsTrueOrderByUpdateDate(125,
+        locale);
   }
-  
+
   public List<User> getLastProfiles(Locale locale) {
-    return userReporitory.findTop10ByIqGreaterThanAndLocaleAndIsPublicIsTrueOrderByUpdateDate(100, locale);
+    return userReporitory.findTop10ByIqGreaterThanAndLocaleAndIsPublicIsTrueOrderByUpdateDate(100,
+        locale);
   }
-   
+
   public Optional<User> getUserByEmail(String email) {
     Optional<User> userResult = userReporitory.findByEmail(email);
     if (!userResult.isPresent()) {
@@ -144,25 +159,45 @@ public class UserService {
 
     Optional<User> userResult = getUserByUid(firebaseToken.getUid());
 
-    User user =  null;
+    User user = null;
     if (userResult.isPresent()) {
       user = userResult.get();
     } else {
       user = new User();
+
+      //
+      UserRecord userRecord = firebaseService.getUserByUid(firebaseToken.getUid());
+
       user.setSource("social-login");
       user.setUid(firebaseToken.getUid());
-      user.setIsEmailVerified(firebaseToken.isEmailVerified());
-      user.setEmail(firebaseToken.getEmail());
-      user.setName(firebaseToken.getName());
-      user.setPic(firebaseToken.getPicture());
+
+      if (userRecord.getEmail() != null) {
+        user.setEmail(userRecord.getEmail());
+        user.setIsEmailVerified(userRecord.isEmailVerified());
+      } else {
+        /// search for email in provider data
+        for (UserInfo userInfo : userRecord.getProviderData()) {
+          if (userInfo.getEmail() != null) {
+
+            user.setEmail(userInfo.getEmail());
+            user.setIsEmailVerified(true);
+
+            break;
+          }
+        }
+
+      }
+
+      user.setName(userRecord.getDisplayName());
+      user.setPic(userRecord.getPhotoUrl());
       user.setIsPublic(true);
       user.setLocale(locale);
       user.setIp(ip);
-      
+
       // save to locale DB
       user = addUser(user);
     }
-    
+
     user.setToken(token);
     return Optional.of(user);
   }
@@ -187,17 +222,17 @@ public class UserService {
     }
 
   }
-  
+
   public List<User> findByUserIdIn(List<Integer> userIds) {
     return this.userReporitory.findByIdIn(userIds);
   }
-  
+
   public User setIqScoreAndCertificate(User user, Integer points) {
     user.setIq(points);
 
     try {
       String certificate = this.certificateService.createUserCertificate(user);
-      
+
       user.setCertificate(certificate);
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -233,5 +268,30 @@ public class UserService {
     return userReporitory
         .findByLocaleAndUpdateDateAfterAndIsPublicIsTrueAndIqIsNotNullOrderByIqDesc(locale, date,
             pageRequest);
+  }
+
+
+  private String getRandomUserBackground() {
+    Random rand = new Random();
+    return "custom-bg" + (rand.nextInt(10) + 1); // 1 to 10
+  }
+
+  private String getRandomUserAvatar() {
+
+    List<String> list = Arrays.asList(
+        "https://lh3.googleusercontent.com/INTuvwHpiXTigV8UQWi5MpSaRt-0mimAQL_eyfGMOynRK_USId0_Z45KFIrKI3tp21J_q6panwRUfrDOBAqHbA",
+        "https://lh3.googleusercontent.com/Pjnej65ZS1_DqA-akORx7OHfMtahUiwgtUDOszL2LcbpP3RbROVz5U48N5gcwd0RSBGhdvlaBUtmXQ7VfnM",
+        "https://lh3.googleusercontent.com/UYZHF0NvpK-D7LFvXjHfWx3qf_FHEUz0LxCpSNoacI-BwTSUwvk1NFzKhL8L2Qn_uQ_vKJT1TC6m4WlRa5ntNQ",
+        "https://lh3.googleusercontent.com/aMC2L9FNILZSHYIQX2BKcr1967r2JBXI__ihJf8P_ux0dyAhtKGTIemHhVdZtKKeX9CXrRxagsLRZ3Yi6Og",
+        "https://lh3.googleusercontent.com/q5Yql4cOJt3zhloY6VPwq-jTh1Fev1WkdsIUWomCpgbnwjKXUjlfmVUeQwUbM3txG4dNOL4u6iYk1aSs1Qsg",
+        "https://lh3.googleusercontent.com/U1XNjnXDG5l3YOFguuC4gxFeVZvTrs09dzGMDPA7yHh0J-5XtoXQgOcFjFipgieJqJeA88YHvdmKhlItCBc",
+        "https://lh3.googleusercontent.com/lBNWn4fHC0NwZgDHXzNHqaEEEY58G233jLGsg0MIyG2fMT6xslJ-uMjx0yKHC2dYlz_uN82eEH7OCgu76dI",
+        "https://lh3.googleusercontent.com/8m39DcXMIs7E8OCn8R0lirvIBK4sh1DK3QvapKqbfsrDAw9Q96TnRP1qYuHccYP7PDrAAaCB2bm6kQRjW3Qo",
+        "https://lh3.googleusercontent.com/tuw6slWlwIeL3PewrRnDPVTfpuR5OPrDsMTNmDQnb3KQDBFqsuJl8MFfNAkCVXkPcmz0BoM6rvw2XxE10eGX",
+        "https://lh3.googleusercontent.com/0afftGjZogSfSZ08FwQ2Ijg-QSFCAkSqTDw_WWEIoE-hKKhjh9tqDfkKNExNBWbuiJuEWDse_C5qrqPCMpM");
+
+
+    Random rand = new Random();
+    return list.get(rand.nextInt(list.size()));
   }
 }

@@ -117,7 +117,7 @@ public class UserController extends AbstractApiController {
   }
 
   @RequestMapping(value = "/user", method = RequestMethod.GET)
-  public ResponseEntity<ApiResponseBase> requestNewUser(HttpServletRequest request,
+  public ResponseEntity<ApiResponseBase> requestUserInfo(HttpServletRequest request,
       @RequestParam Optional<String> locale) {
 
     Locale userLocale = loadLocale(locale);
@@ -129,16 +129,16 @@ public class UserController extends AbstractApiController {
 
         if (userCurrentResult.isPresent()) {
           User user = userCurrentResult.get();
-
-          // check for changes
-          if (firebaseToken.isEmailVerified() != user.getIsEmailVerified()
-              || firebaseToken.getPicture() != user.getPic()) {
-
-            user.setIsEmailVerified(firebaseToken.isEmailVerified());
-            user.setPic(firebaseToken.getPicture());
-
-            user = userService.saveUser(user);
-          }
+//
+//          // check for changes
+//          if (firebaseToken.isEmailVerified() != user.getIsEmailVerified()
+//              || firebaseToken.getPicture() != user.getPic()) {
+//
+//            user.setIsEmailVerified(firebaseToken.isEmailVerified());
+//            user.setPic(firebaseToken.getPicture());
+//
+//            user = userService.saveUser(user);
+//          }
           user.setToken(token.get());
 
           return sendResponseUser(user, userLocale);
@@ -165,10 +165,6 @@ public class UserController extends AbstractApiController {
     user.setIsPublic(true);
     user.setSource("register");
     
-    // set random images
-    user.setPic(getRandomUserAvatar());
-    user.setBackground(getRandomUserBackground());
-
     try {
       UserRecord userRecord = firebaseService.createUser(user);
       user.setUid(userRecord.getUid());
@@ -469,14 +465,6 @@ public class UserController extends AbstractApiController {
 
     User userNew = new User(importUser);
     userNew.setSource("register");
-    
-    // set random images if not set
-    if (userNew.getPic() == null) {
-      userNew.setPic(getRandomUserAvatar());
-    }
-    if (userNew.getBackground() == null) {
-      userNew.setBackground(getRandomUserBackground());
-    }
     
     try {
       UserRecord userRecord = firebaseService.createUser(userNew);

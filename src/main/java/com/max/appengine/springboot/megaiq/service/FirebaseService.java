@@ -90,6 +90,10 @@ public class FirebaseService {
   public void deleteUser(User user) throws FirebaseAuthException {
     auth.deleteUser(user.getUid());
   }
+  
+  public UserRecord getUserByUid(String uid) throws FirebaseAuthException {
+    return auth.getUser(uid);
+  }
 
   public UserRecord getUserRecord(User user) throws FirebaseAuthException {
     return auth.getUserByEmail(user.getEmail());
