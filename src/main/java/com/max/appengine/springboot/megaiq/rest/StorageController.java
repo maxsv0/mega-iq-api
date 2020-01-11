@@ -44,7 +44,7 @@ public class StorageController extends AbstractApiController {
     
     String uploadUrl = storageService.createUploadUrl();
 
-    return sendResponseBaseRaw(uploadUrl.substring("https://api.mega-iq.com".length()), userLocale);
+    return sendResponseBaseRaw(uploadUrl, userLocale);
   }
 
   @RequestMapping(value = "/storage/serve", method = RequestMethod.GET)

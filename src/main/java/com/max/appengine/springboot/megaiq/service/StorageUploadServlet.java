@@ -36,10 +36,25 @@ public class StorageUploadServlet extends HttpServlet {
   public void doPost(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
 
+    setAccessControlHeaders(response);
+
     Map<String, List<BlobKey>> blobs = blobstoreService.getUploads(request);
     List<BlobKey> blobKeys = blobs.get(FORM_PARAMETER);
 
     response.sendRedirect(
         "/storage/serve?" + StorageService.URL_PARAMETER + "=" + blobKeys.get(0).getKeyString());
+  }
+
+  @Override
+  protected void doOptions(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException {
+
+    setAccessControlHeaders(response);
+    response.setStatus(HttpServletResponse.SC_OK);
+  }
+
+  private void setAccessControlHeaders(HttpServletResponse resp) {
+    resp.setHeader("Access-Control-Allow-Origin", "*");
+    resp.setHeader("Access-Control-Allow-Methods", "POST, GET");
   }
 }
