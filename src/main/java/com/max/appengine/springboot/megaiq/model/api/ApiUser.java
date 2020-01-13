@@ -44,6 +44,7 @@ public class ApiUser extends ApiUserPublic {
     this.setIq(user.getIq());
     this.setLocation(user.getLocation());
     this.setCertificate(user.getCertificate());
+    this.setCertificateProgress(user.getCertificateProgress());
 
     this.setEmail(user.getEmail());
     this.setPassword(user.getPassword());
@@ -51,9 +52,9 @@ public class ApiUser extends ApiUserPublic {
     this.setCityLatLong(user.getCityLatLong());
     this.setBackground(user.getBackground());
 
-    if (user.getToken() != null) {
-      this.setToken(user.getToken());
-    }
+//    if (user.getToken() != null) {
+//      this.setToken(user.getToken());
+//    }
   }
   
   public String getCountry() {

@@ -23,7 +23,7 @@
 	<automatic-scaling>
 		<target-cpu-utilization>0.85</target-cpu-utilization>
 		<min-instances>1</min-instances>
-		<max-instances>5</max-instances>
+		<max-instances>1</max-instances>
 		<max-concurrent-requests>50</max-concurrent-requests>
 	</automatic-scaling>
 

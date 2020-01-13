@@ -58,7 +58,6 @@ public class CertificateServiceTest extends AbstractUnitTest {
     
     helperServices.setUp();
     
-    // TODO: better to upload this file to cloud storage
     new MockUp<CertificateService>() {
       @Mock
       public BufferedImage loadTemplate(String fileName) throws IOException  {

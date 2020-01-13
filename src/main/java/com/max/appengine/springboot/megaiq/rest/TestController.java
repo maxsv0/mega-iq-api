@@ -341,6 +341,13 @@ public class TestController extends AbstractApiController {
       return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
     }
 
+    Integer certificateProgress = null;
+    if (user.get().getCertificate() == null) {
+      
+     certificateProgress = this.testResultService.getCountToShowIq(user.get());
+     user.get().setCertificateProgress(certificateProgress);
+    }
+    
     List<TestResult> listResults = loadResultsByUserId(user.get().getId(), userLocale, pageable);
 
     List<ApiTestResult> usersPublicList = new ArrayList<ApiTestResult>();

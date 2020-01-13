@@ -36,6 +36,10 @@ public class User extends AbstractUser {
 
   @Transient
   private String password;
+  
+  @Transient
+  private Integer certificateProgress;
+  
 
   public List<TestResult> getTestResultList() {
     return testResultList;
@@ -59,6 +63,14 @@ public class User extends AbstractUser {
 
   public void setPassword(String password) {
     this.password = password;
+  }
+  
+  public Integer getCertificateProgress() {
+    return certificateProgress;
+  }
+
+  public void setCertificateProgress(Integer certificateProgress) {
+    this.certificateProgress = certificateProgress;
   }
 
   public User() {

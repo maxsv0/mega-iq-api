@@ -198,7 +198,9 @@ public class UserService {
       user = addUser(user);
     }
 
-    user.setToken(token);
+    // TODO: check is this is needed
+    //    user.setToken(token);
+    
     return Optional.of(user);
   }
 

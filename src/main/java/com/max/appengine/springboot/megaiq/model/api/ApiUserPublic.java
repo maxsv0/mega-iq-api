@@ -32,22 +32,6 @@ public class ApiUserPublic {
     super();
   }
 
-  public ApiUserPublic(User user, Integer certificateProgress) {
-    super();
-
-    this.setId(user.getId());
-    this.setName(user.getName());
-    this.setPic(user.getPic());
-    this.setCertificate(user.getCertificate());
-    this.setUrl(user.getUrl());
-    this.setAge(user.getAge());
-    this.setIq(user.getIq());
-    this.setLocation(user.getLocation());
-    this.setBackground(user.getBackground());
-    this.setCertificateProgress(certificateProgress);
-  }
-
-  
   public ApiUserPublic(User user) {
     super();
 
@@ -60,6 +44,7 @@ public class ApiUserPublic {
     this.setIq(user.getIq());
     this.setLocation(user.getLocation());
     this.setBackground(user.getBackground());
+    this.setCertificateProgress(user.getCertificateProgress());
   }
 
   public Integer getId() {
