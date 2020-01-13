@@ -129,18 +129,21 @@ public class UserController extends AbstractApiController {
 
         if (userCurrentResult.isPresent()) {
           User user = userCurrentResult.get();
-//
-//          // check for changes
-//          if (firebaseToken.isEmailVerified() != user.getIsEmailVerified()
-//              || firebaseToken.getPicture() != user.getPic()) {
-//
-//            user.setIsEmailVerified(firebaseToken.isEmailVerified());
-//            user.setPic(firebaseToken.getPicture());
-//
-//            user = userService.saveUser(user);
-//          }
-          user.setToken(token.get());
 
+          // check for changes
+          if (firebaseToken.isEmailVerified() != user.getIsEmailVerified()
+              || firebaseToken.getPicture() != user.getPic()) {
+
+            user.setIsEmailVerified(firebaseToken.isEmailVerified());
+            user.setPic(firebaseToken.getPicture());
+
+            user = userService.saveUser(user);
+          }
+          
+          // TODO:  REMOVE THIS
+          // WHE IS THIS HERE??? token should not be a part of response
+//          user.setToken(token.get());
+                   
           return sendResponseUser(user, userLocale);
         } else {
           return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
@@ -216,10 +219,12 @@ public class UserController extends AbstractApiController {
         
         Integer certificateProgress = null;
         if (userResult.get().getCertificate() == null) {
+          
          certificateProgress = this.testResultService.getCountToShowIq(userResult.get());
+         userResult.get().setCertificateProgress(certificateProgress);
         }
 
-        return sendResponseTestResultList(usersPublicList, new ApiUserPublic(userResult.get(), certificateProgress));
+        return sendResponseTestResultList(usersPublicList, new ApiUserPublic(userResult.get()));
       } else {
         return sendResponseError(MESSAGE_USER_NOT_FOUND, configCache, userLocale);
       }
