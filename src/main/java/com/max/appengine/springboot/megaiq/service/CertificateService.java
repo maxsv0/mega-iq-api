@@ -76,8 +76,17 @@ public class CertificateService {
     graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
         RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
-    // user name
-    writeGraphics(graphics, user.getName(), 270, 458, new Font(Font.SERIF, Font.ITALIC, 40));
+    // write user name aligned to center
+    // default left padding is 270px;
+    int xName = width - 270*2 - (user.getName().length() / 2) * 40;
+    if (xName < 250) {
+      xName = 250;
+    }
+    if (xName > 500) {
+      xName = 500;
+    }
+    
+    writeGraphics(graphics, user.getName(), xName, 458, new Font(Font.SERIF, Font.ITALIC, 40));
 
     // user iq result
     writeGraphics(graphics, user.getIq().toString(), 440, 650,
