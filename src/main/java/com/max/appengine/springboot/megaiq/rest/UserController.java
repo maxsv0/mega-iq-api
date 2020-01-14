@@ -469,13 +469,18 @@ public class UserController extends AbstractApiController {
       @RequestBody RequestImportUser importUser) {
 
     User userNew = new User(importUser);
-    userNew.setSource("register");
+    userNew.setSource("import");
     
     try {
-      UserRecord userRecord = firebaseService.createUser(userNew);
-      userNew.setUid(userRecord.getUid());
-
       User userResult = userService.addUser(userNew);
+       
+      // user password and save to the Firebase
+      userResult.setPassword(userNew.getPassword());
+      UserRecord userRecord = firebaseService.createUser(userResult);
+      
+      // update user UID
+      userResult.setUid(userRecord.getUid());
+      userService.saveUser(userResult);
       
       userResult = userService.setIqScoreAndCertificate(userResult, userResult.getIq());
 

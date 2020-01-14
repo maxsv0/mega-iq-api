@@ -313,7 +313,7 @@ public class TestResultService {
     TestResult newTestResult = new TestResult(importTestResult, locale, userId);
 
     if (importTestResult.getGroups() != null) {
-      newTestResult = testResultReporitory.save(newTestResult);
+      testResultReporitory.save(newTestResult);
 
       QuestionGroupsResult questionGroupsResult = new QuestionGroupsResult(newTestResult.getId(),
           importTestResult.getGroups().getMath(), importTestResult.getGroups().getGrammar(),
