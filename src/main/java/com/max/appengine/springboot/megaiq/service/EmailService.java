@@ -164,6 +164,7 @@ public class EmailService extends AbstractSendgridEmailService {
     fieldsRequired.add("name");
     fieldsRequired.add("test_url");
     fieldsRequired.add("test_iq_score");
+    fieldsRequired.add("test_type_title");
     content = insertFields(content, fieldsRequired, userData);
 
     List<String> fieldsRequiredSubject = new ArrayList<String>();
@@ -197,6 +198,7 @@ public class EmailService extends AbstractSendgridEmailService {
     fieldsRequired.add("name");
     fieldsRequired.add("test_url");
     fieldsRequired.add("test_score");
+    fieldsRequired.add("test_type_title");
     content = insertFields(content, fieldsRequired, userData);
 
     List<String> fieldsRequiredSubject = new ArrayList<String>();

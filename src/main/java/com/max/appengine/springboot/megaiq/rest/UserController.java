@@ -329,8 +329,6 @@ public class UserController extends AbstractApiController {
       usersScore.put(userId, Math.toIntExact(score));
     }
 
-    System.out.println(usersIds);
-    
     List<User> listUsers = this.userService.findByUserIdIn(usersIds);
     List<ApiUserTop> usersTopList = new ArrayList<ApiUserTop>();
     for (User user : listUsers) {

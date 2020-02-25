@@ -118,7 +118,7 @@ public class QuestionsService {
 
     return null;
   }
-  
+
   private List<Question> getQuestionsByGroups(Locale locale, Integer total, Integer math,
       Integer grammar, Integer horizons, Integer logic) throws MegaIQException {
     List<Question> questionAllList = getAllQuestionsByLocale(locale);
@@ -140,33 +140,34 @@ public class QuestionsService {
     int questionNumber = 1;
 
     for (Question question : questionAllList) {
-      boolean addQuestion = false;
+      boolean addQuestion = questionNumber <= total;
 
-      List<IqQuestionGroup> questionGroups = new ArrayList<IqQuestionGroup>(question.getGroups());
-      if (questionGroups.isEmpty()) {
-        throw new MegaIQException(Level.SEVERE,
-            "Questions groups missing for question ID=" + question.getId());
-      }
-      Collections.shuffle(questionGroups);
+//      List<IqQuestionGroup> questionGroups = new ArrayList<IqQuestionGroup>(question.getGroups());
+//      if (questionGroups.isEmpty()) {
+//        throw new MegaIQException(Level.SEVERE,
+//            "Questions groups missing for question ID=" + question.getId());
+//      }
+//      Collections.shuffle(questionGroups);
 
-      IqQuestionGroup type = questionGroups.get(0);
-      if (groups.get(type) < groupsMax.get(type)) {
-        groups.put(type, groups.get(type) + 1);
-        addQuestion = true;
-      }
-
-      // for (IqQuestionGroup type : question.getGroups()) {
-      // if (addQuestion || groups.get(type) < groupsMax.get(type)) {
+      // IqQuestionGroup type = questionGroups.get(0);
+      // if (groups.get(type) < groupsMax.get(type)) {
       // groups.put(type, groups.get(type) + 1);
       // addQuestion = true;
       // }
-      // }
+      
+
+      for (IqQuestionGroup type : question.getGroups()) {
+        if (addQuestion || groups.get(type) < groupsMax.get(type)) {
+          groups.put(type, groups.get(type) + 1);
+          addQuestion = true;
+        }
+      }
 
       if (addQuestion) {
         Question questionAdd = new Question(question);
         questionAdd.setAnswers(question.getAnswers());
         Collections.shuffle(questionAdd.getAnswers());
-        
+
         questionSetList.add(questionAdd);
         questionNumber++;
       }
