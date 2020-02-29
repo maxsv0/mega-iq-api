@@ -159,7 +159,7 @@ public class EmailService extends AbstractSendgridEmailService {
     userData.put("test_type_title",
         AbstractServiceHelper.getCachedTitleByTest(configCache, testResult));
 
-    String content = loadTemplateFromPath("user-finish-iq-test", user.getLocale());
+    String content = loadTemplateFromPath("user-finish-iq-test", testResult.getLocale());
     List<String> fieldsRequired = new ArrayList<String>();
     fieldsRequired.add("name");
     fieldsRequired.add("test_url");
@@ -172,10 +172,10 @@ public class EmailService extends AbstractSendgridEmailService {
     fieldsRequiredSubject.add("test_iq_score");
     
     String subject = AbstractServiceHelper.getCacheValue(configCache, EMAIL_SUBJECT_TEST_RESULT,
-        user.getLocale());
+        testResult.getLocale());
     subject = insertFields(subject, fieldsRequiredSubject, userData);
 
-    return loadTemplateAndSend(user.getLocale(), userData, subject, content);
+    return loadTemplateAndSend(testResult.getLocale(), userData, subject, content);
   }
 
   public boolean sendTestResult(User user, TestResult testResult) {
@@ -193,7 +193,7 @@ public class EmailService extends AbstractSendgridEmailService {
     userData.put("test_type_title",
         AbstractServiceHelper.getCachedTitleByTest(configCache, testResult));
 
-    String content = loadTemplateFromPath("user-finish-test", user.getLocale());
+    String content = loadTemplateFromPath("user-finish-test", testResult.getLocale());
     List<String> fieldsRequired = new ArrayList<String>();
     fieldsRequired.add("name");
     fieldsRequired.add("test_url");
@@ -205,7 +205,7 @@ public class EmailService extends AbstractSendgridEmailService {
     fieldsRequiredSubject.add("test_type_title");
 
     String subject = AbstractServiceHelper.getCacheValue(configCache, EMAIL_SUBJECT_TEST_RESULT,
-        user.getLocale());
+        testResult.getLocale());
     subject = insertFields(subject, fieldsRequiredSubject, userData);
 
     return loadTemplateAndSend(testResult.getLocale(), userData, subject, content);
