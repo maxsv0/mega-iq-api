@@ -150,6 +150,7 @@ public class EmailService extends AbstractSendgridEmailService {
     String domainUrl = AbstractServiceHelper.getCachedDomain(configCache, testResult.getLocale());
     userData.put("test_url", domainUrl + testResult.getUrl());
     userData.put("test_iq_score", testResult.getPoints().toString());
+    userData.put("test_iq_result", "IQ " + testResult.getPoints().toString());
 
     userData.put("unsubscribe_block",
         "<tr><td class=\"unsubscribe\">If you no longer wish to receive messages like this one, you can <a href=\""
@@ -169,7 +170,7 @@ public class EmailService extends AbstractSendgridEmailService {
 
     List<String> fieldsRequiredSubject = new ArrayList<String>();
     fieldsRequiredSubject.add("test_type_title");
-    fieldsRequiredSubject.add("test_iq_score");
+    fieldsRequiredSubject.add("test_iq_result");
     
     String subject = AbstractServiceHelper.getCacheValue(configCache, EMAIL_SUBJECT_TEST_RESULT,
         user.getLocale());
@@ -184,6 +185,7 @@ public class EmailService extends AbstractSendgridEmailService {
 
     userData.put("test_url", domainUrl + testResult.getUrl());
     userData.put("test_score", testResult.getPoints() + " / " + testResult.getQuestionSet().size());
+    userData.put("test_iq_result", testResult.getPoints() + " / " + testResult.getQuestionSet().size());
 
     userData.put("unsubscribe_block",
         "<tr><td class=\"unsubscribe\">If you no longer wish to receive messages like this one, you can <a href=\""
@@ -203,6 +205,7 @@ public class EmailService extends AbstractSendgridEmailService {
 
     List<String> fieldsRequiredSubject = new ArrayList<String>();
     fieldsRequiredSubject.add("test_type_title");
+    fieldsRequiredSubject.add("test_iq_result");
 
     String subject = AbstractServiceHelper.getCacheValue(configCache, EMAIL_SUBJECT_TEST_RESULT,
         user.getLocale());
