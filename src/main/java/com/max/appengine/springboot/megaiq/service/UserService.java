@@ -40,7 +40,7 @@ import com.max.appengine.springboot.megaiq.repository.UserReporitory;
 public class UserService {
   public static final Integer LIMIT_LIST_PAGE = 15;
 
-  public static final Integer LIMIT_HOME_PAGE = 8;
+  public static final Integer LIMIT_HOME_PAGE = 5;
 
   private final UserReporitory userReporitory;
 
@@ -135,7 +135,7 @@ public class UserService {
   }
 
   public List<User> getLastProfiles(Locale locale) {
-    return userReporitory.findTop10ByIqGreaterThanAndLocaleAndIsPublicIsTrueOrderByUpdateDate(100,
+    return userReporitory.findTop5ByIqGreaterThanAndLocaleAndIsPublicIsTrueOrderByUpdateDate(90,
         locale);
   }
 

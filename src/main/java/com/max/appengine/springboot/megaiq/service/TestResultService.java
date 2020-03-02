@@ -71,7 +71,8 @@ public class TestResultService {
   }
 
   public Integer getResultCount() {
-    return userReporitory.getMaxId();
+    // add count of IQ test results from old website
+    return userReporitory.getMaxId() + 1659596;
   }
 
   public Optional<TestResult> getTestResultById(Integer testId) {
@@ -305,7 +306,7 @@ public class TestResultService {
   }
 
   public List<Object[]> findTopUserIds(Locale locale) {
-    return this.testResultReporitory.findTopUserIds(locale, PageRequest.of(0, 10));
+    return this.testResultReporitory.findTopUserIds(locale, PageRequest.of(0, 5));
   }
 
   public TestResult importTestResult(ImportUserTest importTestResult, Locale locale,

@@ -15,6 +15,7 @@
 package com.max.appengine.springboot.megaiq.rest;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -334,6 +335,9 @@ public class UserController extends AbstractApiController {
     for (User user : listUsers) {
       usersTopList.add(new ApiUserTop(user, usersScore.get(user.getId())));
     }
+    
+    // now sort by user score
+    usersTopList.sort(new ApiUserComparatorByTotalScore());
 
     List<ApiUserPublic> exampleProfiles = new ArrayList<ApiUserPublic>();;
     List<User> users = this.userService.getLastProfiles(userLocale);
@@ -502,4 +506,11 @@ public class UserController extends AbstractApiController {
     }
   }
 
+  private static class ApiUserComparatorByTotalScore implements Comparator<ApiUserTop> {
+
+    @Override
+    public int compare(ApiUserTop s, ApiUserTop t) {
+      return t.getTotalScore().compareTo(s.getTotalScore());
+    }
+  }
 }
