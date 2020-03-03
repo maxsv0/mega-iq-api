@@ -71,8 +71,7 @@ public class TestResultService {
   }
 
   public Integer getResultCount() {
-    // add count of IQ test results from old website
-    return userReporitory.getMaxId() + 1659596;
+    return userReporitory.getMaxId();
   }
 
   public Optional<TestResult> getTestResultById(Integer testId) {
