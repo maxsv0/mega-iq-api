@@ -51,6 +51,7 @@ import com.max.appengine.springboot.megaiq.model.api.RequestImportUser;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestStatus;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.model.exception.MegaIQException;
+import com.max.appengine.springboot.megaiq.service.AbstractServiceHelper;
 import com.max.appengine.springboot.megaiq.service.ConfigurationService;
 import com.max.appengine.springboot.megaiq.service.EmailService;
 import com.max.appengine.springboot.megaiq.service.FirebaseService;
@@ -168,6 +169,10 @@ public class UserController extends AbstractApiController {
     user.setIsEmailVerified(false);
     user.setIsPublic(true);
     user.setSource("register");
+    
+    if (user.getPic() == null) {
+      user.setPic(AbstractServiceHelper.getRandomUserAvatar());
+    }
     
     try {
       UserRecord userRecord = firebaseService.createUser(user);
