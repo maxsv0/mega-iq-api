@@ -69,7 +69,7 @@ public class UserService {
   }
 
   public List<User> getUsersListTopToday(Locale locale) {
-    return loadUsersByPeriod(locale, 1, PageRequest.of(0, LIMIT_HOME_PAGE));
+    return loadUsersByPeriod(locale, 7, PageRequest.of(0, LIMIT_HOME_PAGE));
   }
 
   public User addUser(User user) throws MegaIQException, FirebaseAuthException {
