@@ -18,6 +18,7 @@ import com.max.appengine.springboot.megaiq.model.User;
 
 public class ApiUserPublic {
   private Integer id;
+  private String uid;
   private String name;
   private String pic;
   private String certificate;
@@ -36,6 +37,7 @@ public class ApiUserPublic {
     super();
 
     this.setId(user.getId());
+    this.setUid(user.getUid());
     this.setName(user.getName());
     this.setPic(user.getPic());
     this.setCertificate(user.getCertificate());
@@ -53,6 +55,14 @@ public class ApiUserPublic {
 
   public void setId(Integer id) {
     this.id = id;
+  }
+
+  public String getUid() {
+    return uid;
+  }
+
+  public void setUid(String uid) {
+    this.uid = uid;
   }
 
   public String getName() {
