@@ -82,6 +82,8 @@ public class UserController extends AbstractApiController {
 
   public static final String MESSAGE_INTERNAL_ERROR = "message_internal_error";
 
+  public static final String MESSAGE_DELETE_SUCCESS = "message_delete_success";
+
   private static final Logger log = Logger.getLogger(UserController.class.getName());
 
   private final QuestionsService questionsService;
@@ -116,6 +118,7 @@ public class UserController extends AbstractApiController {
     cacheValuesForAllLocales(configurationService, configCache, MESSAGE_INVALID_ACCESS);
     cacheValuesForAllLocales(configurationService, configCache, MESSAGE_WRONG_REQUEST);
     cacheValuesForAllLocales(configurationService, configCache, MESSAGE_INTERNAL_ERROR);
+    cacheValuesForAllLocales(configurationService, configCache, MESSAGE_DELETE_SUCCESS);
   }
 
   @RequestMapping(value = "/user", method = RequestMethod.GET)
@@ -509,6 +512,29 @@ public class UserController extends AbstractApiController {
     } catch (FirebaseAuthException error) {
       return sendResponseErrorRaw(error.getLocalizedMessage(), userNew.getLocale());
     }
+  }
+  
+  @RequestMapping(value = "/user/deleteCertificate", method = RequestMethod.GET)
+  public ResponseEntity<ApiResponseBase> deleteCertificate(HttpServletRequest request,
+     @RequestParam Optional<String> locale) {
+    Locale userLocale = loadLocale(locale);
+
+    Optional<String> token = getTokenFromHeader(request);
+    if (!token.isPresent()) {
+      return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
+    }
+
+    Optional<User> userCurrentResult = userService.getUserByToken(token.get());
+    if (!userCurrentResult.isPresent()) {
+      return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
+    }
+    
+    User userCurrent = userCurrentResult.get();
+    userCurrent.setCertificate("");
+    
+    this.userService.saveUser(userCurrent);
+
+    return sendResponseBase(MESSAGE_DELETE_SUCCESS, configCache, userLocale);
   }
 
   private static class ApiUserComparatorByTotalScore implements Comparator<ApiUserTop> {
