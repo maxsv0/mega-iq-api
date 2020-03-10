@@ -42,6 +42,7 @@ import com.max.appengine.springboot.megaiq.model.api.ApiTestInfo;
 import com.max.appengine.springboot.megaiq.model.api.ApiTestResult;
 import com.max.appengine.springboot.megaiq.model.api.ApiUser;
 import com.max.appengine.springboot.megaiq.model.api.ApiUserPublic;
+import com.max.appengine.springboot.megaiq.model.api.PublicTestResult;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.model.exception.MegaIQException;
@@ -359,6 +360,42 @@ public class TestController extends AbstractApiController {
 
     return sendResponseTestResultList(usersPublicList, new ApiUser(user.get()));
   }
+  
+  @RequestMapping(value = "/list-latest", method = RequestMethod.GET)
+  public ResponseEntity<ApiResponseBase> requestListLatestResults(HttpServletRequest request,
+      @RequestParam Optional<String> locale, Pageable pageable) {
+
+    Locale userLocale = loadLocale(locale);
+
+    List<PublicTestResult> listActive = convertToPublicTestResult(findActiveResults(userLocale));
+    
+    List<PublicTestResult> listResults = convertToPublicTestResult(loadLatestResults(userLocale, pageable));
+
+    return sendResponsePublicTestResultList(listActive, listResults, this.testResultService.getResultCount(),
+        userLocale);
+  }
+  
+  private List<PublicTestResult> convertToPublicTestResult(List<TestResult> listResults) {
+    List<PublicTestResult> publicTestResultList = new ArrayList<PublicTestResult>();
+    
+    for (TestResult testResult : listResults) {
+      // check if user profile is public or private
+      String userUrl = null;
+      Integer userIq = null;
+      Boolean hasCertificate = null;
+      
+      Optional<User> userResult = this.userService.getUserById(testResult.getUserId());
+      if (userResult.isPresent() && userResult.get().getIsPublic()) {
+        userUrl = userResult.get().getPic();
+        
+        hasCertificate = userResult.get().getCertificate() != null && 
+            !userResult.get().getCertificate().isEmpty();
+      }
+      publicTestResultList.add(new PublicTestResult(testResult, userUrl, userIq, hasCertificate));
+    }
+    
+    return publicTestResultList;
+  }
 
   private ResponseEntity<ApiResponseBase> iqTestDetailsPrivate(UUID testCode, User user,
       Locale locale) {
@@ -388,6 +425,14 @@ public class TestController extends AbstractApiController {
     }
   }
 
+  private List<TestResult> loadLatestResults(Locale locale, Pageable pageable) {
+    return testResultService.findLatestResult(locale, pageable);
+  }
+
+  private List<TestResult> findActiveResults(Locale locale) {
+    return testResultService.findActiveResults(locale);
+  }
+  
   private List<TestResult> loadResultsByUserId(Integer userId, Locale locale, Pageable pageable) {
     return testResultService.findTestResultByUserId(userId, locale, pageable);
   }

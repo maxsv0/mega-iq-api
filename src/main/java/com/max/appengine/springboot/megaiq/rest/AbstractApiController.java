@@ -24,6 +24,7 @@ import com.google.common.collect.Table;
 import com.max.appengine.springboot.megaiq.model.User;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseBase;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseError;
+import com.max.appengine.springboot.megaiq.model.api.ApiResponsePublicResultList;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseTestResult;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseTestResultList;
 import com.max.appengine.springboot.megaiq.model.api.ApiResponseUser;
@@ -34,6 +35,7 @@ import com.max.appengine.springboot.megaiq.model.api.ApiTestResult;
 import com.max.appengine.springboot.megaiq.model.api.ApiUser;
 import com.max.appengine.springboot.megaiq.model.api.ApiUserPublic;
 import com.max.appengine.springboot.megaiq.model.api.ApiUserTop;
+import com.max.appengine.springboot.megaiq.model.api.PublicTestResult;
 import com.max.appengine.springboot.megaiq.model.api.ResponseTestResultPublic;
 import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import com.max.appengine.springboot.megaiq.service.ConfigurationService;
@@ -48,8 +50,14 @@ public abstract class AbstractApiController {
       ApiUserPublic user) {
     return sendResponseOk(new ResponseTestResultPublic(testResult, user));
   }
-
-
+  
+  protected ResponseEntity<ApiResponseBase> sendResponsePublicTestResultList(
+      List<PublicTestResult> testActiveList, List<PublicTestResult> testResultList, long count,
+      Locale locale) {
+    return sendResponseOk(
+        new ApiResponsePublicResultList(testActiveList, testResultList, count, locale));
+  }
+  
   protected ResponseEntity<ApiResponseBase> sendResponsePublicTestResult(ApiTestResult testResult,
       ApiUser user) {
     return sendResponseOk(new ApiResponseTestResult(testResult, user));

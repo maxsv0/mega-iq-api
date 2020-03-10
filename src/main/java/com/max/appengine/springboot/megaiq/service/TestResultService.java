@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.assertj.core.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,7 +89,7 @@ public class TestResultService {
 
   public Optional<TestResult> getTestResultByCode(UUID code, Locale locale) {
     Optional<TestResult> testResult = testResultReporitory.findByCodeAndLocale(code, locale);
-    
+
     if (testResult.isPresent()) {
       TestResult testResultDetails = loadTestDetails(testResult.get());
 
@@ -268,6 +269,26 @@ public class TestResultService {
     return resultTestsFull;
   }
 
+  public List<TestResult> findActiveResults(Locale locale) {
+
+    List<TestResult> resultTestsActive = testResultReporitory
+        .findByLocaleAndStatusOrderByCreateDateDesc(locale, IqTestStatus.ACTIVE, PageRequest.of(0, 20));
+
+    List<TestResult> resultTestsFull = new ArrayList<>();
+    for (TestResult test : resultTestsActive) {
+      resultTestsFull.add(this.loadQuestions(test));
+    }
+
+    return resultTestsFull;
+  }
+
+  public List<TestResult> findLatestResult(Locale locale, Pageable pageable) {
+
+    return testResultReporitory
+        .findByLocaleAndStatusOrderByCreateDateDesc(locale, IqTestStatus.FINISHED, pageable);
+  }
+
+
   public TestResult loadQuestions(TestResult testResult) {
     List<QuestionUser> questions =
         questionUserRepository.findByTestIdOrderByIdDesc(testResult.getId());
@@ -287,7 +308,7 @@ public class TestResultService {
   public void deleteTestResult(TestResult testResult) {
     testResultReporitory.delete(testResult);
   }
-  
+
   public Integer getCountToShowIq(User user) {
     List<Integer> listTestsId = new ArrayList<Integer>();
 
@@ -321,7 +342,7 @@ public class TestResultService {
 
       newTestResult.setGroupsGraph(questionGroupsResult);
     }
-    
+
     return testResultReporitory.save(newTestResult);
   }
 
