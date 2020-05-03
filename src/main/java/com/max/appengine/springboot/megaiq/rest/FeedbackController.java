@@ -57,7 +57,7 @@ public class FeedbackController extends AbstractApiController {
     cacheValuesForAllLocales(configurationService, configCache, MESSAGE_INVALID_ACCESS);
   }
 
-  @RequestMapping(value = "/user/feedback", method = RequestMethod.POST)
+  @RequestMapping(value = "/user/feedback", method = RequestMethod.POST, consumes = "application/json")
   public ResponseEntity<ApiResponseBase> index(HttpServletRequest request,
       @RequestParam Optional<String> locale, @RequestBody RequestFeedback requestFeedback) {
     Locale userLocale = loadLocale(locale);
