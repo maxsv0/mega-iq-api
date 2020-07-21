@@ -77,7 +77,7 @@ public class FeedbackController extends AbstractApiController {
     Feedback feedback = new Feedback();
     feedback.setLocale(userLocale);
     feedback.setUserId(userCurrentResult.get().getId());
-    feedback.setCode(requestFeedback.getCode());
+    feedback.setCode(requestFeedback.getTest());
     feedback.setQuestion(requestFeedback.getQuestion());
     feedback.setScore(requestFeedback.getScore());
     feedback.setComment(requestFeedback.getComment());

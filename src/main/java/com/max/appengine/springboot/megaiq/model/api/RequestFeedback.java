@@ -18,7 +18,7 @@ import java.util.UUID;
 
 public class RequestFeedback {
 
-  private UUID code;
+  private UUID test;
 
   private Integer question;
 
@@ -26,12 +26,12 @@ public class RequestFeedback {
 
   private String comment;
 
-  public UUID getCode() {
-    return code;
+  public UUID getTest() {
+    return test;
   }
 
-  public void setCode(UUID code) {
-    this.code = code;
+  public void setTest(UUID test) {
+    this.test = test;
   }
 
   public Integer getQuestion() {
