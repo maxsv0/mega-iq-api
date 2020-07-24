@@ -94,7 +94,6 @@ public class User extends AbstractUser {
     this.setIsEmailVerified(true);
   }
 
-  // TODO: remove this constructor, not needed
   public User(String email, String name, String url, String pic, String location, Integer age,
       Integer iq, Boolean isPublic, String password, String ip, Integer geoId, Locale locale) {
     super();

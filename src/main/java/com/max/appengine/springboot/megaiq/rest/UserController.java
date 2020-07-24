@@ -145,10 +145,6 @@ public class UserController extends AbstractApiController {
             user = userService.saveUser(user);
           }
           
-          // TODO:  REMOVE THIS
-          // WHE IS THIS HERE??? token should not be a part of response
-//          user.setToken(token.get());
-                   
           return sendResponseUser(user, userLocale);
         } else {
           return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);

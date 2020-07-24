@@ -17,7 +17,6 @@ package com.max.appengine.springboot.megaiq.service;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -198,9 +197,6 @@ public class UserService {
       user = addUser(user);
     }
 
-    // TODO: check is this is needed
-    //    user.setToken(token);
-    
     return Optional.of(user);
   }
 
@@ -242,26 +238,6 @@ public class UserService {
 
     return this.saveUser(user);
   }
-
-  // TODO: remove
-  // private String convertPassowrdToHash(String password) {
-  // String hashString = null;
-  //
-  // byte[] bytesPassword = password.getBytes(StandardCharsets.UTF_8);
-  // try {
-  // MessageDigest md = MessageDigest.getInstance("MD5");
-  // byte[] hashPassword = md.digest(bytesPassword);
-  // StringBuilder sb = new StringBuilder(2 * hashPassword.length);
-  // for (byte b : hashPassword) {
-  // sb.append(String.format("%02x", b & 0xff));
-  // }
-  // hashString = sb.toString().toLowerCase();
-  //
-  // } catch (NoSuchAlgorithmException e) {
-  // e.printStackTrace();
-  // }
-  // return hashString;
-  // }
 
   private List<User> loadUsersByPeriod(Locale locale, Integer period, Pageable pageRequest) {
     LocalDate dateLocal = LocalDate.now().minusDays(period);
