@@ -144,7 +144,14 @@ public class TestController extends AbstractApiController {
       return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
     }
 
-    Optional<User> user = userService.getUserByToken(token.get());
+    Optional<User> user;
+    
+    try {
+      user = userService.getUserByTokenOrRegister(token.get(), getIp(request), userLocale);  
+    } catch (MegaIQException | FirebaseAuthException e) {
+      return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
+    }
+    
     if (!user.isPresent()) {
       return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
     }
