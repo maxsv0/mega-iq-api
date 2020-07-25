@@ -75,7 +75,13 @@ public class UserService {
   public User addUser(User user) throws MegaIQException, FirebaseAuthException {
     User userResult = null;
 
-    Optional<User> userData = userReporitory.findByEmail(user.getEmail());
+    Optional<User> userData = null;
+    if (user.getUid() != null) {
+      userData = userReporitory.findByUid(user.getUid());
+    } else if (user.getEmail() != null) {
+      userData = userReporitory.findByEmail(user.getEmail());
+    }
+
     if (userData.isPresent()) {
       throw new MegaIQException(Level.SEVERE, "User already exists");
     }
@@ -100,16 +106,21 @@ public class UserService {
 
       userResult.setUrl("/user/" + userResult.getId());
 
-      if (user.getIsEmailVerified()) {
-        emailService.sendEmailRegistration(userResult);
-      } else {
-        String link = firebaseService.getEmailVerificationLink(userResult.getEmail());
-        emailService.sendEmailRegistrationWithVerify(userResult, link);
+      if (user.getEmail() != null) {
+        if (user.getIsEmailVerified()) {
+          emailService.sendEmailRegistration(userResult);
+        } else {
+          String link = firebaseService.getEmailVerificationLink(userResult.getEmail());
+          emailService.sendEmailRegistrationWithVerify(userResult, link);
+        }
       }
+
     } else {
       user.setUrl("/user/" + user.getId());
 
-      emailService.sendRegistrationImportUser(user);
+      if (user.getEmail() != null) {
+        emailService.sendRegistrationImportUser(user);
+      }
     }
 
     return userReporitory.save(user);
@@ -170,7 +181,8 @@ public class UserService {
 
       user.setSource("social-login");
       user.setUid(firebaseToken.getUid());
-
+      user.setIsEmailVerified(false);
+      
       if (userRecord.getEmail() != null) {
         user.setEmail(userRecord.getEmail());
         user.setIsEmailVerified(userRecord.isEmailVerified());
