@@ -28,6 +28,7 @@ public class ApiUserPublic {
   private String location;
   private String background;
   private Integer certificateProgress;
+  private Boolean isPublic;
   
   public ApiUserPublic() {
     super();
@@ -47,6 +48,7 @@ public class ApiUserPublic {
     this.setLocation(user.getLocation());
     this.setBackground(user.getBackground());
     this.setCertificateProgress(user.getCertificateProgress());
+    this.setIsPublic(user.getIsPublic());
   }
 
   public Integer getId() {
@@ -136,12 +138,21 @@ public class ApiUserPublic {
   public void setCertificateProgress(Integer certificateProgress) {
     this.certificateProgress = certificateProgress;
   }
+  
+  public Boolean getIsPublic() {
+    return isPublic;
+  }
+
+  public void setIsPublic(Boolean isPublic) {
+    this.isPublic = isPublic;
+  }
 
   @Override
   public String toString() {
-    return "ApiUserPublic [id=" + id + ", name=" + name + ", pic=" + pic + ", certificate="
-        + certificate + ", url=" + url + ", age=" + age + ", iq=" + iq + ", location=" + location
-        + ", background=" + background + ", certificateProgress=" + certificateProgress + "]";
+    return "ApiUserPublic [id=" + id + ", uid=" + uid + ", name=" + name + ", pic=" + pic
+        + ", certificate=" + certificate + ", url=" + url + ", age=" + age + ", iq=" + iq
+        + ", location=" + location + ", background=" + background + ", certificateProgress="
+        + certificateProgress + ", isPublic=" + isPublic + "]";
   }
 
 }
