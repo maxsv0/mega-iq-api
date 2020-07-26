@@ -202,9 +202,15 @@ public class UserService {
 
       user.setName(userRecord.getDisplayName());
       user.setPic(userRecord.getPhotoUrl());
-      user.setIsPublic(true);
+      
       user.setLocale(locale);
       user.setIp(ip);
+
+      if (user.getIsEmailVerified()) {
+        user.setIsPublic(true);
+      } else {
+        user.setIsPublic(false);
+      }
 
       // save to locale DB
       user = addUser(user);
