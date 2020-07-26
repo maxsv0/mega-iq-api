@@ -207,7 +207,7 @@ public class TestController extends AbstractApiController {
               }
             }
 
-            if (!user.getIsUnsubscribed()) {
+            if (user.getEmail() != null && !user.getEmail().isEmpty() && !user.getIsUnsubscribed()) {
               // STANDARD_IQ and MEGA_IQ have separate mail template
               if (testResult.get().getType().equals(IqTestType.STANDARD_IQ)
                   || testResult.get().getType().equals(IqTestType.MEGA_IQ)) {
