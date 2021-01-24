@@ -20,7 +20,9 @@ import java.util.Optional;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -145,13 +147,13 @@ public class TestController extends AbstractApiController {
     }
 
     Optional<User> user;
-    
+
     try {
-      user = userService.getUserByTokenOrRegister(token.get(), getIp(request), userLocale);  
+      user = userService.getUserByTokenOrRegister(token.get(), getIp(request), userLocale);
     } catch (MegaIQException | FirebaseAuthException e) {
       return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
     }
-    
+
     if (!user.isPresent()) {
       return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
     }
@@ -200,8 +202,8 @@ public class TestController extends AbstractApiController {
             Boolean showIq = this.testResultService.getIsEligibleToShowIq(user);
 
             if (showIq) {
-              if (user.getIq() == null || 
-                  user.getCertificate() == null || 
+              if (user.getIq() == null ||
+                  user.getCertificate() == null ||
                   user.getIq() < testResult.get().getPoints()) {
                 this.userService.setIqScoreAndCertificate(user, testResult.get().getPoints());
               }
@@ -236,7 +238,7 @@ public class TestController extends AbstractApiController {
       return sendResponseError(MESSAGE_INVALID_ACCESS, configCache, userLocale);
     }
   }
-  
+
   @RequestMapping(value = "/test/{testCode}", method = RequestMethod.GET)
   public ResponseEntity<ApiResponseBase> requestTestDetails(HttpServletRequest request,
       @PathVariable UUID testCode, @RequestParam Optional<String> locale) {
@@ -245,7 +247,7 @@ public class TestController extends AbstractApiController {
 
     return iqTestDetailsPublic(testCode, userLocale);
   }
-  
+
   @RequestMapping(value = "/classroom/{testCode}", method = RequestMethod.GET)
   public ResponseEntity<ApiResponseBase> requestTestDetailsForClassroom(HttpServletRequest request,
       @PathVariable UUID testCode, @RequestParam Optional<String> locale) {
@@ -353,11 +355,11 @@ public class TestController extends AbstractApiController {
 
     Integer certificateProgress = null;
     if (user.get().getCertificate() == null) {
-      
+
      certificateProgress = this.testResultService.getCountToShowIq(user.get());
      user.get().setCertificateProgress(certificateProgress);
     }
-    
+
     List<TestResult> listResults = loadResultsByUserId(user.get().getId(), userLocale, pageable);
 
     List<ApiTestResult> usersPublicList = new ArrayList<ApiTestResult>();
@@ -367,40 +369,42 @@ public class TestController extends AbstractApiController {
 
     return sendResponseTestResultList(usersPublicList, new ApiUser(user.get()));
   }
-  
+
   @RequestMapping(value = "/list-latest", method = RequestMethod.GET)
   public ResponseEntity<ApiResponseBase> requestListLatestResults(HttpServletRequest request,
       @RequestParam Optional<String> locale, Pageable pageable) {
 
     Locale userLocale = loadLocale(locale);
 
-    List<PublicTestResult> listActive = convertToPublicTestResult(findActiveResults(userLocale));
-    
-    List<PublicTestResult> listResults = convertToPublicTestResult(loadLatestResults(userLocale, pageable));
+    // List<PublicTestResult> listActive = convertToPublicTestResult(findActiveResults(userLocale));
+    List<PublicTestResult> listActive = new ArrayList<>();
+
+    List<PublicTestResult> listResults = convertToPublicTestResult(
+            loadLatestResults(userLocale, PageRequest.of(0, 10, Sort.by(Sort.Order.desc("id")))));
 
     return sendResponsePublicTestResultList(listActive, listResults, this.testResultService.getResultCount(),
         userLocale);
   }
-  
+
   private List<PublicTestResult> convertToPublicTestResult(List<TestResult> listResults) {
     List<PublicTestResult> publicTestResultList = new ArrayList<PublicTestResult>();
-    
+
     for (TestResult testResult : listResults) {
       // check if user profile is public or private
       String userUrl = null;
       Integer userIq = null;
       Boolean hasCertificate = null;
-      
+
       Optional<User> userResult = this.userService.getUserById(testResult.getUserId());
       if (userResult.isPresent() && userResult.get().getIsPublic()) {
         userUrl = userResult.get().getPic();
-        
-        hasCertificate = userResult.get().getCertificate() != null && 
+
+        hasCertificate = userResult.get().getCertificate() != null &&
             !userResult.get().getCertificate().isEmpty();
       }
       publicTestResultList.add(new PublicTestResult(testResult, userUrl, userIq, hasCertificate));
     }
-    
+
     return publicTestResultList;
   }
 
@@ -439,7 +443,7 @@ public class TestController extends AbstractApiController {
   private List<TestResult> findActiveResults(Locale locale) {
     return testResultService.findActiveResults(locale);
   }
-  
+
   private List<TestResult> loadResultsByUserId(Integer userId, Locale locale, Pageable pageable) {
     return testResultService.findTestResultByUserId(userId, locale, pageable);
   }
