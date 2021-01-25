@@ -3,17 +3,17 @@ package com.max.appengine.springboot.megaiq.model.api;
 import java.time.Duration;
 
 public class TestResultInfo {
-    private Duration duration;
+    private String duration;
 
     private Integer questions;
 
     private Integer answersCorrect;
 
-    public Duration getDuration() {
+    public String getDuration() {
         return duration;
     }
 
-    public void setDuration(Duration duration) {
+    public void setDuration(String duration) {
         this.duration = duration;
     }
 

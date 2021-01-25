@@ -121,12 +121,13 @@ public class ApiTestResult {
       for (AbstractQuestionUser questionUser : testResult.getQuestionSet()) {
         AnswerInfo answerInfo = new AnswerInfo();
 
+        answerInfo.setCorrect(false);
         if (questionUser.getAnswerCorrect().equals(questionUser.getAnswerUser())) {
           questionsCorrect++;
 
           answerInfo.setCorrect(true);
         }
-        answerInfo.setCorrect(false);
+
         answerInfo.setPoints(questionUser.getPoints());
         answerInfoList.add(answerInfo);
       }
@@ -134,8 +135,13 @@ public class ApiTestResult {
       info.setAnswersCorrect(questionsCorrect);
     }
 
-    Duration diff = Duration.between(testResult.getFinishDate().toInstant(), testResult.getFinishDate().toInstant());
-    info.setDuration(diff);
+    if (testResult.getFinishDate() != null && testResult.getCreateDate() != null) {
+      long diff = testResult.getFinishDate().getTime() - testResult.getCreateDate().getTime();
+      long diffSeconds = diff / 1000 % 60;
+      long diffMinutes = diff / (60 * 1000) % 60;
+
+      info.setDuration(diffMinutes + ":" + diffSeconds);
+    }
 
     this.setInfo(info);
     this.setAnswerInfo(answerInfoList);
