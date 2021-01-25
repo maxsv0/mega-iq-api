@@ -14,8 +14,10 @@
 
 package com.max.appengine.springboot.megaiq.model.api;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.StringJoiner;
 import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -41,82 +43,8 @@ public class ApiTestResult {
   private Integer progress;
   private QuestionGroupsResult groupsGraph;
   private ArrayList<ApiQuestion> questionSet;
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((code == null) ? 0 : code.hashCode());
-    result = prime * result + ((createDate == null) ? 0 : createDate.hashCode());
-    result = prime * result + ((finishDate == null) ? 0 : finishDate.hashCode());
-    result = prime * result + ((groupsGraph == null) ? 0 : groupsGraph.hashCode());
-    result = prime * result + ((locale == null) ? 0 : locale.hashCode());
-    result = prime * result + ((points == null) ? 0 : points.hashCode());
-    result = prime * result + ((questionSet == null) ? 0 : questionSet.hashCode());
-    result = prime * result + ((status == null) ? 0 : status.hashCode());
-    result = prime * result + ((type == null) ? 0 : type.hashCode());
-    result = prime * result + ((updateDate == null) ? 0 : updateDate.hashCode());
-    result = prime * result + ((url == null) ? 0 : url.hashCode());
-    return result;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
-    ApiTestResult other = (ApiTestResult) obj;
-    if (code == null) {
-      if (other.code != null)
-        return false;
-    } else if (!code.equals(other.code))
-      return false;
-    if (createDate == null) {
-      if (other.createDate != null)
-        return false;
-    } else if (!createDate.equals(other.createDate))
-      return false;
-    if (finishDate == null) {
-      if (other.finishDate != null)
-        return false;
-    } else if (!finishDate.equals(other.finishDate))
-      return false;
-    if (groupsGraph == null) {
-      if (other.groupsGraph != null)
-        return false;
-    } else if (!groupsGraph.equals(other.groupsGraph))
-      return false;
-    if (locale != other.locale)
-      return false;
-    if (points == null) {
-      if (other.points != null)
-        return false;
-    } else if (!points.equals(other.points))
-      return false;
-    if (questionSet == null) {
-      if (other.questionSet != null)
-        return false;
-    } else if (!questionSet.equals(other.questionSet))
-      return false;
-    if (status != other.status)
-      return false;
-    if (type != other.type)
-      return false;
-    if (updateDate == null) {
-      if (other.updateDate != null)
-        return false;
-    } else if (!updateDate.equals(other.updateDate))
-      return false;
-    if (url == null) {
-      if (other.url != null)
-        return false;
-    } else if (!url.equals(other.url))
-      return false;
-    return true;
-  }
+  private TestResultInfo info;
+  private ArrayList<AnswerInfo> answerInfo;
 
   public ApiTestResult() {
     super();
@@ -124,14 +52,26 @@ public class ApiTestResult {
 
   @Override
   public String toString() {
-    return "ApiTestResult [code=" + code + ", url=" + url + ", type=" + type
-        + ", locale=" + locale + ", status=" + status + ", createDate=" + createDate
-        + ", updateDate=" + updateDate + ", finishDate=" + finishDate + ", points=" + points
-        + ", groupsGraph=" + groupsGraph + ", questionSet=" + questionSet + "]";
+    return new StringJoiner(", ", ApiTestResult.class.getSimpleName() + "[", "]")
+            .add("code=" + code)
+            .add("url='" + url + "'")
+            .add("type=" + type)
+            .add("locale=" + locale)
+            .add("status=" + status)
+            .add("createDate=" + createDate)
+            .add("updateDate=" + updateDate)
+            .add("finishDate=" + finishDate)
+            .add("points=" + points)
+            .add("progress=" + progress)
+            .add("groupsGraph=" + groupsGraph)
+            .add("questionSet=" + questionSet)
+            .add("info=" + info)
+            .add("answerInfo=" + answerInfo)
+            .toString();
   }
 
   public ApiTestResult(QuestionsService serviceQuestions, TestResult testResult,
-      boolean showPrivate) {
+                       boolean showPrivate) {
     super();
 
     this.setCode(testResult.getCode());
@@ -170,6 +110,35 @@ public class ApiTestResult {
             (int) Math.floor(100 * this.getProgress() / testResult.getQuestionSet().size()));
       }
     }
+
+    TestResultInfo info = new TestResultInfo();
+    ArrayList<AnswerInfo> answerInfoList = new ArrayList<>();
+
+    if (testResult.getQuestionSet() != null) {
+      info.setQuestions(testResult.getQuestionSet().size());
+
+      int questionsCorrect = 0;
+      for (AbstractQuestionUser questionUser : testResult.getQuestionSet()) {
+        AnswerInfo answerInfo = new AnswerInfo();
+
+        if (questionUser.getAnswerCorrect().equals(questionUser.getAnswerUser())) {
+          questionsCorrect++;
+
+          answerInfo.setCorrect(true);
+        }
+        answerInfo.setCorrect(false);
+        answerInfo.setPoints(questionUser.getPoints());
+        answerInfoList.add(answerInfo);
+      }
+
+      info.setAnswersCorrect(questionsCorrect);
+    }
+
+    Duration diff = Duration.between(testResult.getFinishDate().toInstant(), testResult.getFinishDate().toInstant());
+    info.setDuration(diff);
+
+    this.setInfo(info);
+    this.setAnswerInfo(answerInfoList);
   }
 
   public UUID getCode() {
@@ -268,5 +237,19 @@ public class ApiTestResult {
     this.questionSet = questionSet;
   }
 
+  public TestResultInfo getInfo() {
+    return info;
+  }
 
+  public void setInfo(TestResultInfo info) {
+    this.info = info;
+  }
+
+  public ArrayList<AnswerInfo> getAnswerInfo() {
+    return answerInfo;
+  }
+
+  public void setAnswerInfo(ArrayList<AnswerInfo> answerInfo) {
+    this.answerInfo = answerInfo;
+  }
 }
