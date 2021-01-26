@@ -386,6 +386,19 @@ public class TestController extends AbstractApiController {
         userLocale);
   }
 
+  @RequestMapping(value = "/list-latest-all", method = RequestMethod.GET)
+  public ResponseEntity<ApiResponseBase> requestListLatestAllResults(@RequestParam Optional<String> locale) {
+
+    Locale userLocale = loadLocale(locale);
+
+    List<PublicTestResult> listActive = new ArrayList<>();
+
+    List<PublicTestResult> listResults = convertToPublicTestResult(
+            loadLatestResults(userLocale, PageRequest.of(0, 50, Sort.by(Sort.Order.desc("id")))));
+
+    return sendResponsePublicTestResultList(listActive, listResults, 0, userLocale);
+  }
+
   private List<PublicTestResult> convertToPublicTestResult(List<TestResult> listResults) {
     List<PublicTestResult> publicTestResultList = new ArrayList<PublicTestResult>();
 
