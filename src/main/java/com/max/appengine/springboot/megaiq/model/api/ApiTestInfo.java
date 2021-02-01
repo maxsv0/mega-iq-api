@@ -18,6 +18,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.max.appengine.springboot.megaiq.model.enums.IqTestType;
 
+import java.util.StringJoiner;
+
 @JsonInclude(Include.NON_NULL)
 public class ApiTestInfo {
   private IqTestType type;
@@ -25,18 +27,11 @@ public class ApiTestInfo {
   private String url;
   private String pic;
   private String description;
+  private String title;
   private Integer questions;
   private Integer time;
   private Integer expire;
   private String styleName;
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
 
   public IqTestType getType() {
     return type;
@@ -46,12 +41,12 @@ public class ApiTestInfo {
     this.type = type;
   }
 
-  public String getDescription() {
-    return description;
+  public String getName() {
+    return name;
   }
 
-  public void setDescription(String description) {
-    this.description = description;
+  public void setName(String name) {
+    this.name = name;
   }
 
   public String getUrl() {
@@ -68,6 +63,22 @@ public class ApiTestInfo {
 
   public void setPic(String pic) {
     this.pic = pic;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public String getTitle() {
+    return title;
+  }
+
+  public void setTitle(String title) {
+    this.title = title;
   }
 
   public Integer getQuestions() {
@@ -104,9 +115,17 @@ public class ApiTestInfo {
 
   @Override
   public String toString() {
-    return "ApiTestInfo [title=" + name + ", type=" + type + ", titlePromo=" + description
-        + ", url=" + url + ", pic=" + pic + ", questions=" + questions + ", time=" + time
-        + ", expire=" + expire + "]";
+    return new StringJoiner(", ", ApiTestInfo.class.getSimpleName() + "[", "]")
+            .add("type=" + type)
+            .add("name='" + name + "'")
+            .add("url='" + url + "'")
+            .add("pic='" + pic + "'")
+            .add("description='" + description + "'")
+            .add("title='" + title + "'")
+            .add("questions=" + questions)
+            .add("time=" + time)
+            .add("expire=" + expire)
+            .add("styleName='" + styleName + "'")
+            .toString();
   }
-
 }

@@ -48,12 +48,6 @@ public abstract class AbstractServiceHelper {
         testResult.getLocale());
   }
 
-  public static String getCachedTitlePromoByTest(Table<String, Locale, String> cache,
-      TestResult testResult) {
-    return getCacheValue(cache, "test_title_promo_" + testResult.getType().toString().toLowerCase(),
-        testResult.getLocale());
-  }
-
   public static String getCachedDomain(Table<String, Locale, String> cache, Locale locale) {
     return getCacheValue(cache, "domain", locale);
   }
