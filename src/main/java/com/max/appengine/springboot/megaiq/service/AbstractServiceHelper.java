@@ -85,6 +85,8 @@ public abstract class AbstractServiceHelper {
             configurationService.getConfigValueByNameAndTypeAndLocale("test_time", locale, type));
         cache.put("test_style_name_" + prefix, locale, configurationService
             .getConfigValueByNameAndTypeAndLocale("test_style_name", locale, type));
+        cache.put("description_" + prefix, locale, configurationService
+            .getConfigValueByNameAndTypeAndLocale("description", locale, type));
       }
     }
   }

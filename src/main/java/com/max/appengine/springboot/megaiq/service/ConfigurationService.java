@@ -53,16 +53,6 @@ public class ConfigurationService {
     return Integer.valueOf(getConfigValueByNameAndType("test_questions", type));
   }
 
-  // TODO: remove unused code
-  // public String getDomainByLocale(Locale locale) {
-  // return getConfigGlobal("domain", locale);
-  // }
-  //
-  // public String getTestResultTitle(TestResult testResult) {
-  // return getConfigValueByNameAndTypeAndLocale("test_title", testResult.getLocale(),
-  // testResult.getType());
-  // }
-
   public String getConfigValueByNameAndType(String name, IqTestType type) {
     for (Configuration configuration : this.getConfig()) {
       if (configuration.getName().equals(name) && configuration.getType().equals(type))
