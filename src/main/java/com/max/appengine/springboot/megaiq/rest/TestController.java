@@ -118,8 +118,8 @@ public class TestController extends AbstractApiController {
       testInfo.setPic(
           getCacheValue(configCache, "test_pic_" + type.toString().toLowerCase(), userLocale));
 
-      testInfo.setDescription(getCacheValue(configCache,
-          "description_" + type.toString().toLowerCase(), userLocale));
+//      testInfo.setDescription(getCacheValue(configCache,
+//          "description_" + type.toString().toLowerCase(), userLocale));
 
       testInfo.setTitle(getCacheValue(configCache,
           "test_title_promo_" + type.toString().toLowerCase(), userLocale));
