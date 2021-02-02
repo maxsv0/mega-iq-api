@@ -3,7 +3,7 @@
 Mega-IQ Spring Boot + Google App Engine application.
 
 ## Features
-* Multi-language API for [www.mega-iq.com](https://www.mega-iq.com)
+* Multi-language API for [Mega-IQ Free IQ Test Online](https://www.mega-iq.com)
 * Spring Boot application for Google App Engine
 * Stateless application with automatic scaling
 * Firebase Authentication as SSO service
@@ -20,18 +20,17 @@ for tracking the issues and development tasks.
 Big thanks to the [Mega-IQ team](https://www.mega-iq.com/assets/static/about.html) and everyone who was contributing 
 to the development and support of Mega-IQ since 2008. 
 
-Thanks to [our sponsors](https://www.mega-iq.com/assets/static/thanks.html)!
 
 ## Further help
 
 Visit our [GitHub Sponsorship page](https://github.com/sponsors/maxsv0) if you would like 
-to become a sponsor and support the [www.mega-iq.com](https://www.mega-iq.com).
+to become a sponsor and support the Mega-IQ.
 
 ## Production instance
 Localized end-point URL: 
 * https://www.mega-iq.com/api/v1 (English)
-* https://es.mega-iq.com/api/v1 (Español) - ONLINE
-* https://ru.mega-iq.com/api/v1 (Русский) - ONLINE
+* https://es.mega-iq.com/api/v1 (Español)
+* https://ru.mega-iq.com/api/v1 (Русский)
 * https://de.mega-iq.com/api/v1 (Deutsch)
 
 ## Development server
@@ -52,17 +51,7 @@ To use vist: http://localhost:8080/
 
 `mvn verify`
 
-## Requirements Document
-
-[MEGA-IQ 3.0. Requirements Document](https://docs.google.com/document/d/1juGpnjcJOHJY45edddpCGH7KFqlJFZyafU-qRk0eF3s/edit?usp=sharing) 
-was initially published in October 2018. 
-
-| Version        | Date           | Summary  |
-| ------------- |:-------------:| -----|
-| 0.1      | 22.10.2018    |  Draft |
-| 0.2      | 16.03.2019    |  Alpha release. Scope update |
-| 0.2.1    | 05.04.2019    |  Update according to current status |
-| 0.2.2    | 20.04.2019    |  Update page structure |
+## New Mega-IQ
 
 The result of this doc is a list if tasks published in two projects 
 [Angular Front-end](https://github.com/maxsv0/mega-iq-ui) and [Java Back-end](https://github.com/maxsv0/mega-iq-api).
@@ -71,14 +60,14 @@ The result of this doc is a list if tasks published in two projects
 | ------------- |-------------| -----|-----|
 | DONE     | 12/12   | [mega-iq-api](https://github.com/maxsv0/mega-iq-api)   |  [Milestone 1. Enable Iq Website features](https://github.com/maxsv0/mega-iq-api/projects/1)  |
 | DONE     | 11/11    | [mega-iq-ui](https://github.com/maxsv0/mega-iq-ui)   |  [Milestone 1. Enable Iq Website features](https://github.com/maxsv0/mega-iq-ui/projects/1) |
-| progress | 14/15    | [mega-iq-api](https://github.com/maxsv0/mega-iq-api)   |  [Milestone 2. Mega-IQ 3.0 release](https://github.com/maxsv0/mega-iq-api/projects/2) |
-| progress | 30/36    | [mega-iq-ui](https://github.com/maxsv0/mega-iq-ui)   |  [Milestone 2. Mega-IQ 3.0 release](https://github.com/maxsv0/mega-iq-ui/projects/3) |
+| DONE     | 17/17    | [mega-iq-api](https://github.com/maxsv0/mega-iq-api)   |  [Milestone 2. Mega-IQ 3.0 release](https://github.com/maxsv0/mega-iq-api/projects/2) |
+| DONE | 47/47    | [mega-iq-ui](https://github.com/maxsv0/mega-iq-ui)   |  [Milestone 2. Mega-IQ 3.0 release](https://github.com/maxsv0/mega-iq-ui/projects/3) |
 
 
 ## API Documentation
 
 ### Status message
-URL: https://api.mega-iq.com/
+URL: https://www.mega-iq.com/api/v1
 
 Type: GET
 
@@ -93,7 +82,7 @@ Result:
 ```
 
 ### Start the test
-URL: https://api.mega-iq.com/test/start?type=[type]
+URL: https://www.mega-iq.com/api/v1/test/start?type=[type]
 
 Type: GET, Auth token required
 
@@ -144,7 +133,7 @@ Result:
 
 ### Submit the answer
 
-URL: https://api.mega-iq.com/test/[uuid]
+URL: https://www.mega-iq.com/api/v1/test/[uuid]
 
 Type: POST, Auth token required
 
@@ -172,7 +161,7 @@ Result:
 
 ### Submit finish test
 
-URL: https://api.mega-iq.com/test/finish?testCode=[uuid]
+URL: https://www.mega-iq.com/api/v1/finish?testCode=[uuid]
 
 Type: GET, Auth token required
 
@@ -224,7 +213,7 @@ Result:
 
 ### Get public test info
 
-URL: https://api.mega-iq.com/test/[uuid]
+URL: https://www.mega-iq.com/api/v1/test/[uuid]
 
 Type: GET
 
@@ -249,7 +238,7 @@ Result:
 
 ### Get my test results
 
-URL: https://api.mega-iq.com/list-my
+URL: https://www.mega-iq.com/api/v1/list-my
 
 Type: GET, Auth token required
 
@@ -295,7 +284,7 @@ Result:
 
 ### Delete test result
 
-URL: https://api.mega-iq.com/test/[uuid]
+URL: https://www.mega-iq.com/api/v1/test/[uuid]
 
 Type: DELETE, Auth token required
 
@@ -311,7 +300,7 @@ Result:
 
 
 ### Create file upload URL
-URL: https://api.mega-iq.com/storage/create
+URL: https://www.mega-iq.com/storage/create
 
 Type: GET
 
@@ -326,7 +315,7 @@ Result:
 ```
 
 ### Serve storage file
-URL: https://api.mega-iq.com/storage/serve?key=[key]
+URL: https://www.mega-iq.com/storage/serve?key=[key]
 
 Type: GET
 
