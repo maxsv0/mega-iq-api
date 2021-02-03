@@ -60,10 +60,11 @@ public class PublicTestResult {
     } else {
       
       if (userPic != null) {
-        this.url = testResult.getUrl();
         this.userIq = userIq;
         this.hasCertificate = hasCertificate;
       }
+
+      this.url = testResult.getUrl();
     }
     
     this.userPic = userPic;
