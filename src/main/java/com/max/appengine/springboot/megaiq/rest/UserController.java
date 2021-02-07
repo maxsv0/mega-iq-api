@@ -487,8 +487,10 @@ public class UserController extends AbstractApiController {
       // update user UID
       userResult.setUid(userRecord.getUid());
       userService.saveUser(userResult);
-      
-      userResult = userService.setIqScoreAndCertificate(userResult, userResult.getIq());
+
+      if (userResult.getIq() > 0) {
+        userResult = userService.setIqScoreAndCertificate(userResult, userResult.getIq());
+      }
 
       if (importUser.getTests() != null) {
         for (ImportUserTest importTest : importUser.getTests()) {
