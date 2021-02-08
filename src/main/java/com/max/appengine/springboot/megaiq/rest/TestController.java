@@ -383,7 +383,7 @@ public class TestController extends AbstractApiController {
     List<PublicTestResult> listActive = new ArrayList<>();
 
     List<PublicTestResult> listResults = convertToPublicTestResult(
-            loadLatestResults(userLocale, PageRequest.of(0, 10)));
+            loadLatestResults(userLocale, pageable));
 
     return sendResponsePublicTestResultList(listActive, listResults, this.testResultService.getResultCount(),
         userLocale);
@@ -397,7 +397,7 @@ public class TestController extends AbstractApiController {
     List<PublicTestResult> listActive = new ArrayList<>();
 
     List<PublicTestResult> listResults = convertToPublicTestResult(
-            loadLatestResults(userLocale, PageRequest.of(0, 50)));
+            loadLatestResults(userLocale, PageRequest.of(0, 40)));
 
     return sendResponsePublicTestResultList(listActive, listResults, 0, userLocale);
   }
