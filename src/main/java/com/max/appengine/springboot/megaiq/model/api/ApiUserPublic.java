@@ -15,6 +15,9 @@
 package com.max.appengine.springboot.megaiq.model.api;
 
 import com.max.appengine.springboot.megaiq.model.User;
+import com.max.appengine.springboot.megaiq.model.enums.Locale;
+
+import java.util.StringJoiner;
 
 public class ApiUserPublic {
   private Integer id;
@@ -29,7 +32,9 @@ public class ApiUserPublic {
   private String background;
   private Integer certificateProgress;
   private Boolean isPublic;
-  
+  private String homepage;
+  private Locale locale;
+
   public ApiUserPublic() {
     super();
   }
@@ -49,6 +54,26 @@ public class ApiUserPublic {
     this.setBackground(user.getBackground());
     this.setCertificateProgress(user.getCertificateProgress());
     this.setIsPublic(user.getIsPublic());
+    this.setLocale(user.getLocale());
+  }
+
+  public ApiUserPublic(User user, String domain) {
+    super();
+
+    this.setId(user.getId());
+    this.setUid(user.getUid());
+    this.setName(user.getName());
+    this.setPic(user.getPic());
+    this.setCertificate(user.getCertificate());
+    this.setUrl(user.getUrl());
+    this.setAge(user.getAge());
+    this.setIq(user.getIq());
+    this.setLocation(user.getLocation());
+    this.setBackground(user.getBackground());
+    this.setCertificateProgress(user.getCertificateProgress());
+    this.setIsPublic(user.getIsPublic());
+    this.setLocale(user.getLocale());
+    this.setHomepage(domain + user.getUrl());
   }
 
   public Integer getId() {
@@ -147,12 +172,39 @@ public class ApiUserPublic {
     this.isPublic = isPublic;
   }
 
-  @Override
-  public String toString() {
-    return "ApiUserPublic [id=" + id + ", uid=" + uid + ", name=" + name + ", pic=" + pic
-        + ", certificate=" + certificate + ", url=" + url + ", age=" + age + ", iq=" + iq
-        + ", location=" + location + ", background=" + background + ", certificateProgress="
-        + certificateProgress + ", isPublic=" + isPublic + "]";
+  public String getHomepage() {
+    return homepage;
   }
 
+  public void setHomepage(String homepage) {
+    this.homepage = homepage;
+  }
+
+  public Locale getLocale() {
+    return locale;
+  }
+
+  public void setLocale(Locale locale) {
+    this.locale = locale;
+  }
+
+  @Override
+  public String toString() {
+    return new StringJoiner(", ", ApiUserPublic.class.getSimpleName() + "[", "]")
+            .add("id=" + id)
+            .add("uid='" + uid + "'")
+            .add("name='" + name + "'")
+            .add("pic='" + pic + "'")
+            .add("certificate='" + certificate + "'")
+            .add("url='" + url + "'")
+            .add("age=" + age)
+            .add("iq=" + iq)
+            .add("location='" + location + "'")
+            .add("background='" + background + "'")
+            .add("certificateProgress=" + certificateProgress)
+            .add("isPublic=" + isPublic)
+            .add("homepage='" + homepage + "'")
+            .add("locale='" + locale + "'")
+            .toString();
+  }
 }

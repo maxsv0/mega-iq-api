@@ -119,6 +119,7 @@ public class UserController extends AbstractApiController {
     cacheValuesForAllLocales(configurationService, configCache, MESSAGE_WRONG_REQUEST);
     cacheValuesForAllLocales(configurationService, configCache, MESSAGE_INTERNAL_ERROR);
     cacheValuesForAllLocales(configurationService, configCache, MESSAGE_DELETE_SUCCESS);
+    cacheValuesForAllLocales(configurationService, configCache, "domain");
   }
 
   @RequestMapping(value = "/user", method = RequestMethod.GET)
@@ -229,7 +230,9 @@ public class UserController extends AbstractApiController {
          userResult.get().setCertificateProgress(certificateProgress);
         }
 
-        return sendResponseTestResultList(usersPublicList, new ApiUserPublic(userResult.get()));
+        String domain = getCacheValue(configCache, "domain", userResult.get().getLocale());
+
+        return sendResponseTestResultList(usersPublicList, new ApiUserPublic(userResult.get(), domain));
       } else {
         return sendResponseError(MESSAGE_USER_NOT_FOUND, configCache, userLocale);
       }
