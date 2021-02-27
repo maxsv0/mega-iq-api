@@ -39,7 +39,7 @@ import com.max.appengine.springboot.megaiq.repository.UserReporitory;
 public class UserService {
   public static final Integer LIMIT_LIST_PAGE = 15;
 
-  public static final Integer LIMIT_HOME_PAGE = 5;
+  public static final Integer LIMIT_HOME_PAGE = 10;
 
   private final UserReporitory userReporitory;
 
@@ -64,12 +64,11 @@ public class UserService {
       currentPage = page.get();
     }
 
-    // TODO: fix it later. for now 300 days
-    return loadUsersByPeriod(locale, 300, PageRequest.of(currentPage, LIMIT_LIST_PAGE));
+    return loadUsersByPeriod(locale, 90, PageRequest.of(currentPage, LIMIT_LIST_PAGE));
   }
 
   public List<User> getUsersListTopToday(Locale locale) {
-    return loadUsersByPeriod(locale, 150, PageRequest.of(0, LIMIT_HOME_PAGE));
+    return loadUsersByPeriod(locale, 30, PageRequest.of(0, LIMIT_HOME_PAGE));
   }
 
   public User addUser(User user) throws MegaIQException, FirebaseAuthException {

@@ -325,7 +325,7 @@ public class TestResultService {
   }
 
   public List<Object[]> findTopUserIds(Locale locale) {
-    return this.testResultReporitory.findTopUserIds(locale, PageRequest.of(0, 5));
+    return this.testResultReporitory.findTopUserIds(locale, PageRequest.of(0, 10));
   }
 
   public TestResult importTestResult(ImportUserTest importTestResult, Locale locale,
