@@ -262,7 +262,7 @@ public class UserService {
     Date date = Date.from(dateLocal.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
     return userReporitory
-        .findByLocaleAndUpdateDateAfterAndIsPublicIsTrueAndIqIsNotNullOrderByIqDesc(locale, date,
+        .findByLocaleAndCreateDateAfterAndIsPublicIsTrueAndIqIsNotNullOrderByIqDesc(locale, date,
             pageRequest);
   }
 
