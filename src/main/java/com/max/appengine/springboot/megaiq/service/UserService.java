@@ -69,7 +69,7 @@ public class UserService {
 
   public List<User> getUsersListTopToday(Locale locale) {
     return loadUsersByPeriod(locale, 360, PageRequest.of(0, LIMIT_HOME_PAGE));
-  }
+  } 
 
   public User addUser(User user) throws MegaIQException, FirebaseAuthException {
     User userResult = null;
@@ -145,7 +145,7 @@ public class UserService {
   }
 
   public List<User> getLastProfiles(Locale locale) {
-    return userReporitory.findTop5ByIqGreaterThanAndLocaleAndIsPublicIsTrueOrderByUpdateDate(90,
+    return userReporitory.findTop12ByIqGreaterThanAndLocaleAndIsPublicIsTrueOrderByUpdateDate(80,
         locale);
   }
 
