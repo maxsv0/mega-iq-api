@@ -27,7 +27,7 @@ public class StatController extends AbstractApiController {
         this.testResultService = testResultService;
     }
 
-    @RequestMapping(value = "/stat/kpi-test-count", method = RequestMethod.GET, consumes = "application/json")
+    @RequestMapping(value = "/stat/kpi-test-count", method = RequestMethod.GET)
     public ResponseEntity<ResponseStatKpiTestCount> statKpiTestCount() {
 
         ResponseStatKpiTestCount response = new ResponseStatKpiTestCount();
