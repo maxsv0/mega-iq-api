@@ -145,8 +145,7 @@ public class UserService {
   }
 
   public List<User> getLastProfiles(Locale locale) {
-    return userReporitory.findTop12ByIqGreaterThanAndLocaleAndIsPublicIsTrueOrderByUpdateDate(80,
-        locale);
+    return userReporitory.findTop12ByLocaleAndIsPublicIsTrueOrderByUpdateDate(locale);
   }
 
   public Optional<User> getUserByEmail(String email) {
