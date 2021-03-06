@@ -42,7 +42,7 @@ public class StatController extends AbstractApiController {
 
         List<TestResult> listDe = this.testResultService.findLatestResult(Locale.DE, PageRequest.of(0, 50));
         listDe.removeIf(x -> notInLastDay(x.getCreateDate()));
-        response.setCountRU(listDe.size());
+        response.setCountDE(listDe.size());
 
         List<TestResult> listRu = this.testResultService.findLatestResult(Locale.RU, PageRequest.of(0, 50));
         listRu.removeIf(x -> notInLastDay(x.getCreateDate()));
