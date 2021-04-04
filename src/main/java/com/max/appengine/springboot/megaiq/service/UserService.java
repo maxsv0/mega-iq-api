@@ -243,7 +243,9 @@ public class UserService {
   }
 
   public User setIqScoreAndCertificate(User user, Integer points) {
-    user.setIq(points);
+    if (user.getIq() < points) {
+      user.setIq(points);
+    }
 
     try {
       String certificate = this.certificateService.createUserCertificate(user);
