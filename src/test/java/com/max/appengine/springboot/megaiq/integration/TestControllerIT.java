@@ -10,6 +10,8 @@ import java.io.InputStream;
 import java.util.Optional;
 import java.util.UUID;
 import javax.imageio.ImageIO;
+
+import com.max.appengine.springboot.megaiq.model.enums.Locale;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -80,7 +82,7 @@ public class TestControllerIT extends AbstractIntegrationIT {
 
     new MockUp<UserService>() {
       @Mock
-      public Optional<User> getUserByToken(String token) {
+      public Optional<User> getUserByTokenOrRegister(String token, String ip, Locale locale) {
         return Optional.of(user);
       }
     };

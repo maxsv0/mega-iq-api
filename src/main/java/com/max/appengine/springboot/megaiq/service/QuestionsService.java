@@ -73,47 +73,48 @@ public class QuestionsService {
       throws MegaIQException {
     Integer groupMax = (int) Math.floor(this.questionsNumber.get(testType) / 4);
 
-    Integer maxMath = groupMax, maxGrammar = groupMax, maxHorizons = groupMax, maxLogic = groupMax;
+    HashMap<IqQuestionGroup, Integer> groupsMax = new HashMap<IqQuestionGroup, Integer>();
 
     // max score is 4
     int maxQuestionScore = 4;
 
     switch (testType) {
       case PRACTICE_IQ:
+        for (IqQuestionGroup group : IqQuestionGroup.values()) {
+          groupsMax.put(group, 1);
+        }
         maxQuestionScore = 2;
         break;
-      case STANDARD_IQ:
-        maxQuestionScore = 4;
-        break;
-      case MEGA_IQ:
-        maxQuestionScore = 4;
-        break;
-      case MATH:
-        maxQuestionScore = 4;
-        maxMath = this.questionsNumber.get(testType);
-        maxGrammar = 0;
-        maxHorizons = 0;
-        maxLogic = 0;
-        break;
-      case GRAMMAR:
-        maxQuestionScore = 4;
-        maxMath = 0;
-        maxGrammar = this.questionsNumber.get(testType);
-        maxHorizons = 0;
-        maxLogic = 0;
-        break;
-//      case KIDS:
-//        maxQuestionScore = 1;
-//        maxMath = 0;
-//        maxGrammar = 0;
-//        maxHorizons = this.questionsNumber.get(testType) / 2;
-//        maxLogic = this.questionsNumber.get(testType) / 2;
-//        break;
 
+      case STANDARD_IQ:
+        for (IqQuestionGroup group : IqQuestionGroup.values()) {
+          groupsMax.put(group, 3);
+        }
+        break;
+
+      case MEGA_IQ:
+        for (IqQuestionGroup group : IqQuestionGroup.values()) {
+          groupsMax.put(group, 10);
+        }
+        break;
+
+      case MATH:
+        groupsMax.put(IqQuestionGroup.MATH, this.questionsNumber.get(testType));
+        break;
+
+      case GRAMMAR:
+        groupsMax.put(IqQuestionGroup.GRAMMAR, this.questionsNumber.get(testType));
+        break;
+
+      case KIDS:
+        groupsMax.put(IqQuestionGroup.LOGIC, this.questionsNumber.get(testType) / 2);
+        groupsMax.put(IqQuestionGroup.HORIZONS, this.questionsNumber.get(testType) / 2);
+        maxQuestionScore = 1;
+        break;
     }
 
-    List<Question> questionSetList = getQuestionsByGroups(locale,
-        this.questionsNumber.get(testType), maxMath, maxGrammar, maxHorizons, maxLogic, maxQuestionScore);
+    List<Question> questionSetList =
+            getQuestionsByGroups(locale, this.questionsNumber.get(testType), groupsMax, maxQuestionScore);
 
     if (questionSetList.size() != this.questionsNumber.get(testType)) {
       throw new MegaIQException(Level.SEVERE,
@@ -134,34 +135,37 @@ public class QuestionsService {
     return null;
   }
 
-  private List<Question> getQuestionsByGroups(Locale locale, Integer total, Integer math,
-      Integer grammar, Integer horizons, Integer logic, Integer maxQuestionScore) throws MegaIQException {
+  private List<Question> getQuestionsByGroups(
+          Locale locale,
+          Integer total,
+          HashMap<IqQuestionGroup, Integer> groupsMax,
+          Integer maxQuestionScore) throws MegaIQException {
+
     List<Question> questionAllList = getAllQuestionsByLocale(locale);
     Collections.shuffle(questionAllList);
 
-    HashMap<IqQuestionGroup, Integer> groupsMax = new HashMap<IqQuestionGroup, Integer>();
-    groupsMax.put(IqQuestionGroup.MATH, math);
-    groupsMax.put(IqQuestionGroup.GRAMMAR, grammar);
-    groupsMax.put(IqQuestionGroup.HORIZONS, horizons);
-    groupsMax.put(IqQuestionGroup.LOGIC, logic);
-
     HashMap<IqQuestionGroup, Integer> groups = new HashMap<IqQuestionGroup, Integer>();
-    groups.put(IqQuestionGroup.MATH, 0);
-    groups.put(IqQuestionGroup.GRAMMAR, 0);
-    groups.put(IqQuestionGroup.HORIZONS, 0);
-    groups.put(IqQuestionGroup.LOGIC, 0);
+    for (IqQuestionGroup type : IqQuestionGroup.values()) {
+      groups.put(type, 0);
+    }
 
     List<Question> questionSetList = new ArrayList<Question>();
     int questionNumber = 1;
 
     for (Question question : questionAllList) {
-      boolean addQuestion = questionNumber <= total;
+      boolean addQuestion = false;
 
       for (IqQuestionGroup type : question.getGroups()) {
-        if (addQuestion || groups.get(type) < groupsMax.get(type)) {
-          groups.put(type, groups.get(type) + 1);
-          addQuestion = true;
+        if (groupsMax.containsKey(type)) {
+          if (groups.get(type) < groupsMax.get(type)) {
+            groups.put(type, groups.get(type) + 1);
+            addQuestion = true;
+          }
         }
+      }
+
+      if (questionSetList.contains(question)) {
+        addQuestion = false;
       }
 
       if (question.getPoints() > maxQuestionScore) {
@@ -177,8 +181,21 @@ public class QuestionsService {
         questionNumber++;
       }
 
-      if (questionNumber > total)
-        break;
+      if (questionNumber > total) break;
+    }
+
+    // add remain questions from all categories
+    for (; questionNumber <= total; questionNumber++) {
+      Question question = questionAllList.get(questionNumber);
+      if (questionSetList.contains(question)) {
+        continue;
+      }
+
+      Question questionAdd = new Question(question);
+      questionAdd.setAnswers(question.getAnswers());
+      Collections.shuffle(questionAdd.getAnswers());
+
+      questionSetList.add(questionAdd);
     }
 
     return questionSetList;
