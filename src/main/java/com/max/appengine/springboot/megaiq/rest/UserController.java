@@ -138,10 +138,10 @@ public class UserController extends AbstractApiController {
 
           // check for changes
           if (firebaseToken.isEmailVerified() != user.getIsEmailVerified()
-              || firebaseToken.getPicture() != user.getPic()) {
+              || cleanPicUrl(firebaseToken.getPicture()) != user.getPic()) {
 
             user.setIsEmailVerified(firebaseToken.isEmailVerified());
-            user.setPic(firebaseToken.getPicture());
+            user.setPic(cleanPicUrl(firebaseToken.getPicture()));
 
             user = userService.saveUser(user);
           }
@@ -543,6 +543,14 @@ public class UserController extends AbstractApiController {
     @Override
     public int compare(ApiUserTop s, ApiUserTop t) {
       return t.getTotalScore().compareTo(s.getTotalScore());
+    }
+  }
+
+  private String cleanPicUrl(String picUrl) {
+    if (picUrl.contains("=s")){
+      return picUrl.substring(0, picUrl.indexOf("=s"));
+    } else {
+      return picUrl;
     }
   }
 }
