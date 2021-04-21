@@ -15,10 +15,8 @@
 package com.max.appengine.springboot.megaiq.model.api;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.StringJoiner;
-import java.util.UUID;
+import java.util.*;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.max.appengine.springboot.megaiq.model.AbstractQuestionUser;
@@ -257,5 +255,31 @@ public class ApiTestResult {
 
   public void setAnswerInfo(ArrayList<AnswerInfo> answerInfo) {
     this.answerInfo = answerInfo;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    ApiTestResult that = (ApiTestResult) o;
+    return Objects.equals(code, that.code) &&
+            Objects.equals(url, that.url) &&
+            type == that.type &&
+            locale == that.locale &&
+            status == that.status &&
+            Objects.equals(createDate, that.createDate) &&
+            Objects.equals(updateDate, that.updateDate) &&
+            Objects.equals(finishDate, that.finishDate) &&
+            Objects.equals(points, that.points) &&
+            Objects.equals(progress, that.progress) &&
+            Objects.equals(groupsGraph, that.groupsGraph) &&
+            Objects.equals(questionSet, that.questionSet) &&
+            Objects.equals(info, that.info) &&
+            Objects.equals(answerInfo, that.answerInfo);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(code, url, type, locale, status, createDate, updateDate, finishDate, points, progress, groupsGraph, questionSet, info, answerInfo);
   }
 }

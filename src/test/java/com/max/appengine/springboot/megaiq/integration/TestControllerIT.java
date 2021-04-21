@@ -72,7 +72,7 @@ public class TestControllerIT extends AbstractIntegrationIT {
     user = userReporitory.save(generateUser());
 
     helperServices.setUp();
-    
+
     new MockUp<EmailService>() {
       @Mock
       protected boolean sendEmail(String to, String subject, String content) {
@@ -85,8 +85,13 @@ public class TestControllerIT extends AbstractIntegrationIT {
       public Optional<User> getUserByTokenOrRegister(String token, String ip, Locale locale) {
         return Optional.of(user);
       }
+
+      @Mock
+      public Optional<User> getUserByToken(String token) {
+        return Optional.of(user);
+      }
     };
-    
+
     // TODO: better to upload this file to cloud storage
     new MockUp<CertificateService>() {
       @Mock
@@ -116,7 +121,7 @@ public class TestControllerIT extends AbstractIntegrationIT {
       assertEquals(testInfo.getName(), configurationService.getConfigValueByNameAndTypeAndLocale(
           "test_title", user.getLocale(), testInfo.getType()));
 
-      assertEquals(testInfo.getDescription(),
+      assertEquals(testInfo.getTitle(),
           configurationService.getConfigValueByNameAndTypeAndLocale("test_title_promo",
               user.getLocale(), testInfo.getType()));
 

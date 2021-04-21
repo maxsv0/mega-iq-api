@@ -1,6 +1,7 @@
 package com.max.appengine.springboot.megaiq.model.api;
 
-import java.time.Duration;
+import java.util.Objects;
+import java.util.StringJoiner;
 
 public class TestResultInfo {
     private String duration;
@@ -31,5 +32,29 @@ public class TestResultInfo {
 
     public void setAnswersCorrect(Integer answersCorrect) {
         this.answersCorrect = answersCorrect;
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", TestResultInfo.class.getSimpleName() + "[", "]")
+                .add("duration='" + duration + "'")
+                .add("questions=" + questions)
+                .add("answersCorrect=" + answersCorrect)
+                .toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TestResultInfo that = (TestResultInfo) o;
+        return Objects.equals(duration, that.duration) &&
+                Objects.equals(questions, that.questions) &&
+                Objects.equals(answersCorrect, that.answersCorrect);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(duration, questions, answersCorrect);
     }
 }
